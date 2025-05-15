@@ -20,5 +20,8 @@ Si quiere correr el juego desde su dispositivo, siga estos pasos:
 ## Estado
 El juego actualmente se encuentra en estado de configuración inicial, con su estructura correspondiente.
 
+## Wiki
+Pueden visitar la wiki con la propuesta del proyecto [aquí](https://github.com/GROOTScorer/TejoMania/wiki)
+
 ## Desarrolladores
 Gael De Luca y Joaquín Pocovi
