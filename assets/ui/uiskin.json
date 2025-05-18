@@ -9,9 +9,9 @@
         black: { a: 1 }
     },
     com.badlogic.gdx.graphics.g2d.BitmapFont: {
-        font-button: { file: font-button.fnt },
-        font-label: { file: font-label.fnt },
-        font-title: { file: font-title.fnt }
+        font-button: { file: ../fuentes/font-button.fnt },
+        font-label: { file: ../fuentes/font-label.fnt },
+        font-title: { file: ../fuentes/font-title.fnt }
     },
     com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
         dialogDim: {
