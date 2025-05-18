@@ -6,21 +6,23 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.graphics.Texture;
 import io.github.grootscorer.tejomania.Principal;
 
-public class MenuPrincipal extends ScreenAdapter {
+public class MenuConfiguracion extends ScreenAdapter {
 
     private Stage stage;
     private Skin skin;
     private final Principal juego;
     private int opcionActual = 0;
+    private int volumenSonido = 100;
+    private int volumenMusica = 100;
     private Label[] opciones;
 
-    public MenuPrincipal(Principal juego) {
+    public MenuConfiguracion(Principal juego) {
         this.juego = juego;
     }
 
@@ -34,38 +36,19 @@ public class MenuPrincipal extends ScreenAdapter {
 
         Table table = new Table();
         table.setFillParent(true);
+        table.center();
         stage.addActor(table);
 
-        Label titulo = new Label("TEJOMANIA", skin, "default");
-        titulo.setFontScale(3f);
-
         opciones = new Label[3];
-
-        opciones[0] = new Label("Jugar", skin, "default");
+        opciones[0] = new Label("Volumen de sonido: " + volumenSonido, skin, "default");
         opciones[0].setColor(Color.RED);
-        opciones[1] = new Label("Configuracion", skin, "default");
+        opciones[1] = new Label("Volumen de musica: " + volumenMusica, skin, "default");
         opciones[2] = new Label("Salir", skin, "default");
 
-        Texture texturaGithub = new Texture(Gdx.files.internal("imagenes/github_logo.png"));
-        Image logoGithub = new Image(texturaGithub);
-        Label indicadorTeclaGithub1 = new Label("Presione 'G' para", skin, "default");
-        Label indicadorTeclaGithub2 = new Label("acceder al repositorio", skin, "default");
-        indicadorTeclaGithub1.setColor(Color.LIGHT_GRAY);
-        indicadorTeclaGithub2.setColor(Color.LIGHT_GRAY);
-
-        table.add(titulo).padBottom(40).row();
-
-        for(Label opcion: opciones) {
-            opcion.setFontScale(1.5f);
-            table.add(opcion).pad(20);
+        for(Label opcion : opciones) {
+            table.add(opcion).pad(10);
             table.row();
         }
-
-        table.add(logoGithub).padLeft(400).padTop(50).width(50).height(50);
-        table.row();
-        table.add(indicadorTeclaGithub1).padLeft(400);
-        table.row();
-        table.add(indicadorTeclaGithub2).padLeft(400);
     }
 
     @Override
@@ -79,10 +62,12 @@ public class MenuPrincipal extends ScreenAdapter {
         }   else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             opcionActual = (opcionActual + 1) % opciones.length;
             actualizarSeleccion();
+        }   else if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+            manejarInputIzquierda();
+        }   else if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+            manejarInputDerecha();
         }   else if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
-            manejarEnter();
-        }   else if(Gdx.input.isKeyJustPressed(Input.Keys.G)) {
-            Gdx.net.openURI("https://github.com/GROOTScorer/TejoMania");
+            manejarInputEnter();
         }
 
         stage.act(delta);
@@ -110,15 +95,45 @@ public class MenuPrincipal extends ScreenAdapter {
         }
     }
 
-    private void manejarEnter() {
-        switch(opcionActual) {
-            case 1:
-                juego.setScreen(new MenuConfiguracion(juego));
-            case 2:
-                Gdx.app.exit();
-                break;
-            default:
-                break;
+    private void manejarInputEnter() {
+        if(opcionActual == 2) {
+            juego.setScreen(new MenuPrincipal(juego));
+        }
+    }
+
+    private void manejarInputIzquierda() {
+        if(opcionActual == 0) {
+            if(volumenSonido <= 0) {
+                volumenSonido = 0;
+            }   else {
+                volumenSonido--;
+            }
+            opciones[0].setText("Volumen de sonido: " + volumenSonido);
+        }   else if(opcionActual == 1) {
+            if(volumenMusica <= 0) {
+                volumenMusica = 0;
+            }   else {
+                volumenMusica--;
+            }
+            opciones[1].setText("Volumen de musica: " + volumenMusica);
+        }
+    }
+
+    private void manejarInputDerecha() {
+        if(opcionActual == 0) {
+            if(volumenSonido >= 100) {
+                volumenSonido = 100;
+            }   else {
+                volumenSonido++;
+            }
+            opciones[0].setText("Volumen de sonido: " + volumenSonido);
+        }   else if(opcionActual == 1) {
+            if(volumenMusica >= 100) {
+                volumenMusica = 100;
+            }   else {
+                volumenMusica++;
+            }
+            opciones[1].setText("Volumen de musica: " + volumenMusica);
         }
     }
 }
