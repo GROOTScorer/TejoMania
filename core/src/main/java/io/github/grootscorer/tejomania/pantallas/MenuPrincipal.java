@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.graphics.Texture;
 import io.github.grootscorer.tejomania.Principal;
+import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 public class MenuPrincipal extends ScreenAdapter {
 
@@ -108,6 +109,7 @@ public class MenuPrincipal extends ScreenAdapter {
                 opciones[i].setColor(Color.WHITE);
             }
         }
+        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("sonidos/sonido_seleccion.wav")));
     }
 
     private void manejarEnter() {
