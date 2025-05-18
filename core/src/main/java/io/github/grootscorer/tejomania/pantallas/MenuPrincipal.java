@@ -114,6 +114,7 @@ public class MenuPrincipal extends ScreenAdapter {
         switch(opcionActual) {
             case 1:
                 juego.setScreen(new MenuConfiguracion(juego));
+                break;
             case 2:
                 Gdx.app.exit();
                 break;
