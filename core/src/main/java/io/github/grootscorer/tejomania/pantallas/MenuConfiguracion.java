@@ -40,6 +40,11 @@ public class MenuConfiguracion extends ScreenAdapter {
         table.center();
         stage.addActor(table);
 
+        Label titulo = new Label("Configuracion", skin, "default");
+        titulo.setFontScale(3f);
+
+        table.add(titulo).padBottom(40).row();
+
         opciones = new Label[3];
         opciones[0] = new Label("Volumen de sonido: " + volumenSonido, skin, "default");
         opciones[0].setColor(Color.RED);
@@ -47,10 +52,12 @@ public class MenuConfiguracion extends ScreenAdapter {
         opciones[2] = new Label("Salir", skin, "default");
 
         for(Label opcion : opciones) {
+            opcion.setFontScale(1.5f);
             table.add(opcion).pad(10);
             table.row();
         }
     }
+
 
     @Override
     public void render(float delta) {
