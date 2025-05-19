@@ -8,6 +8,8 @@ public class ManejoDeAudio {
     private static Music musica;
     private static boolean musicaActivada = true;
     private static boolean sonidoActivado = true;
+    private static float volumenSonido = 1;
+    private static float volumenMusica = 1;
 
     public static void activarMusica(String path, boolean loop) {
         if (!musicaActivada) return;
@@ -15,6 +17,7 @@ public class ManejoDeAudio {
 
         musica = Gdx.audio.newMusic(Gdx.files.internal(path));
         musica.setLooping(loop);
+        musica.setVolume(volumenMusica);
         musica.play();
     }
 
@@ -29,7 +32,7 @@ public class ManejoDeAudio {
     public static void activarSonido(String ruta) {
         if (!sonidoActivado) return;
         Sound sonido = Gdx.audio.newSound(Gdx.files.internal(ruta));
-        sonido.play();
+        sonido.play(volumenSonido);
     }
 
     public static void setMusicaActivada(boolean activada) {
@@ -47,5 +50,21 @@ public class ManejoDeAudio {
 
     public static boolean isSonidoActivado() {
         return sonidoActivado;
+    }
+
+    public static float getVolumenSonido() {
+        return volumenSonido;
+    }
+
+    public static void setVolumenSonido(int nuevoVolumenSonido) {
+        volumenSonido = (float) nuevoVolumenSonido / 100;
+    }
+
+    public static float getVolumenMusica() {
+        return volumenMusica;
+    }
+
+    public static void setVolumenMusica(int nuevoVolumenMusica) {
+        volumenMusica = (float) nuevoVolumenMusica / 100;
     }
 }

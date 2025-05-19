@@ -19,8 +19,8 @@ public class MenuConfiguracion extends ScreenAdapter {
     private Skin skin;
     private final Principal juego;
     private int opcionActual = 0;
-    private int volumenSonido = 100;
-    private int volumenMusica = 100;
+    private int volumenSonido = (int) (ManejoDeAudio.getVolumenSonido() * 100);
+    private int volumenMusica = (int) (ManejoDeAudio.getVolumenMusica() * 100);
     private Label[] opciones;
 
     public MenuConfiguracion(Principal juego) {
@@ -104,20 +104,24 @@ public class MenuConfiguracion extends ScreenAdapter {
     }
 
     private void manejarInputIzquierda() {
-        if(opcionActual == 0) {
-            if(volumenSonido <= 0) {
-                volumenSonido = 0;
-            }   else {
+        if (opcionActual == 0) {
+            if (volumenSonido > 0) {
                 volumenSonido--;
+                if (volumenSonido == 0) {
+                    ManejoDeAudio.setSonidoActivado(false);
+                }
             }
             opciones[0].setText("Volumen de sonido: " + volumenSonido);
+            ManejoDeAudio.setVolumenSonido(volumenSonido);
         }   else if(opcionActual == 1) {
-            if(volumenMusica <= 0) {
-                volumenMusica = 0;
-            }   else {
+            if(volumenMusica > 0) {
                 volumenMusica--;
+                if(volumenMusica == 0) {
+                    ManejoDeAudio.setMusicaActivada(false);
+                }
             }
             opciones[1].setText("Volumen de musica: " + volumenMusica);
+            ManejoDeAudio.setVolumenMusica(volumenMusica);
         }
     }
 
@@ -126,16 +130,24 @@ public class MenuConfiguracion extends ScreenAdapter {
             if(volumenSonido >= 100) {
                 volumenSonido = 100;
             }   else {
+                if(volumenSonido == 0) {
+                    ManejoDeAudio.setSonidoActivado(true);
+                }
                 volumenSonido++;
             }
             opciones[0].setText("Volumen de sonido: " + volumenSonido);
+            ManejoDeAudio.setVolumenSonido(volumenSonido);
         }   else if(opcionActual == 1) {
             if(volumenMusica >= 100) {
                 volumenMusica = 100;
             }   else {
+                if(volumenMusica == 0) {
+                    ManejoDeAudio.setMusicaActivada(true);
+                }
                 volumenMusica++;
             }
             opciones[1].setText("Volumen de musica: " + volumenMusica);
+            ManejoDeAudio.setVolumenMusica(volumenMusica);
         }
     }
 }
