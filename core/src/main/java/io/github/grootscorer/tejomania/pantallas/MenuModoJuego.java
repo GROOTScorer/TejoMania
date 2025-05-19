@@ -6,26 +6,25 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
-import com.badlogic.gdx.scenes.scene2d.ui.*;
+import com.badlogic.gdx.scenes.scene2d.ui.Label;
+import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
-import com.badlogic.gdx.graphics.Texture;
 import io.github.grootscorer.tejomania.Principal;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
-public class MenuPrincipal extends ScreenAdapter {
-
+public class MenuModoJuego extends ScreenAdapter {
     private Stage stage;
     private Skin skin;
     private final Principal juego;
     private int opcionActual = 0;
     private Label[] opciones;
+    private Label textoDescripcion;
 
-    public MenuPrincipal(Principal juego) {
+    public MenuModoJuego(Principal juego) {
         this.juego = juego;
     }
 
-    @Override
     public void show() {
         Gdx.input.setCursorCatched(true);
         stage = new Stage(new ScreenViewport());
@@ -35,26 +34,21 @@ public class MenuPrincipal extends ScreenAdapter {
 
         Table table = new Table();
         table.setFillParent(true);
+        table.center();
         stage.addActor(table);
 
-        Label titulo = new Label("TEJOMANIA", skin, "default");
+        Label titulo = new Label("Elija su modo de juego", skin, "default");
         titulo.setFontScale(3f);
 
-        opciones = new Label[3];
-
-        opciones[0] = new Label("Jugar", skin, "default");
-        opciones[0].setColor(Color.RED);
-        opciones[1] = new Label("Configuracion", skin, "default");
-        opciones[2] = new Label("Salir", skin, "default");
-
-        Texture texturaGithub = new Texture(Gdx.files.internal("imagenes/github_logo.png"));
-        Image logoGithub = new Image(texturaGithub);
-        Label indicadorTeclaGithub1 = new Label("Presione 'G' para", skin, "default");
-        Label indicadorTeclaGithub2 = new Label("acceder al repositorio", skin, "default");
-        indicadorTeclaGithub1.setColor(Color.LIGHT_GRAY);
-        indicadorTeclaGithub2.setColor(Color.LIGHT_GRAY);
-
         table.add(titulo).padBottom(40).row();
+
+        opciones = new Label[4];
+
+        opciones[0] = new Label("Juego libre", skin, "default");
+        opciones[0].setColor(Color.RED);
+        opciones[1] = new Label("Modo Torneo", skin, "default");
+        opciones[2] = new Label("Modo Liga", skin, "default");
+        opciones[3] = new Label("Volver", skin, "default");
 
         for(Label opcion: opciones) {
             opcion.setFontScale(1.5f);
@@ -62,14 +56,12 @@ public class MenuPrincipal extends ScreenAdapter {
             table.row();
         }
 
-        table.add(logoGithub).padLeft(400).padTop(50).width(50).height(50);
-        table.row();
-        table.add(indicadorTeclaGithub1).padLeft(400);
-        table.row();
-        table.add(indicadorTeclaGithub2).padLeft(400);
+        textoDescripcion = new Label("Enfrenta a un jugador en juego simple", skin, "default");
+        textoDescripcion.setFontScale(0.9f);
+        textoDescripcion.setColor(Color.LIGHT_GRAY);
+        table.add(textoDescripcion).padTop(20);
     }
 
-    @Override
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -82,20 +74,16 @@ public class MenuPrincipal extends ScreenAdapter {
             actualizarSeleccion();
         }   else if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             manejarEnter();
-        }   else if(Gdx.input.isKeyJustPressed(Input.Keys.G)) {
-            Gdx.net.openURI("https://github.com/GROOTScorer/TejoMania");
         }
 
         stage.act(delta);
         stage.draw();
     }
 
-    @Override
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
     }
 
-    @Override
     public void dispose() {
         stage.dispose();
         skin.dispose();
@@ -110,18 +98,27 @@ public class MenuPrincipal extends ScreenAdapter {
             }
         }
         ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("sonidos/sonido_seleccion.wav")));
+
+        switch(opcionActual) {
+            case 0:
+                textoDescripcion.setText("Enfrenta a un jugador en juego simple");
+                break;
+            case 1:
+                textoDescripcion.setText("Representa un pais en el Mundial de Tejo");
+                break;
+            case 2:
+                textoDescripcion.setText("Representa un pais en una liga de 10 equipos");
+                break;
+            default:
+                textoDescripcion.setText(" ");
+                break;
+        }
     }
 
     private void manejarEnter() {
         switch(opcionActual) {
-            case 0:
-                juego.setScreen(new MenuModoJuego(juego));
-                break;
-            case 1:
-                juego.setScreen(new MenuConfiguracion(juego));
-                break;
-            case 2:
-                Gdx.app.exit();
+            case 3:
+                juego.setScreen(new MenuPrincipal(juego));
                 break;
             default:
                 break;
