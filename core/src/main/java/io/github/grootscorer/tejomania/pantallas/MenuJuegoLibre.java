@@ -13,7 +13,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
-public class MenuModoJuego extends ScreenAdapter {
+public class MenuJuegoLibre extends ScreenAdapter {
     private Stage stage;
     private Skin skin;
     private final Principal juego;
@@ -21,7 +21,7 @@ public class MenuModoJuego extends ScreenAdapter {
     private Label[] opciones;
     private Label textoDescripcion;
 
-    public MenuModoJuego(Principal juego) {
+    public MenuJuegoLibre(Principal juego) {
         this.juego = juego;
     }
 
@@ -37,17 +37,13 @@ public class MenuModoJuego extends ScreenAdapter {
         table.center();
         stage.addActor(table);
 
-        Label titulo = new Label("Elija su modo de juego", skin, "default");
-        titulo.setFontScale(3f);
-
-        table.add(titulo).padBottom(40).row();
-
         opciones = new Label[4];
 
-        opciones[0] = new Label("Juego libre", skin, "default");
+        opciones[0] = new Label("1 jugador", skin, "default");
         opciones[0].setColor(Color.RED);
-        opciones[1] = new Label("Modo Torneo", skin, "default");
-        opciones[2] = new Label("Modo Liga", skin, "default");
+        opciones[1] = new Label("2 jugadores", skin, "default");
+        opciones[2] = new Label("Multijugador", skin, "default");
+        opciones[2].setColor(Color.LIGHT_GRAY);
         opciones[3] = new Label("Volver", skin, "default");
 
         for(Label opcion: opciones) {
@@ -56,7 +52,7 @@ public class MenuModoJuego extends ScreenAdapter {
             table.row();
         }
 
-        textoDescripcion = new Label("Enfrenta a un jugador en juego simple", skin, "default");
+        textoDescripcion = new Label("Juega contra la CPU", skin, "default");
         textoDescripcion.setFontScale(0.9f);
         textoDescripcion.setColor(Color.LIGHT_GRAY);
         table.add(textoDescripcion).padTop(20);
@@ -92,22 +88,30 @@ public class MenuModoJuego extends ScreenAdapter {
     private void actualizarSeleccion() {
         for(int i = 0; i < opciones.length; i++) {
             if(opcionActual == i) {
-                opciones[i].setColor(Color.RED);
+                if(opcionActual == 2) {
+                    opciones[i].setColor(Color.GRAY);
+                }   else {
+                    opciones[i].setColor(Color.RED);
+                }
             }   else {
-                opciones[i].setColor(Color.WHITE);
+                if(i == 2) {
+                    opciones[i].setColor(Color.LIGHT_GRAY);
+                }   else {
+                    opciones[i].setColor(Color.WHITE);
+                }
             }
         }
         ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("sonidos/sonido_seleccion.wav")));
 
         switch(opcionActual) {
             case 0:
-                textoDescripcion.setText("Enfrenta a un jugador en juego simple");
+                textoDescripcion.setText("Juega contra la CPU");
                 break;
             case 1:
-                textoDescripcion.setText("Representa un pais en el Mundial de Tejo");
+                textoDescripcion.setText("Juega contra otro jugador en este dispositivo");
                 break;
             case 2:
-                textoDescripcion.setText("Representa un pais en una liga de 10 equipos");
+                textoDescripcion.setText("Juega contra otro jugador en linea (proximamente...)");
                 break;
             default:
                 textoDescripcion.setText(" ");
@@ -117,9 +121,6 @@ public class MenuModoJuego extends ScreenAdapter {
 
     private void manejarEnter() {
         switch(opcionActual) {
-            case 0:
-                juego.setScreen(new MenuJuegoLibre(juego));
-                break;
             case 3:
                 juego.setScreen(new MenuPrincipal(juego));
                 break;
