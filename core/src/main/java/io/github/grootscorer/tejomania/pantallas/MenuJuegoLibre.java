@@ -122,7 +122,7 @@ public class MenuJuegoLibre extends ScreenAdapter {
     private void manejarEnter() {
         switch(opcionActual) {
             case 3:
-                juego.setScreen(new MenuPrincipal(juego));
+                juego.setScreen(new MenuModoJuego(juego));
                 break;
             default:
                 break;
