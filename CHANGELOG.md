@@ -1,6 +1,17 @@
-# CHANGELOG
+# Changelog
 
-## [0.0.2] - 2025-05-17
+Todos los cambios relevantes al proyecto serán documentados en este archivo. El formato se basa en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), y el proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [0.2] - 2025-05-21
+### Añadido
+- Menú de juego libre
+- Funcionalidad al cambio de volumen en el menú de configuración
+- Sonido de selección
+
+### Modificado
+- Diseño del menú de configuración
+
+## [0.1] - 2025-05-17
 ### Añadido
 - Menú principal
 - Menú de configuración
