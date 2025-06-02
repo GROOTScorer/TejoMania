@@ -4,7 +4,7 @@
 Es un videojuego basado en el tejo el cual lo expande para incluir una variedad de nuevos elementos como power-ups y tiros especiales, además de incluir modos de juego para 1 y 2 jugadores, multijugador en línea, un torneo de eliminación y una liga.
 
 ## Detalles
-El juego está desarrollado en Java y utiliza el framework LibGDX, incluyendo extensiones como Box2D y AI, teniendo como plataforma objetivo al escritorio.
+El juego está desarrollado en Java con el IDE IntelliJ IDEA y utiliza el framework LibGDX, incluyendo extensiones como Box2D y AI, teniendo como plataforma objetivo al escritorio.
 
 ## Compilación
 Si quiere correr el juego desde su dispositivo, siga estos pasos:
