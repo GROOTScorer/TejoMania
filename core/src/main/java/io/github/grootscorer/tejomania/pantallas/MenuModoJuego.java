@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
+import io.github.grootscorer.tejomania.enums.TipoCompetencia;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 public class MenuModoJuego extends ScreenAdapter {
@@ -119,6 +120,12 @@ public class MenuModoJuego extends ScreenAdapter {
         switch(opcionActual) {
             case 0:
                 juego.setScreen(new MenuJuegoLibre(juego));
+                break;
+            case 1:
+                juego.setScreen(new MenuEleccionPais(juego, TipoCompetencia.TORNEO));
+                break;
+            case 2:
+                juego.setScreen(new MenuEleccionPais(juego, TipoCompetencia.LIGA));
                 break;
             case 3:
                 juego.setScreen(new MenuPrincipal(juego));
