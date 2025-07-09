@@ -109,7 +109,7 @@ public class MenuPrincipal extends ScreenAdapter {
                 opciones[i].setColor(Color.WHITE);
             }
         }
-        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("sonidos/sonido_seleccion.wav")));
+        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.wav")));
     }
 
     private void manejarEnter() {

@@ -101,7 +101,7 @@ public class MenuConfiguracion extends ScreenAdapter {
                 opciones[i].setColor(Color.WHITE);
             }
         }
-        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("sonidos/sonido_seleccion.wav")));
+        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.wav")));
     }
 
     private void manejarInputEnter() {
@@ -133,28 +133,33 @@ public class MenuConfiguracion extends ScreenAdapter {
     }
 
     private void manejarInputDerecha() {
-        if(opcionActual == 0) {
-            if(volumenSonido >= 100) {
+        if (opcionActual == 0) {
+            if (volumenSonido >= 100) {
                 volumenSonido = 100;
-            }   else {
-                if(volumenSonido == 0) {
+            } else {
+                if (volumenSonido == 0) {
                     ManejoDeAudio.setSonidoActivado(true);
                 }
                 volumenSonido++;
             }
             opciones[0].setText("Volumen de sonido: " + volumenSonido);
             ManejoDeAudio.setVolumenSonido(volumenSonido);
-        }   else if(opcionActual == 1) {
-            if(volumenMusica >= 100) {
-                volumenMusica = 100;
-            }   else {
-                if(volumenMusica == 0) {
-                    ManejoDeAudio.setMusicaActivada(true);
-                }
+        } else if (opcionActual == 1) {
+            if (volumenMusica < 100) {
                 volumenMusica++;
+
+                if (volumenMusica == 1) {
+                    ManejoDeAudio.setMusicaActivada(true);
+                    ManejoDeAudio.reactivarMusica();
+                }
+
+                opciones[1].setText("Volumen de musica: " + volumenMusica);
+                ManejoDeAudio.setVolumenMusica(volumenMusica);
+                if (ManejoDeAudio.isMusicaActivada() && ManejoDeAudio.isReproduciendoMusica()) {
+                    ManejoDeAudio.setVolumenMusica(volumenMusica);
+                }
             }
-            opciones[1].setText("Volumen de musica: " + volumenMusica);
-            ManejoDeAudio.setVolumenMusica(volumenMusica);
         }
+
     }
 }
