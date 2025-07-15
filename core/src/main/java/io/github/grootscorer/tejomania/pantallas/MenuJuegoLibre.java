@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
+import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 public class MenuJuegoLibre extends ScreenAdapter {
@@ -121,6 +122,12 @@ public class MenuJuegoLibre extends ScreenAdapter {
 
     private void manejarEnter() {
         switch(opcionActual) {
+            case 0:
+                juego.setScreen(new MenuOpcionesJuego(juego, TipoJuegoLibre.CPU));
+                break;
+            case 1:
+                juego.setScreen(new MenuOpcionesJuego(juego, TipoJuegoLibre.DOS_JUGADORES));
+                break;
             case 3:
                 juego.setScreen(new MenuModoJuego(juego));
                 break;
