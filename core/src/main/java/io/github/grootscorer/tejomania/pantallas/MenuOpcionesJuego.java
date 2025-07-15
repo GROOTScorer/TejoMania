@@ -187,7 +187,7 @@ public class MenuOpcionesJuego extends ScreenAdapter {
                 }
             }
         }
-        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.wav")));
+        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
     }
 
     private void moverSeleccion(int direccion) {
@@ -222,6 +222,9 @@ public class MenuOpcionesJuego extends ScreenAdapter {
 
     private void manejarEnter() {
         switch (opcionActual) {
+            case OPCION_EMPEZAR:
+                juego.setScreen(new EleccionNombre(juego, tipoJuegoLibre));
+                break;
             case OPCION_MODIFICADORES:
                 eleccionModificador = !eleccionModificador;
                 checkboxes[CHECKBOX_MODIFICADORES].setChecked(eleccionModificador);
