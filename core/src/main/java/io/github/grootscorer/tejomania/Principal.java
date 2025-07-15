@@ -12,7 +12,7 @@ public class Principal extends Game {
     @Override
     public void create() {
         batch = new SpriteBatch();
-        ManejoDeAudio.activarMusica("audio/musica/musica_menu.wav", true);
+        ManejoDeAudio.activarMusica("audio/musica/musica_menu.mp3", true);
         this.setScreen(new MenuPrincipal(this));
     }
 
