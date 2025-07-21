@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
+import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 public class MenuJuegoLibre extends ScreenAdapter {
@@ -77,6 +78,16 @@ public class MenuJuegoLibre extends ScreenAdapter {
     }
 
     public void resize(int width, int height) {
+        float escalaX = (float) width / 640f;
+        float escalaY = (float) height / 480f;
+        float escalaFuente = Math.max(escalaX, escalaY);
+
+        for(Label opcion: opciones) {
+            opcion.setFontScale(1.5f * escalaFuente);
+        }
+
+        textoDescripcion.setFontScale(0.9f * escalaFuente);
+
         stage.getViewport().update(width, height, true);
     }
 
@@ -101,7 +112,7 @@ public class MenuJuegoLibre extends ScreenAdapter {
                 }
             }
         }
-        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("sonidos/sonido_seleccion.wav")));
+        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
 
         switch(opcionActual) {
             case 0:
@@ -121,6 +132,12 @@ public class MenuJuegoLibre extends ScreenAdapter {
 
     private void manejarEnter() {
         switch(opcionActual) {
+            case 0:
+                juego.setScreen(new MenuOpcionesJuego(juego, TipoJuegoLibre.CPU));
+                break;
+            case 1:
+                juego.setScreen(new MenuOpcionesJuego(juego, TipoJuegoLibre.DOS_JUGADORES));
+                break;
             case 3:
                 juego.setScreen(new MenuModoJuego(juego));
                 break;

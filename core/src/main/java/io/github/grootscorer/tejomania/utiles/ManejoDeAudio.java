@@ -10,15 +10,30 @@ public class ManejoDeAudio {
     private static boolean sonidoActivado = true;
     private static float volumenSonido = 1;
     private static float volumenMusica = 1;
+    private static String pathMusicaActual;
+    private static boolean bucleMusicaActual;
 
-    public static void activarMusica(String path, boolean loop) {
+    public static void activarMusica(String path, boolean bucle) {
         if (!musicaActivada) return;
-        if (musica != null) musica.stop();
+
+        if (musica != null) {
+            musica.stop();
+            musica.dispose();
+        }
+
+        pathMusicaActual = path;
+        bucleMusicaActual = bucle;
 
         musica = Gdx.audio.newMusic(Gdx.files.internal(path));
-        musica.setLooping(loop);
+        musica.setLooping(bucle);
         musica.setVolume(volumenMusica);
         musica.play();
+    }
+
+    public static void reactivarMusica() {
+        if (musicaActivada && (musica == null || !musica.isPlaying()) && pathMusicaActual != null) {
+            activarMusica(pathMusicaActual, bucleMusicaActual);
+        }
     }
 
     public static void pararMusica() {
@@ -37,8 +52,16 @@ public class ManejoDeAudio {
 
     public static void setMusicaActivada(boolean activada) {
         musicaActivada = activada;
-        if (!activada && musica != null) musica.stop();
+
+        if (!activada && musica != null) {
+            musica.stop();
+        } else if (activada) {
+            if (musica != null && !musica.isPlaying()) {
+                musica.play();
+            }
+        }
     }
+
 
     public static void setSonidoActivado(boolean activado) {
         sonidoActivado = activado;
@@ -46,6 +69,10 @@ public class ManejoDeAudio {
 
     public static boolean isMusicaActivada() {
         return musicaActivada;
+    }
+
+    public static boolean isReproduciendoMusica() {
+        return musica != null && musica.isPlaying();
     }
 
     public static boolean isSonidoActivado() {
@@ -66,5 +93,9 @@ public class ManejoDeAudio {
 
     public static void setVolumenMusica(int nuevoVolumenMusica) {
         volumenMusica = (float) nuevoVolumenMusica / 100;
+
+        if (musica != null) {
+            musica.setVolume(volumenMusica);
+        }
     }
 }

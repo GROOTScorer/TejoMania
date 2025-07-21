@@ -11,6 +11,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
+import io.github.grootscorer.tejomania.enums.TipoCompetencia;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 public class MenuModoJuego extends ScreenAdapter {
@@ -20,6 +21,7 @@ public class MenuModoJuego extends ScreenAdapter {
     private int opcionActual = 0;
     private Label[] opciones;
     private Label textoDescripcion;
+    private Label titulo;
 
     public MenuModoJuego(Principal juego) {
         this.juego = juego;
@@ -37,7 +39,7 @@ public class MenuModoJuego extends ScreenAdapter {
         table.center();
         stage.addActor(table);
 
-        Label titulo = new Label("Elija su modo de juego", skin, "default");
+        titulo = new Label("Elija su modo de juego", skin, "default");
         titulo.setFontScale(3f);
 
         table.add(titulo).padBottom(40).row();
@@ -81,6 +83,18 @@ public class MenuModoJuego extends ScreenAdapter {
     }
 
     public void resize(int width, int height) {
+        float escalaX = (float) width / 640f;
+        float escalaY = (float) height / 480f;
+        float escalaFuente = Math.max(escalaX, escalaY);
+
+        for(Label opcion: opciones) {
+            opcion.setFontScale(1.5f * escalaFuente);
+        }
+
+        titulo.setFontScale(3f * escalaFuente);
+
+        textoDescripcion.setFontScale(0.9f * escalaFuente);
+
         stage.getViewport().update(width, height, true);
     }
 
@@ -97,7 +111,7 @@ public class MenuModoJuego extends ScreenAdapter {
                 opciones[i].setColor(Color.WHITE);
             }
         }
-        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("sonidos/sonido_seleccion.wav")));
+        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
 
         switch(opcionActual) {
             case 0:
@@ -119,6 +133,12 @@ public class MenuModoJuego extends ScreenAdapter {
         switch(opcionActual) {
             case 0:
                 juego.setScreen(new MenuJuegoLibre(juego));
+                break;
+            case 1:
+                juego.setScreen(new MenuEleccionPais(juego, TipoCompetencia.TORNEO));
+                break;
+            case 2:
+                juego.setScreen(new MenuEleccionPais(juego, TipoCompetencia.LIGA));
                 break;
             case 3:
                 juego.setScreen(new MenuPrincipal(juego));
