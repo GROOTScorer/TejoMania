@@ -78,6 +78,16 @@ public class MenuJuegoLibre extends ScreenAdapter {
     }
 
     public void resize(int width, int height) {
+        float escalaX = (float) width / 640f;
+        float escalaY = (float) height / 480f;
+        float escalaFuente = Math.max(escalaX, escalaY);
+
+        for(Label opcion: opciones) {
+            opcion.setFontScale(1.5f * escalaFuente);
+        }
+
+        textoDescripcion.setFontScale(0.9f * escalaFuente);
+
         stage.getViewport().update(width, height, true);
     }
 

@@ -26,6 +26,8 @@ public class MenuEleccionPais extends ScreenAdapter {
     private Skin skin;
     private TipoCompetencia tipoCompetencia;
     private Label nombrePais;
+    private Label escParaVolver;
+    private Label flechaIzquierda, flechaDerecha;
     private Texture texturaPais, texturaPaisAnterior, texturaPaisSiguiente;
     private Image imagenPais, imagenPaisAnterior, imagenPaisSiguiente;
     private List<Pais> paisesDisponibles;
@@ -47,13 +49,13 @@ public class MenuEleccionPais extends ScreenAdapter {
         nombrePais = new Label("", skin);
         nombrePais.setFontScale(2f);
 
-        Label escParaVolver = new Label("Presiona Esc para volver", skin);
+        escParaVolver = new Label("Presiona Esc para volver", skin);
         escParaVolver.setColor(Color.GRAY);
 
-        Label flechaIzquierda = new Label("<", skin);
+        flechaIzquierda = new Label("<", skin);
         flechaIzquierda.setFontScale(3f);
 
-        Label flechaDerecha = new Label(">", skin);
+        flechaDerecha = new Label(">", skin);
         flechaDerecha.setFontScale(3f);
 
         Table tabla = new Table();
@@ -71,11 +73,28 @@ public class MenuEleccionPais extends ScreenAdapter {
         imagenPaisAnterior.setSize(alturaSecundaria * (200f / 120f), alturaSecundaria);
         imagenPaisSiguiente.setSize(alturaSecundaria * (200f / 120f), alturaSecundaria);
 
-        tabla.add(imagenPaisAnterior).padLeft(10).padRight(20).height(alturaSecundaria * (200f / 120f)).maxWidth(900);
+        if(Gdx.graphics.getHeight() < 700) {
+            tabla.add(imagenPaisAnterior).padLeft(10).padRight(20).height(alturaSecundaria * (200f / 120f)).maxWidth(900);
+        } else {
+            tabla.add(imagenPaisAnterior).padLeft(10).padRight(20).height(alturaSecundaria * (200f / 120f)).maxWidth(250);
+        }
+
         tabla.add(flechaIzquierda).padRight(20);
-        tabla.add(imagenPais).padRight(20).height(alturaPrincipal * (200f / 120f));
+
+        if(Gdx.graphics.getHeight() < 700) {
+            tabla.add(imagenPais).padRight(20).height(alturaPrincipal * (200f / 120f));
+        } else {
+            tabla.add(imagenPais).padRight(20).height(alturaPrincipal * (200f / 120f)).maxWidth(300);
+        }
+
         tabla.add(flechaDerecha).padRight(20);
-        tabla.add(imagenPaisSiguiente).height(alturaSecundaria * (200f / 120f)).padRight(10).maxWidth(900);
+
+        if(Gdx.graphics.getHeight() < 700) {
+            tabla.add(imagenPaisSiguiente).height(alturaSecundaria * (200f / 120f)).padRight(10).maxWidth(900);
+        } else {
+            tabla.add(imagenPaisSiguiente).height(alturaSecundaria * (200f / 120f)).padRight(10).maxWidth(250);
+        }
+
         tabla.row();
         tabla.add(nombrePais).colspan(5).center().padTop(20);
         tabla.row();
@@ -158,6 +177,15 @@ public class MenuEleccionPais extends ScreenAdapter {
 
     @Override
     public void resize(int width, int height) {
+        float escalaX = (float) width / 640f;
+        float escalaY = (float) height / 480f;
+        float escalaFuente = Math.max(escalaX, escalaY);
+
+        nombrePais.setFontScale(2f * escalaFuente);
+        flechaIzquierda.setFontScale(3f * escalaFuente);
+        flechaDerecha.setFontScale(3f * escalaFuente);
+        escParaVolver.setFontScale(escalaFuente);
+
         stage.getViewport().update(width, height, true);
     }
 

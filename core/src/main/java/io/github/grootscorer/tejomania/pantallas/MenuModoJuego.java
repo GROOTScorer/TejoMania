@@ -21,6 +21,7 @@ public class MenuModoJuego extends ScreenAdapter {
     private int opcionActual = 0;
     private Label[] opciones;
     private Label textoDescripcion;
+    private Label titulo;
 
     public MenuModoJuego(Principal juego) {
         this.juego = juego;
@@ -38,7 +39,7 @@ public class MenuModoJuego extends ScreenAdapter {
         table.center();
         stage.addActor(table);
 
-        Label titulo = new Label("Elija su modo de juego", skin, "default");
+        titulo = new Label("Elija su modo de juego", skin, "default");
         titulo.setFontScale(3f);
 
         table.add(titulo).padBottom(40).row();
@@ -82,6 +83,18 @@ public class MenuModoJuego extends ScreenAdapter {
     }
 
     public void resize(int width, int height) {
+        float escalaX = (float) width / 640f;
+        float escalaY = (float) height / 480f;
+        float escalaFuente = Math.max(escalaX, escalaY);
+
+        for(Label opcion: opciones) {
+            opcion.setFontScale(1.5f * escalaFuente);
+        }
+
+        titulo.setFontScale(3f * escalaFuente);
+
+        textoDescripcion.setFontScale(0.9f * escalaFuente);
+
         stage.getViewport().update(width, height, true);
     }
 

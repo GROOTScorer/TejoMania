@@ -23,6 +23,7 @@ public class MenuOpcionesJuego extends ScreenAdapter {
     private Stage stage;
     private Skin skin;
     private boolean uiInicializada = false;
+    private Label titulo;
     private Label[] opciones;
     private Label[] valores;
     private CheckBox[] checkboxes;
@@ -60,6 +61,10 @@ public class MenuOpcionesJuego extends ScreenAdapter {
     private static final int CHECKBOX_TIROS_ESPECIALES = 1;
     private static final int CHECKBOX_OBSTACULOS = 2;
 
+    float escalaX = (float) Gdx.graphics.getWidth() / 640f;
+    float escalaY = (float) Gdx.graphics.getHeight() / 480f;
+    float escalaFuente = Math.max(escalaX, escalaY);
+
     public MenuOpcionesJuego(Principal juego, TipoJuegoLibre tipoJuegoLibre) {
         this.juego = juego;
         this.tipoJuegoLibre = tipoJuegoLibre;
@@ -84,8 +89,8 @@ public class MenuOpcionesJuego extends ScreenAdapter {
         table.center();
         stage.addActor(table);
 
-        Label titulo = new Label("Opciones de juego", skin, "default");
-        titulo.setFontScale(3f);
+        titulo = new Label("Opciones de juego", skin, "default");
+        titulo.setFontScale(3f * escalaFuente);
         Table tituloContenedor = new Table();
         tituloContenedor.setFillParent(true);
         tituloContenedor.top();
@@ -132,7 +137,7 @@ public class MenuOpcionesJuego extends ScreenAdapter {
                 if (i == OPCION_TIEMPO && !eleccionJugarPorTiempo) continue;
                 if (i == OPCION_DIFICULTAD && tipoJuegoLibre != TipoJuegoLibre.CPU) continue;
 
-                opciones[i].setFontScale(1.5f);
+                opciones[i].setFontScale(1.5f * escalaFuente);
                 table.add(opciones[i]).pad(10);
 
                 if (valores[i] != null) {
@@ -169,6 +174,16 @@ public class MenuOpcionesJuego extends ScreenAdapter {
     }
 
     public void resize(int width, int height) {
+        for(Label opcion: opciones) {
+            opcion.setFontScale(1.5f * escalaFuente);
+        }
+
+        for(Label valor: valores) {
+            valor.setFontScale(1.5f * escalaFuente);
+        }
+
+        titulo.setFontScale(3f * escalaFuente);
+
         stage.getViewport().update(width, height, true);
     }
 
@@ -321,7 +336,7 @@ public class MenuOpcionesJuego extends ScreenAdapter {
         stage.addActor(table);
 
         Label titulo = new Label("Opciones de juego", skin, "default");
-        titulo.setFontScale(3f);
+        titulo.setFontScale(3f * escalaFuente);
 
         Table tituloContenedor = new Table();
         tituloContenedor.setFillParent(true);
@@ -335,7 +350,7 @@ public class MenuOpcionesJuego extends ScreenAdapter {
             if (i == OPCION_TIEMPO && !eleccionJugarPorTiempo) continue;
             if (i == OPCION_DIFICULTAD && tipoJuegoLibre != TipoJuegoLibre.CPU) continue;
 
-            opciones[i].setFontScale(1.5f);
+            opciones[i].setFontScale(1.5f * escalaFuente);
             table.add(opciones[i]).pad(10);
 
             if (valores[i] != null) {

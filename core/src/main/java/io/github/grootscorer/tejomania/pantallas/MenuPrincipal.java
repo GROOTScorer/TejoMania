@@ -20,6 +20,7 @@ public class MenuPrincipal extends ScreenAdapter {
     private final Principal juego;
     private int opcionActual = 0;
     private Label[] opciones;
+    Label titulo;
 
     public MenuPrincipal(Principal juego) {
         this.juego = juego;
@@ -37,7 +38,7 @@ public class MenuPrincipal extends ScreenAdapter {
         table.setFillParent(true);
         stage.addActor(table);
 
-        Label titulo = new Label("TEJOMANIA", skin, "default");
+        titulo = new Label("TEJOMANIA", skin, "default");
         titulo.setFontScale(3f);
 
         opciones = new Label[3];
@@ -92,6 +93,16 @@ public class MenuPrincipal extends ScreenAdapter {
 
     @Override
     public void resize(int width, int height) {
+        float escalaX = (float) width / 640f;
+        float escalaY = (float) height / 480f;
+        float escalaFuente = Math.max(escalaX, escalaY);
+
+        for (Label opcion : opciones) {
+            opcion.setFontScale(1.5f * escalaFuente);
+        }
+
+        titulo.setFontScale(3f * escalaFuente);
+
         stage.getViewport().update(width, height, true);
     }
 
