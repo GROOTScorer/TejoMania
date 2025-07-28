@@ -10,6 +10,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.Input;
 import io.github.grootscorer.tejomania.Principal;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
+import io.github.grootscorer.tejomania.estado.EstadoPartida;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 public class EleccionNombre extends ScreenAdapter {
@@ -18,6 +19,7 @@ public class EleccionNombre extends ScreenAdapter {
 
     private final Principal juego;
     private final TipoJuegoLibre tipoJuegoLibre;
+    private EstadoPartida estadoPartida;
 
     private String nombre1 = "", nombre2 = "";
     private Label labelNombre;
@@ -32,9 +34,10 @@ public class EleccionNombre extends ScreenAdapter {
     private float tiempoDesdeUltimoBorrado = 0f;
     private boolean primerBorradoRealizado = false;
 
-    public EleccionNombre(Principal juego, TipoJuegoLibre tipoJuegoLibre) {
+    public EleccionNombre(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida) {
         this.juego = juego;
         this.tipoJuegoLibre = tipoJuegoLibre;
+        this.estadoPartida = estadoPartida;
     }
 
     public void show() {
@@ -155,10 +158,10 @@ public class EleccionNombre extends ScreenAdapter {
 
     private void manejarEscape() {
         if (tipoJuegoLibre == TipoJuegoLibre.CPU) {
-            juego.setScreen(new MenuOpcionesJuego(juego, tipoJuegoLibre));
+            juego.setScreen(new MenuOpcionesJuego(juego, tipoJuegoLibre, estadoPartida));
         } else if (tipoJuegoLibre == TipoJuegoLibre.DOS_JUGADORES) {
             if (esPrimerJugador) {
-                juego.setScreen(new MenuOpcionesJuego(juego, tipoJuegoLibre));
+                juego.setScreen(new MenuOpcionesJuego(juego, tipoJuegoLibre, estadoPartida));
             } else {
                 esPrimerJugador = true;
                 textoIngresado.setLength(0);
@@ -172,12 +175,15 @@ public class EleccionNombre extends ScreenAdapter {
             nombre1 = textoIngresado.toString();
             if (!nombre1.isEmpty()) {
                 ManejoDeAudio.pararMusica();
-                //juego.setScreen(new PantallaJuego(juego, nombre1, ""));
+                estadoPartida.setJugador1(nombre1);
+                estadoPartida.setJugador2("CPU");
+                juego.setScreen(new PantallaJuego(juego, tipoJuegoLibre, estadoPartida));
             }
         } else if (tipoJuegoLibre == TipoJuegoLibre.DOS_JUGADORES) {
             if (esPrimerJugador) {
                 nombre1 = textoIngresado.toString();
                 if (!nombre1.isEmpty()) {
+                    estadoPartida.setJugador1(nombre1);
                     esPrimerJugador = false;
                     textoIngresado.setLength(0);
                     labelNombre.setText("Jugador 2: ");
@@ -186,7 +192,8 @@ public class EleccionNombre extends ScreenAdapter {
                 nombre2 = textoIngresado.toString();
                 if (!nombre2.isEmpty()) {
                     ManejoDeAudio.pararMusica();
-                    //juego.setScreen(new PantallaJuego(juego, nombre1, nombre2));
+                    estadoPartida.setJugador2(nombre2);
+                    juego.setScreen(new PantallaJuego(juego, tipoJuegoLibre, estadoPartida));
                 }
             }
         }

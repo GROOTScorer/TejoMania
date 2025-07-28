@@ -14,11 +14,13 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
 import io.github.grootscorer.tejomania.enums.DificultadCPU;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
+import io.github.grootscorer.tejomania.estado.EstadoPartida;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 public class MenuOpcionesJuego extends ScreenAdapter {
     private final Principal juego;
     private final TipoJuegoLibre tipoJuegoLibre;
+    private EstadoPartida estadoPartida = new EstadoPartida();
 
     private Stage stage;
     private Skin skin;
@@ -65,9 +67,10 @@ public class MenuOpcionesJuego extends ScreenAdapter {
     float escalaY = (float) Gdx.graphics.getHeight() / 480f;
     float escalaFuente = Math.max(escalaX, escalaY);
 
-    public MenuOpcionesJuego(Principal juego, TipoJuegoLibre tipoJuegoLibre) {
+    public MenuOpcionesJuego(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida) {
         this.juego = juego;
         this.tipoJuegoLibre = tipoJuegoLibre;
+        this.estadoPartida = estadoPartida;
     }
 
     public void show() {
@@ -238,7 +241,21 @@ public class MenuOpcionesJuego extends ScreenAdapter {
     private void manejarEnter() {
         switch (opcionActual) {
             case OPCION_EMPEZAR:
-                juego.setScreen(new EleccionNombre(juego, tipoJuegoLibre));
+                if(eleccionJugarPorTiempo) {
+                    estadoPartida.setTiempoRestante(tiempo * 60);
+                    estadoPartida.setJugandoPorTiempo(true);
+                    estadoPartida.setJugandoPorPuntaje(false);
+                } else {
+                    estadoPartida.setJugandoPorTiempo(false);
+                    estadoPartida.setJugandoPorPuntaje(true);
+                    estadoPartida.setPuntajeGanador(puntajeGanador);
+                }
+
+                estadoPartida.setJugarConObstaculos(elecionObstaculo);
+                estadoPartida.setJugarConTirosEspeciales(eleccionTirosEspeciales);
+                estadoPartida.setJugarConModificadores(eleccionModificador);
+
+                juego.setScreen(new EleccionNombre(juego, tipoJuegoLibre, estadoPartida));
                 break;
             case OPCION_MODIFICADORES:
                 eleccionModificador = !eleccionModificador;
@@ -389,37 +406,5 @@ public class MenuOpcionesJuego extends ScreenAdapter {
                 return DificultadCPU.INTERMEDIO;
         }
         return actual;
-    }
-
-    public boolean isEleccionModificador() {
-        return eleccionModificador;
-    }
-
-    public boolean isElecionObstaculo() {
-        return elecionObstaculo;
-    }
-
-    public boolean isEleccionJugarPorPuntaje() {
-        return eleccionJugarPorPuntaje;
-    }
-
-    public boolean isEleccionJugarPorTiempo() {
-        return eleccionJugarPorTiempo;
-    }
-
-    public DificultadCPU getDificultad() {
-        return dificultad;
-    }
-
-    public int getPuntajeGanador() {
-        return puntajeGanador;
-    }
-
-    public int getTiempo() {
-        return tiempo;
-    }
-
-    public boolean isEleccionTirosEspeciales() {
-        return eleccionTirosEspeciales;
     }
 }
