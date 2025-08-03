@@ -6,9 +6,9 @@ public class TiroInvisible extends TiroEspecial {
     private Disco disco = getDisco();
     public TiroInvisible() {
         if(isActivo()) {
-            disco.setImagenDisco(null);
+            //disco.setImagenDisco(null);
         }   else {
-            disco.setImagenDisco(disco.getTexturaDisco());
+            //disco.setImagenDisco(disco.getTexturaDisco());
         }
     }
 }

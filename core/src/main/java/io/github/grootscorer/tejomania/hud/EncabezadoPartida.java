@@ -81,7 +81,7 @@ public class EncabezadoPartida extends ScreenAdapter {
         marcador2.setText(String.valueOf(puntaje2));
 
         cantTiempo = estado.getTiempoRestante();
-        tiempo.setText((int) (cantTiempo / 60) + ":" + String.format("%02d", (int) (cantTiempo % 60)));
+        tiempo.setText(String.format("%02d:%02d", (int) (cantTiempo / 60), (int) (cantTiempo % 60)));
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
         stage.draw();

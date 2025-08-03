@@ -1,62 +1,172 @@
 package io.github.grootscorer.tejomania.entidades;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
+
+import java.util.Random;
 
 public class Disco {
     private Jugador jugadorConPosesion, jugadorSinPosesion;
-    private int posicionX, posicionY;
-    private int velocidadX, velocidadY;
+    private float posicionX, posicionY;
+    private float velocidadX, velocidadY;
     private Circle hitboxDisco;
-    private Texture texturaDisco;
-    private Image imagenDisco;
+    private final int RADIO_DISCO = 25;
+    private final int MAX_VELOCIDAD = 500;
+    private Texture textura = new Texture(Gdx.files.internal("imagenes/sprites/disco.png"));
 
-    public Disco(int posicionX, int posicionY, int velocidadX, int velocidadY) {
-        this.posicionX = posicionX;
-        this.posicionY = posicionY;
+    public Disco() {
+        Random rand = new Random();
+        int lado = rand.nextInt(2);
+        this.posicionX = (lado == 0) ? 100 : 400;
+        this.posicionY = 300;
+        this.velocidadX = 0;
+        this.velocidadY = 0;
+        this.hitboxDisco = new Circle(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO, RADIO_DISCO);
+    }
+
+    public boolean colisionaConMazo(Mazo mazo) {
+        Circle hitboxMazo = new Circle(mazo.getPosicionX() + mazo.getRadioMazo(), mazo.getPosicionY() + mazo.getRadioMazo(), mazo.getRadioMazo());
+        return hitboxDisco.overlaps(hitboxMazo);
+    }
+
+    public void actualizarPosicion(float delta, float xCancha, float yCancha, float CANCHA_ANCHO, float CANCHA_ALTO) {
+        this.posicionX += this.velocidadX * delta;
+        this.posicionY += this.velocidadY * delta;
+
+        if (this.posicionX - RADIO_DISCO <= xCancha) {
+            this.posicionX = xCancha + RADIO_DISCO;
+            this.velocidadX = -this.velocidadX;
+        }
+        if (this.posicionX + RADIO_DISCO >= xCancha + CANCHA_ANCHO) {
+            this.posicionX = xCancha + CANCHA_ANCHO - RADIO_DISCO;
+            this.velocidadX = -this.velocidadX;
+        }
+
+        if (this.posicionY - RADIO_DISCO <= yCancha) {
+            this.posicionY = yCancha + RADIO_DISCO;
+            this.velocidadY = -this.velocidadY;
+        }
+        if (this.posicionY + RADIO_DISCO >= yCancha + CANCHA_ALTO) {
+            this.posicionY = yCancha + CANCHA_ALTO - RADIO_DISCO;
+            this.velocidadY = -this.velocidadY;
+        }
+
+        this.hitboxDisco.setPosition(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO);
+    }
+
+    public void manejarColision(Mazo mazo) {
+        if (this.velocidadX == 0 && this.velocidadY == 0) {
+            setVelocidadX(mazo.getVelocidadX() * 5f);
+            setVelocidadY(mazo.getVelocidadY() * 5f);
+        } else {
+            float centroDiscoX = this.posicionX + RADIO_DISCO;
+            float centroDiscoY = this.posicionY + RADIO_DISCO;
+            float centroMazoX = mazo.getPosicionX() + mazo.getRadioMazo();
+            float centroMazoY = mazo.getPosicionY() + mazo.getRadioMazo();
+
+            float vectorX = centroDiscoX - centroMazoX;
+            float vectorY = centroDiscoY - centroMazoY;
+
+            float anguloColision = (float) Math.atan2(vectorY, vectorX);
+
+            float velocidadActual = (float) Math.sqrt(velocidadX * velocidadX + velocidadY * velocidadY);
+
+            float nuevaVelocidad = Math.max(40f, velocidadActual * 1.2f);
+
+            float nuevoAngulo = anguloColision + (float)(Math.random() - 0.5) * 0.3f;
+
+            setVelocidadX(nuevaVelocidad * (float) Math.cos(nuevoAngulo));
+            setVelocidadY(nuevaVelocidad * (float) Math.sin(nuevoAngulo));
+        }
+
+        float centroDiscoX = this.posicionX + RADIO_DISCO;
+        float centroDiscoY = this.posicionY + RADIO_DISCO;
+        float centroMazoX = mazo.getPosicionX() + mazo.getRadioMazo();
+        float centroMazoY = mazo.getPosicionY() + mazo.getRadioMazo();
+
+        float vectorX = centroDiscoX - centroMazoX;
+        float vectorY = centroDiscoY - centroMazoY;
+        float longitud = (float) Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+
+        if (longitud > 0) {
+            vectorX /= longitud;
+            vectorY /= longitud;
+
+            float distanciaSeparacion = RADIO_DISCO + mazo.getRadioMazo() + 10;
+
+            float nuevoCentroDiscoX = centroMazoX + vectorX * distanciaSeparacion;
+            float nuevoCentroDiscoY = centroMazoY + vectorY * distanciaSeparacion;
+
+            this.posicionX = nuevoCentroDiscoX - RADIO_DISCO;
+            this.posicionY = nuevoCentroDiscoY - RADIO_DISCO;
+        }
+    }
+
+    public void dibujar(ShapeRenderer shapeRenderer) {
+        shapeRenderer.circle(this.posicionX + RADIO_DISCO, this.posicionY + RADIO_DISCO, RADIO_DISCO);
+    }
+
+    public void dibujarConTextura(SpriteBatch batch) {
+        if (textura != null) {
+            int tamaño = RADIO_DISCO * 2;
+
+            batch.draw(textura, posicionX, posicionY, tamaño, tamaño);
+        }
+    }
+
+    public float getVelocidadX() {
+        return this.velocidadX;
+    }
+
+    public void setVelocidadX(float velocidadX) {
         this.velocidadX = velocidadX;
+        if(this.velocidadX > MAX_VELOCIDAD) {
+            this.velocidadX = MAX_VELOCIDAD;
+        }
+
+        if(this.velocidadX < -MAX_VELOCIDAD) {
+            this.velocidadX = -MAX_VELOCIDAD;
+        }
+    }
+
+    public void setVelocidadY(float velocidadY) {
         this.velocidadY = velocidadY;
+
+        if(this.velocidadY > MAX_VELOCIDAD) {
+            this.velocidadY = MAX_VELOCIDAD;
+        }
+
+        if(this.velocidadY < -MAX_VELOCIDAD) {
+            this.velocidadY = -MAX_VELOCIDAD;
+        }
     }
 
-    public int getVelocidadX() {
-        return velocidadX;
+    public float getVelocidadY() {
+        return this.velocidadY;
     }
 
-    public int getVelocidadY() {
-        return velocidadY;
+    public float getPosicionX() {
+        return this.posicionX;
     }
 
-    public void setVelocidadX(int velocidadX) {
-        this.velocidadX = velocidadX;
+    public float getPosicionY() {
+        return this.posicionY;
     }
 
-    public void setVelocidadY(int velocidadY) {
-        this.velocidadY = velocidadY;
+    public int getRadioDisco() {
+        return this.RADIO_DISCO;
     }
 
-    public Circle getHitbox() {
-        return hitboxDisco;
+    public Texture getTextura() {
+        return this.textura;
     }
 
-    public Jugador getJugadorSinPosesion() {
-        return jugadorSinPosesion;
-    }
-
-    public Jugador getJugadorConPosesion() {
-        return jugadorConPosesion;
-    }
-
-    public Texture getTexturaDisco() {
-        return texturaDisco;
-    }
-
-    public void reiniciarPosicion() {
-        this.posicionX = 500;
-        this.posicionY = 500;
-    }
-
-    public void setImagenDisco(Texture nuevaTextura) {
-        this.imagenDisco = new Image(nuevaTextura);
+    public void dispose() {
+        if (textura != null) {
+            textura.dispose();
+        }
     }
 }

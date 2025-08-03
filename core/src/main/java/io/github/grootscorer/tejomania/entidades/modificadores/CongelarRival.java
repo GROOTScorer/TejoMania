@@ -7,7 +7,7 @@ public class CongelarRival extends Modificador {
     public void congelarRival() {
         if(isActivo()) {
             if(getJugadorSinPosesion() == jugador1) {
-                jugador1.setPosicion(jugador1.getPosicionX(), jugador1.getPosicionY());
+                //jugador1.setPosicion(jugador1.getPosicionX(), jugador1.getPosicionY());
             }
         }
     }

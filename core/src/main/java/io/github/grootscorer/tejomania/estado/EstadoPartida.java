@@ -64,6 +64,13 @@ public class EstadoPartida {
         this.tiempoRestante = tiempoRestante;
     }
 
+    public void actualizarTiempo(float delta) {
+        if (jugandoPorTiempo && tiempoRestante > 0) {
+            tiempoRestante -= delta;
+            if (tiempoRestante < 0) tiempoRestante = 0;
+        }
+    }
+
     public int getPuntajeGanador() {
         return this.puntajeGanador;
     }

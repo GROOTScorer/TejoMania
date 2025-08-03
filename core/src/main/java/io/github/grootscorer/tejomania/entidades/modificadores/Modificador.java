@@ -19,9 +19,9 @@ public class Modificador {
     private Disco disco;
 
     public void verificarColision() {
-        if(hitboxModificador.overlaps(disco.getHitbox())) {
+        /*if(hitboxModificador.overlaps(disco.getHitbox())) {
             activarModificador();
-        }
+        }*/
     }
 
     private void setColision(boolean estado) {
