@@ -36,21 +36,31 @@ public class Disco {
         this.posicionX += this.velocidadX * delta;
         this.posicionY += this.velocidadY * delta;
 
-        if (this.posicionX - RADIO_DISCO <= xCancha) {
-            this.posicionX = xCancha + RADIO_DISCO;
-            this.velocidadX = -this.velocidadX;
-        }
-        if (this.posicionX + RADIO_DISCO >= xCancha + CANCHA_ANCHO) {
-            this.posicionX = xCancha + CANCHA_ANCHO - RADIO_DISCO;
-            this.velocidadX = -this.velocidadX;
+        float radioSemicirculo = CANCHA_ALTO / 6f;
+        float centroSemicirculoY = yCancha + CANCHA_ALTO / 2f;
+        float limiteInferiorArco = centroSemicirculoY - radioSemicirculo;
+        float limiteSuperiorArco = centroSemicirculoY + radioSemicirculo;
+
+        boolean discoEnAreaVerticalArco = (this.posicionY + RADIO_DISCO >= limiteInferiorArco) &&
+            (this.posicionY + RADIO_DISCO <= limiteSuperiorArco);
+
+        if (!discoEnAreaVerticalArco) {
+            if (this.posicionX <= xCancha) {
+                this.posicionX = xCancha;
+                this.velocidadX = -this.velocidadX;
+            }
+            if (this.posicionX + (RADIO_DISCO * 2) >= xCancha + CANCHA_ANCHO) {
+                this.posicionX = xCancha + CANCHA_ANCHO - (RADIO_DISCO * 2);
+                this.velocidadX = -this.velocidadX;
+            }
         }
 
-        if (this.posicionY - RADIO_DISCO <= yCancha) {
-            this.posicionY = yCancha + RADIO_DISCO;
+        if (this.posicionY <= yCancha) {
+            this.posicionY = yCancha;
             this.velocidadY = -this.velocidadY;
         }
-        if (this.posicionY + RADIO_DISCO >= yCancha + CANCHA_ALTO) {
-            this.posicionY = yCancha + CANCHA_ALTO - RADIO_DISCO;
+        if (this.posicionY + (RADIO_DISCO * 2) >= yCancha + CANCHA_ALTO) {
+            this.posicionY = yCancha + CANCHA_ALTO - (RADIO_DISCO * 2);
             this.velocidadY = -this.velocidadY;
         }
 
@@ -111,9 +121,9 @@ public class Disco {
 
     public void dibujarConTextura(SpriteBatch batch) {
         if (textura != null) {
-            int tamaño = RADIO_DISCO * 2;
+            int tamanio = RADIO_DISCO * 2;
 
-            batch.draw(textura, posicionX, posicionY, tamaño, tamaño);
+            batch.draw(textura, posicionX, posicionY, tamanio, tamanio);
         }
     }
 
@@ -168,5 +178,11 @@ public class Disco {
         if (textura != null) {
             textura.dispose();
         }
+    }
+
+    public void setPosicion(float x, float y) {
+        this.posicionX = x;
+        this.posicionY = y;
+        this.hitboxDisco.setPosition(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO);
     }
 }

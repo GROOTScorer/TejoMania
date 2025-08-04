@@ -56,6 +56,14 @@ public class EstadoPartida {
         this.puntaje2 = puntaje2;
     }
 
+    public void agregarGolJugador1() {
+        this.puntaje1++;
+    }
+
+    public void agregarGolJugador2() {
+        this.puntaje2++;
+    }
+
     public float getTiempoRestante() {
         return this.tiempoRestante;
     }

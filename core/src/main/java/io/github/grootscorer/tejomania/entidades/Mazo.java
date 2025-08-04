@@ -44,12 +44,12 @@ public class Mazo {
         return this.RADIO_MAZO;
     }
 
-    public void actualizarPosicion(int limiteIzq, int limiteDer, int limiteSup, int limiteInf) {
+    public void actualizarPosicion(int limiteIzquierdo, int limiteDerecho, int limiteInferior, int limiteSuperior) {
         this.posicionX += velocidadX;
         this.posicionY += velocidadY;
 
-        this.posicionX = Math.max(limiteIzq, Math.min(this.posicionX, limiteDer));
-        this.posicionY = Math.max(limiteInf, Math.min(this.posicionY, limiteSup));
+        this.posicionX = Math.max(limiteIzquierdo, Math.min(this.posicionX, limiteDerecho - (RADIO_MAZO * 2)));
+        this.posicionY = Math.max(limiteInferior, Math.min(this.posicionY, limiteSuperior - (RADIO_MAZO * 2)));
     }
 
     public void dibujar(ShapeRenderer shapeRenderer) {

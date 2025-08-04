@@ -55,7 +55,8 @@ public class ManejoDeInput extends InputAdapter {
             mazo.setVelocidadX(velocidad);
         }
 
-        mazo.actualizarPosicion((int) limiteIzq, (int) limiteDer, (int) (yCancha + canchaAlto - mazo.getRadioMazo()), (int) yCancha);
+        mazo.actualizarPosicion((int) limiteIzq, (int) limiteDer, (int) yCancha, (int) (yCancha + canchaAlto)
+        );
     }
 
     private void moverMazoFlechas(Mazo mazo, float limiteIzq, float limiteDer) {
@@ -75,6 +76,7 @@ public class ManejoDeInput extends InputAdapter {
             mazo.setVelocidadX(velocidad);
         }
 
-        mazo.actualizarPosicion((int) limiteIzq, (int) limiteDer, (int) (yCancha + canchaAlto - mazo.getRadioMazo()), (int) yCancha);
+        mazo.actualizarPosicion((int) limiteIzq, (int) limiteDer, (int) yCancha, (int) (yCancha + canchaAlto)
+        );
     }
 }
