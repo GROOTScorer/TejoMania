@@ -23,5 +23,8 @@ El juego actualmente se encuentra en estado de configuración inicial, con su es
 ## Wiki
 Pueden visitar la wiki con la propuesta del proyecto [aquí](https://github.com/GROOTScorer/TejoMania/wiki)
 
+## Video de demostración
+[Video](https://drive.google.com/file/d/1IM10rUcHfiu8_FEkQGmx6lWoXa3hBMeH/view?usp=sharing)
+
 ## Desarrolladores
 Gael De Luca y Joaquín Pocovi
