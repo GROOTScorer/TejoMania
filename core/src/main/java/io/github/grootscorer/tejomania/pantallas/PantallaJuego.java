@@ -54,9 +54,7 @@ public class PantallaJuego extends ScreenAdapter {
     private SpriteBatch batch;
 
     private final Texture mazoRojo = new Texture(Gdx.files.internal("imagenes/sprites/mazo_rojo.png"));
-    private final Texture mazoRojoEncendido = new Texture(Gdx.files.internal("imagenes/sprites/mazo_rojo_encendido.png"));
     private final Texture mazoAzul = new Texture(Gdx.files.internal("imagenes/sprites/mazo_azul.png"));
-    private final Texture mazoAzulEncendido = new Texture(Gdx.files.internal("imagenes/sprites/mazo_azul_encendido.png"));
 
     private final Texture spritesheetMazoRojo = new Texture(Gdx.files.internal("imagenes/sprites/spritesheet_mazo_rojo.png"));
     private final Texture spritesheetMazoAzul = new Texture(Gdx.files.internal("imagenes/sprites/spritesheet_mazo_azul.png"));
@@ -91,11 +89,9 @@ public class PantallaJuego extends ScreenAdapter {
         mazo2 = new Mazo();
 
         mazo1.setTextura(mazoAzul);
-        mazo1.setTexturaEncendida(mazoAzulEncendido);
         mazo1.setSpritesheet(spritesheetMazoAzul);
 
         mazo2.setTextura(mazoRojo);
-        mazo2.setTexturaEncendida(mazoRojoEncendido);
         mazo2.setSpritesheet(spritesheetMazoRojo);
 
         manejoDeInput = new ManejoDeInput(mazo1, mazo2, tipoJuegoLibre, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
@@ -364,9 +360,7 @@ public class PantallaJuego extends ScreenAdapter {
         batch.dispose();
         disco.dispose();
         mazoRojo.dispose();
-        mazoRojoEncendido.dispose();
         mazoAzul.dispose();
-        mazoAzulEncendido.dispose();
         spritesheetMazoRojo.dispose();
         spritesheetMazoAzul.dispose();
     }

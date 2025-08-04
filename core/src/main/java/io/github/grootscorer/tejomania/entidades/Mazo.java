@@ -173,10 +173,6 @@ public class Mazo {
         this.textura = textura;
     }
 
-    public void setTexturaEncendida(Texture texturaEncendida) {
-        this.texturaEncendida = texturaEncendida;
-    }
-
     public void activarEncendido() {
         estaEncendido = true;
         tiempoEncendido = 0;
