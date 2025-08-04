@@ -2,6 +2,14 @@
 
 Todos los cambios relevantes al proyecto serán documentados en este archivo. El formato se basa en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), y el proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4] - 2025-08-03
+### Añadido
+- Funcionalidad del juego
+- Diseño de la cancha, los mazos y el disco
+- Lógica de colisiones
+- Menú de pausa
+- HUD del juego
+
 ## [0.3] - 2025-07-21
 ### Añadido
 - Menú de opciones de juego
