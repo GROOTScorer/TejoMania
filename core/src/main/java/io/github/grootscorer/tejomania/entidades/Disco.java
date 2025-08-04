@@ -17,6 +17,9 @@ public class Disco {
     private final int MAX_VELOCIDAD = 500;
     private Texture textura = new Texture(Gdx.files.internal("imagenes/sprites/disco.png"));
 
+    private Mazo ultimoMazoConPosesion;
+    private boolean cambioDePosesion = false;
+
     public Disco() {
         Random rand = new Random();
         int lado = rand.nextInt(2);
@@ -25,6 +28,7 @@ public class Disco {
         this.velocidadX = 0;
         this.velocidadY = 0;
         this.hitboxDisco = new Circle(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO, RADIO_DISCO);
+        this.ultimoMazoConPosesion = null;
     }
 
     public boolean colisionaConMazo(Mazo mazo) {
@@ -68,6 +72,13 @@ public class Disco {
     }
 
     public void manejarColision(Mazo mazo) {
+        if (ultimoMazoConPosesion != mazo) {
+            cambioDePosesion = true;
+            ultimoMazoConPosesion = mazo;
+        } else {
+            cambioDePosesion = false;
+        }
+
         if (this.velocidadX == 0 && this.velocidadY == 0) {
             setVelocidadX(mazo.getVelocidadX() * 5f);
             setVelocidadY(mazo.getVelocidadY() * 5f);
@@ -184,5 +195,18 @@ public class Disco {
         this.posicionX = x;
         this.posicionY = y;
         this.hitboxDisco.setPosition(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO);
+    }
+
+    public boolean isCambioDePosesion() {
+        return cambioDePosesion;
+    }
+
+    public void resetearCambioDePosesion() {
+        cambioDePosesion = false;
+    }
+
+    public void reiniciarPosesion() {
+        ultimoMazoConPosesion = null;
+        cambioDePosesion = false;
     }
 }

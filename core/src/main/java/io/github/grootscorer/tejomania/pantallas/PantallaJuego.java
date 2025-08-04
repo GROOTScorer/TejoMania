@@ -58,6 +58,9 @@ public class PantallaJuego extends ScreenAdapter {
     private final Texture mazoAzul = new Texture(Gdx.files.internal("imagenes/sprites/mazo_azul.png"));
     private final Texture mazoAzulEncendido = new Texture(Gdx.files.internal("imagenes/sprites/mazo_azul_encendido.png"));
 
+    private final Texture spritesheetMazoRojo = new Texture(Gdx.files.internal("imagenes/sprites/spritesheet_mazo_rojo.png"));
+    private final Texture spritesheetMazoAzul = new Texture(Gdx.files.internal("imagenes/sprites/spritesheet_mazo_azul.png"));
+
     private final float BRILLO_NORMAL = 1.0f;
     private final float BRILLO_PAUSA = 0.5f;
 
@@ -88,7 +91,12 @@ public class PantallaJuego extends ScreenAdapter {
         mazo2 = new Mazo();
 
         mazo1.setTextura(mazoAzul);
+        mazo1.setTexturaEncendida(mazoAzulEncendido);
+        mazo1.setSpritesheet(spritesheetMazoAzul);
+
         mazo2.setTextura(mazoRojo);
+        mazo2.setTexturaEncendida(mazoRojoEncendido);
+        mazo2.setSpritesheet(spritesheetMazoRojo);
 
         manejoDeInput = new ManejoDeInput(mazo1, mazo2, tipoJuegoLibre, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, manejoDeInput));
@@ -136,12 +144,23 @@ public class PantallaJuego extends ScreenAdapter {
             barraEspecial1.aumentarCantidadLlenada();
             barraEspecial2.aumentarCantidadLlenada();
 
+            mazo1.actualizarAnimacion(delta);
+            mazo2.actualizarAnimacion(delta);
+
             if (disco.colisionaConMazo(mazo1)) {
                 disco.manejarColision(mazo1);
+                if (disco.isCambioDePosesion()) {
+                    mazo1.activarEncendido();
+                    disco.resetearCambioDePosesion();
+                }
             }
 
             if (disco.colisionaConMazo(mazo2)) {
                 disco.manejarColision(mazo2);
+                if (disco.isCambioDePosesion()) {
+                    mazo2.activarEncendido();
+                    disco.resetearCambioDePosesion();
+                }
             }
 
             disco.actualizarPosicion(delta, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
@@ -320,6 +339,8 @@ public class PantallaJuego extends ScreenAdapter {
         disco.setVelocidadX(0);
         disco.setVelocidadY(0);
 
+        disco.reiniciarPosesion();
+
         float offsetMazos = 50 * Math.min(escalaX, escalaY);
 
         mazo1.setPosicion((int)(xCancha + offsetMazos - mazo1.getRadioMazo()),
@@ -346,5 +367,7 @@ public class PantallaJuego extends ScreenAdapter {
         mazoRojoEncendido.dispose();
         mazoAzul.dispose();
         mazoAzulEncendido.dispose();
+        spritesheetMazoRojo.dispose();
+        spritesheetMazoAzul.dispose();
     }
 }
