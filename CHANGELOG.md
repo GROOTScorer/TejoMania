@@ -28,3 +28,13 @@ Todos los cambios relevantes al proyecto serán documentados en este archivo. El
 - Creación del README, con los datos esenciales del juego
 - Creación de la Wiki del proyecto
 - Añadida la licencia MIT
+
+## 2025-08-03
+### Añadido
+- Creación de la funcionalidad del juego.
+- Creación de las canchas, los mazos y el disco.
+- Creación de las coliciones.
+- Creacion del menú de pausa.
+- Añadido el HUD.
+- Añadida la música del juego.
+  
