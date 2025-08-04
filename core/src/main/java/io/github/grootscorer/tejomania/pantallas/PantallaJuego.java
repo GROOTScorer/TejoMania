@@ -104,14 +104,16 @@ public class PantallaJuego extends ScreenAdapter {
             stage.addActor(actor);
         }
 
-        barraEspecial1 = new BarraEspecial(0, 100, 1, false, skin);
-        barraEspecial2 = new BarraEspecial(0, 100, 1, false, skin);
+        if(estadoPartida.isJugarConTirosEspeciales()) {
+            barraEspecial1 = new BarraEspecial(0, 100, 1, false, skin);
+            barraEspecial2 = new BarraEspecial(0, 100, 1, false, skin);
 
-        barraEspecial1.setPosition(xCancha, yCancha - 30);
-        barraEspecial2.setPosition(xCancha + CANCHA_ANCHO - barraEspecial2.getWidth(), yCancha - 30);
+            barraEspecial1.setPosition(xCancha, yCancha - 30);
+            barraEspecial2.setPosition(xCancha + CANCHA_ANCHO - barraEspecial2.getWidth(), yCancha - 30);
 
-        stage.addActor(barraEspecial1);
-        stage.addActor(barraEspecial2);
+            stage.addActor(barraEspecial1);
+            stage.addActor(barraEspecial2);
+        }
     }
 
     @Override
@@ -137,8 +139,11 @@ public class PantallaJuego extends ScreenAdapter {
         if (!estaPausado && !pausaGol && !juegoTerminado) {
             estadoPartida.actualizarTiempo(delta);
             manejoDeInput.actualizarMovimiento();
-            barraEspecial1.aumentarCantidadLlenada();
-            barraEspecial2.aumentarCantidadLlenada();
+
+            if(estadoPartida.isJugarConTirosEspeciales()) {
+                barraEspecial1.aumentarCantidadLlenada();
+                barraEspecial2.aumentarCantidadLlenada();
+            }
 
             mazo1.actualizarAnimacion(delta);
             mazo2.actualizarAnimacion(delta);
@@ -146,7 +151,9 @@ public class PantallaJuego extends ScreenAdapter {
             if (disco.colisionaConMazo(mazo1)) {
                 disco.manejarColision(mazo1);
                 if (disco.isCambioDePosesion()) {
-                    mazo1.activarEncendido();
+                    if(estadoPartida.isJugarConTirosEspeciales()) {
+                        mazo1.activarEncendido();
+                    }
                     disco.resetearCambioDePosesion();
                 }
             }
@@ -154,7 +161,10 @@ public class PantallaJuego extends ScreenAdapter {
             if (disco.colisionaConMazo(mazo2)) {
                 disco.manejarColision(mazo2);
                 if (disco.isCambioDePosesion()) {
-                    mazo2.activarEncendido();
+                    if(estadoPartida.isJugarConTirosEspeciales()) {
+                        mazo2.activarEncendido();
+                    }
+
                     disco.resetearCambioDePosesion();
                 }
             }
