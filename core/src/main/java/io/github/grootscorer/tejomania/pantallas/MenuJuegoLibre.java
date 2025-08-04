@@ -12,12 +12,16 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
+import io.github.grootscorer.tejomania.estado.EstadoPartida;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 public class MenuJuegoLibre extends ScreenAdapter {
     private Stage stage;
     private Skin skin;
+
     private final Principal juego;
+    private EstadoPartida estadoPartida = new EstadoPartida();
+
     private int opcionActual = 0;
     private Label[] opciones;
     private Label textoDescripcion;
@@ -133,10 +137,12 @@ public class MenuJuegoLibre extends ScreenAdapter {
     private void manejarEnter() {
         switch(opcionActual) {
             case 0:
-                juego.setScreen(new MenuOpcionesJuego(juego, TipoJuegoLibre.CPU));
+                estadoPartida.setTipoJuegoLibre(TipoJuegoLibre.CPU);
+                juego.setScreen(new MenuOpcionesJuego(juego, TipoJuegoLibre.CPU, estadoPartida));
                 break;
             case 1:
-                juego.setScreen(new MenuOpcionesJuego(juego, TipoJuegoLibre.DOS_JUGADORES));
+                estadoPartida.setTipoJuegoLibre(TipoJuegoLibre.DOS_JUGADORES);
+                juego.setScreen(new MenuOpcionesJuego(juego, TipoJuegoLibre.DOS_JUGADORES, estadoPartida));
                 break;
             case 3:
                 juego.setScreen(new MenuModoJuego(juego));
