@@ -23,6 +23,7 @@ import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
 import io.github.grootscorer.tejomania.estado.EstadoPartida;
 import io.github.grootscorer.tejomania.hud.BarraEspecial;
 import io.github.grootscorer.tejomania.hud.EncabezadoPartida;
+import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 import io.github.grootscorer.tejomania.utiles.ManejoDeInput;
 
 public class PantallaJuego extends ScreenAdapter {
@@ -273,18 +274,12 @@ public class PantallaJuego extends ScreenAdapter {
             (disco.getPosicionY() + disco.getRadioDisco() <= limiteSuperiorGol);
 
         if (disco.getPosicionX() + disco.getRadioDisco() * 2 < xCancha) {
-            if (discoEnAreaVerticalGol) {
-                anotarGol(2);
-            } else {
-                anotarGol(2);
-            }
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_gol.mp3"))));
+            anotarGol(2);
         }
         else if (disco.getPosicionX() > xCancha + CANCHA_ANCHO) {
-            if (discoEnAreaVerticalGol) {
-                anotarGol(1);
-            } else {
-                anotarGol(1);
-            }
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_gol.mp3"))));
+            anotarGol(1);
         }
     }
 

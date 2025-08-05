@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
+import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 import java.util.Random;
 
@@ -15,6 +16,8 @@ public class Disco {
     private Circle hitboxDisco;
     private final int RADIO_DISCO = 25;
     private final int MAX_VELOCIDAD = 500;
+    private long tiempoUltimoSonidoMazo = 0;
+    private static final long COOLDOWN_SONIDO_MAZO_MS = 300; // 0.1 segundos
     private Texture textura = new Texture(Gdx.files.internal("imagenes/sprites/disco.png"));
 
     private Mazo ultimoMazoConPosesion;
@@ -50,20 +53,24 @@ public class Disco {
 
         if (!discoEnAreaVerticalArco) {
             if (this.posicionX <= xCancha) {
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
                 this.posicionX = xCancha;
                 this.velocidadX = -this.velocidadX;
             }
             if (this.posicionX + (RADIO_DISCO * 2) >= xCancha + CANCHA_ANCHO) {
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
                 this.posicionX = xCancha + CANCHA_ANCHO - (RADIO_DISCO * 2);
                 this.velocidadX = -this.velocidadX;
             }
         }
 
         if (this.posicionY <= yCancha) {
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
             this.posicionY = yCancha;
             this.velocidadY = -this.velocidadY;
         }
         if (this.posicionY + (RADIO_DISCO * 2) >= yCancha + CANCHA_ALTO) {
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
             this.posicionY = yCancha + CANCHA_ALTO - (RADIO_DISCO * 2);
             this.velocidadY = -this.velocidadY;
         }
@@ -72,6 +79,13 @@ public class Disco {
     }
 
     public void manejarColision(Mazo mazo) {
+        long tiempoActual = com.badlogic.gdx.utils.TimeUtils.millis();
+
+        if (tiempoActual - tiempoUltimoSonidoMazo >= COOLDOWN_SONIDO_MAZO_MS) {
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_mazo.mp3"))));
+            tiempoUltimoSonidoMazo = tiempoActual;
+        }
+
         if (ultimoMazoConPosesion != mazo) {
             cambioDePosesion = true;
             ultimoMazoConPosesion = mazo;
