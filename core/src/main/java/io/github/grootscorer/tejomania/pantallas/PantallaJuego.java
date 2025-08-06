@@ -20,6 +20,7 @@ import io.github.grootscorer.tejomania.entidades.Disco;
 import io.github.grootscorer.tejomania.entidades.Jugador;
 import io.github.grootscorer.tejomania.entidades.Mazo;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
+import io.github.grootscorer.tejomania.estado.EstadoFisico;
 import io.github.grootscorer.tejomania.estado.EstadoPartida;
 import io.github.grootscorer.tejomania.hud.BarraEspecial;
 import io.github.grootscorer.tejomania.hud.EncabezadoPartida;
@@ -40,6 +41,7 @@ public class PantallaJuego extends ScreenAdapter {
     private Image imagenCancha;
     private ShapeRenderer shapeRenderer;
     private EstadoPartida estadoPartida;
+    private EstadoFisico estadoFisico = new EstadoFisico();
     private ManejoDeInput manejoDeInput;
     private boolean estaPausado = false;
     private float tiempoPausa = 0;
@@ -79,6 +81,18 @@ public class PantallaJuego extends ScreenAdapter {
         this.estadoPartida = estadoPartida;
     }
 
+    public PantallaJuego(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida, EstadoFisico estadoFisicoGuardado) {
+        this.juego = juego;
+        this.tipoJuegoLibre = tipoJuegoLibre;
+        this.estadoPartida = estadoPartida;
+
+        if (estadoFisicoGuardado != null) {
+            this.estadoFisico = estadoFisicoGuardado;
+        } else {
+            this.estadoFisico = new EstadoFisico();
+        }
+    }
+
     @Override
     public void show() {
         stage = new Stage(new ScreenViewport());
@@ -88,6 +102,8 @@ public class PantallaJuego extends ScreenAdapter {
         disco = new Disco();
         mazo1 = new Mazo();
         mazo2 = new Mazo();
+
+        estadoFisico.restaurarEstado(mazo1, mazo2, disco);
 
         mazo1.setTextura(mazoAzul);
         mazo1.setSpritesheet(spritesheetMazoAzul);
@@ -205,7 +221,8 @@ public class PantallaJuego extends ScreenAdapter {
         if (!juegoTerminado && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             estaPausado = !estaPausado;
             if (estaPausado) {
-                juego.setScreen(new MenuPausa(juego, tipoJuegoLibre, estadoPartida));
+                estadoFisico.guardarEstado(mazo1, mazo2, disco);
+                juego.setScreen(new MenuPausa(juego, tipoJuegoLibre, estadoPartida, estadoFisico));
             }
         }
     }

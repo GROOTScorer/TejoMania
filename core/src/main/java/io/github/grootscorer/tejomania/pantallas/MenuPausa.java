@@ -11,7 +11,10 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
+import io.github.grootscorer.tejomania.entidades.Disco;
+import io.github.grootscorer.tejomania.entidades.Mazo;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
+import io.github.grootscorer.tejomania.estado.EstadoFisico;
 import io.github.grootscorer.tejomania.estado.EstadoPartida;
 
 public class MenuPausa extends ScreenAdapter {
@@ -24,10 +27,13 @@ public class MenuPausa extends ScreenAdapter {
     private int opcionSeleccionada = 0;
     private Label seguir, salir;
 
-    public MenuPausa(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida) {
+    private EstadoFisico estadoFisico;
+
+    public MenuPausa(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida, EstadoFisico estadoFisico) {
         this.juego = juego;
         this.tipoJuegoLibre = tipoJuegoLibre;
         this.estadoPartida = estadoPartida;
+        this.estadoFisico = estadoFisico;
     }
 
     @Override
@@ -66,7 +72,7 @@ public class MenuPausa extends ScreenAdapter {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             if (opcionSeleccionada == 0) {
-                juego.setScreen(new PantallaJuego(juego, tipoJuegoLibre, estadoPartida));
+                juego.setScreen(new PantallaJuego(juego, tipoJuegoLibre, estadoPartida, estadoFisico));
             } else if (opcionSeleccionada == 1) {
                 juego.setScreen(new MenuPrincipal(juego));
             }
