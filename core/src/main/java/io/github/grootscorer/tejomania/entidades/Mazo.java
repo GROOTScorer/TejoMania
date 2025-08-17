@@ -1,5 +1,6 @@
 package io.github.grootscorer.tejomania.entidades;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -8,7 +9,12 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 public class Mazo {
     private float posicionX, posicionY;
     private float velocidadX, velocidadY;
-    private final int RADIO_MAZO = 25;
+
+    float escalaX = (float) Gdx.graphics.getWidth() / 640f;
+    float escalaY = (float) Gdx.graphics.getHeight() / 480f;
+    float escalaFuente = Math.max(escalaX, escalaY);
+
+    private final int RADIO_MAZO = (int) (18 * escalaY);
     private Texture textura;
     private Texture texturaEncendida;
 

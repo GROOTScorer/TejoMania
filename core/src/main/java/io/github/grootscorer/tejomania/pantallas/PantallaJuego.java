@@ -242,7 +242,8 @@ public class PantallaJuego extends ScreenAdapter {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
         shapeRenderer.setColor(Color.BLACK);
 
-        float radioSemicirculo = CANCHA_ALTO / 6f;
+        float radioY = CANCHA_ALTO / 4.5f;
+        float radioX = radioY / 1.4f;
 
         float centroIzquierdoX = xCancha;
         float centroIzquierdoY = yCancha + CANCHA_ALTO / 2f;
@@ -252,10 +253,10 @@ public class PantallaJuego extends ScreenAdapter {
             float angulo1 = (float) (-Math.PI / 2 + (Math.PI * i) / segmentos);
             float angulo2 = (float) (-Math.PI / 2 + (Math.PI * (i + 1)) / segmentos);
 
-            float x1 = centroIzquierdoX + radioSemicirculo * (float) Math.cos(angulo1);
-            float y1 = centroIzquierdoY + radioSemicirculo * (float) Math.sin(angulo1);
-            float x2 = centroIzquierdoX + radioSemicirculo * (float) Math.cos(angulo2);
-            float y2 = centroIzquierdoY + radioSemicirculo * (float) Math.sin(angulo2);
+            float x1 = centroIzquierdoX + radioX * (float) Math.cos(angulo1);
+            float y1 = centroIzquierdoY + radioY * (float) Math.sin(angulo1);
+            float x2 = centroIzquierdoX + radioX * (float) Math.cos(angulo2);
+            float y2 = centroIzquierdoY + radioY * (float) Math.sin(angulo2);
 
             shapeRenderer.line(x1, y1, x2, y2);
         }
@@ -267,10 +268,10 @@ public class PantallaJuego extends ScreenAdapter {
             float angulo1 = (float) (Math.PI / 2 + (Math.PI * i) / segmentos);
             float angulo2 = (float) (Math.PI / 2 + (Math.PI * (i + 1)) / segmentos);
 
-            float x1 = centroDerechoX + radioSemicirculo * (float) Math.cos(angulo1);
-            float y1 = centroDerechoY + radioSemicirculo * (float) Math.sin(angulo1);
-            float x2 = centroDerechoX + radioSemicirculo * (float) Math.cos(angulo2);
-            float y2 = centroDerechoY + radioSemicirculo * (float) Math.sin(angulo2);
+            float x1 = centroDerechoX + radioX * (float) Math.cos(angulo1);
+            float y1 = centroDerechoY + radioY * (float) Math.sin(angulo1);
+            float x2 = centroDerechoX + radioX * (float) Math.cos(angulo2);
+            float y2 = centroDerechoY + radioY * (float) Math.sin(angulo2);
 
             shapeRenderer.line(x1, y1, x2, y2);
         }
@@ -281,7 +282,7 @@ public class PantallaJuego extends ScreenAdapter {
     }
 
     private void verificarGoles() {
-        float radioSemicirculo = CANCHA_ALTO / 6f;
+        float radioSemicirculo = CANCHA_ALTO / 4.5f;
         float centroSemicirculoY = yCancha + CANCHA_ALTO / 2f;
 
         float limiteInferiorGol = centroSemicirculoY - radioSemicirculo;

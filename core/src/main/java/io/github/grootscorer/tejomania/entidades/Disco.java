@@ -14,7 +14,12 @@ public class Disco {
     private float posicionX, posicionY;
     private float velocidadX, velocidadY;
     private Circle hitboxDisco;
-    private final int RADIO_DISCO = 25;
+
+    float escalaX = (float) Gdx.graphics.getWidth() / 640f;
+    float escalaY = (float) Gdx.graphics.getHeight() / 480f;
+    float escalaFuente = Math.max(escalaX, escalaY);
+
+    private final int RADIO_DISCO = (int) (13 * escalaY);
     private final int MAX_VELOCIDAD = 500;
     private long tiempoUltimoSonidoMazo = 0;
     private static final long COOLDOWN_SONIDO_MAZO_MS = 300; // 0.1 segundos
@@ -43,7 +48,7 @@ public class Disco {
         this.posicionX += this.velocidadX * delta;
         this.posicionY += this.velocidadY * delta;
 
-        float radioSemicirculo = CANCHA_ALTO / 6f;
+        float radioSemicirculo = CANCHA_ALTO / 4.5f;
         float centroSemicirculoY = yCancha + CANCHA_ALTO / 2f;
         float limiteInferiorArco = centroSemicirculoY - radioSemicirculo;
         float limiteSuperiorArco = centroSemicirculoY + radioSemicirculo;

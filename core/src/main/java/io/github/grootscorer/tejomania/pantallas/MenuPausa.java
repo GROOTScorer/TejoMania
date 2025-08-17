@@ -27,6 +27,10 @@ public class MenuPausa extends ScreenAdapter {
     private int opcionSeleccionada = 0;
     private Label seguir, salir;
 
+    float escalaX = (float) Gdx.graphics.getWidth() / 640f;
+    float escalaY = (float) Gdx.graphics.getHeight() / 480f;
+    float escalaFuente = Math.max(escalaX, escalaY);
+
     private EstadoFisico estadoFisico;
 
     public MenuPausa(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida, EstadoFisico estadoFisico) {
@@ -48,7 +52,9 @@ public class MenuPausa extends ScreenAdapter {
         stage.addActor(table);
 
         seguir = new Label("Reanudar", skin);
+        seguir.setFontScale(1.5f * escalaFuente);
         salir = new Label("Salir", skin);
+        salir.setFontScale(1.5f * escalaFuente);
 
         table.add(seguir).width(200).pad(20).row();
         table.add(salir).width(200).pad(20);
