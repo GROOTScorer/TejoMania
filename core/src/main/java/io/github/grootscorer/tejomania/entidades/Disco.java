@@ -22,11 +22,14 @@ public class Disco {
     private final int RADIO_DISCO = (int) (13 * escalaY);
     private final int MAX_VELOCIDAD = 500;
     private long tiempoUltimoSonidoMazo = 0;
-    private static final long COOLDOWN_SONIDO_MAZO_MS = 300; // 0.1 segundos
+    private long tiempoUltimoSonidoDisco = 0;
+    private static final long COOLDOWN_SONIDO_MAZO_MS = 300;
+    private static final long COOLDOWN_SONIDO_DISCO_MS = 200;
     private Texture textura = new Texture(Gdx.files.internal("imagenes/sprites/disco.png"));
 
     private Mazo ultimoMazoConPosesion;
     private boolean cambioDePosesion = false;
+    private boolean haAnotadoGol = false;
 
     public Disco() {
         Random rand = new Random();
@@ -37,11 +40,75 @@ public class Disco {
         this.velocidadY = 0;
         this.hitboxDisco = new Circle(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO, RADIO_DISCO);
         this.ultimoMazoConPosesion = null;
+        this.haAnotadoGol = false;
     }
 
     public boolean colisionaConMazo(Mazo mazo) {
         Circle hitboxMazo = new Circle(mazo.getPosicionX() + mazo.getRadioMazo(), mazo.getPosicionY() + mazo.getRadioMazo(), mazo.getRadioMazo());
         return hitboxDisco.overlaps(hitboxMazo);
+    }
+
+    public boolean colisionaConOtroDisco(Disco otroDisco) {
+        return hitboxDisco.overlaps(otroDisco.getHitbox());
+    }
+
+    public void manejarColisionConOtroDisco(Disco otroDisco) {
+        long tiempoActual = com.badlogic.gdx.utils.TimeUtils.millis();
+
+        if (tiempoActual - tiempoUltimoSonidoDisco >= COOLDOWN_SONIDO_DISCO_MS) {
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_mazo.mp3"))));
+            tiempoUltimoSonidoDisco = tiempoActual;
+        }
+
+        float centroThisX = this.posicionX + RADIO_DISCO;
+        float centroThisY = this.posicionY + RADIO_DISCO;
+        float centroOtroX = otroDisco.getPosicionX() + otroDisco.getRadioDisco();
+        float centroOtroY = otroDisco.getPosicionY() + otroDisco.getRadioDisco();
+
+        float vectorX = centroThisX - centroOtroX;
+        float vectorY = centroThisY - centroOtroY;
+        float distancia = (float) Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+
+        if (distancia == 0) {
+            vectorX = 1;
+            vectorY = 0;
+            distancia = 1;
+        }
+
+        vectorX /= distancia;
+        vectorY /= distancia;
+
+        float overlap = (RADIO_DISCO + otroDisco.getRadioDisco()) - distancia;
+        if (overlap > 0) {
+            float separacion = overlap / 2f + 2f;
+
+            this.posicionX += vectorX * separacion;
+            this.posicionY += vectorY * separacion;
+            otroDisco.setPosicion(
+                otroDisco.getPosicionX() - vectorX * separacion,
+                otroDisco.getPosicionY() - vectorY * separacion
+            );
+        }
+
+        float velRelativaX = this.velocidadX - otroDisco.getVelocidadX();
+        float velRelativaY = this.velocidadY - otroDisco.getVelocidadY();
+
+        float velocidadEnColision = velRelativaX * vectorX + velRelativaY * vectorY;
+
+        if (velocidadEnColision > 0) return;
+
+        float restitution = 0.8f;
+
+        float cambioVelocidad = (1 + restitution) * velocidadEnColision / 2f;
+
+        this.velocidadX -= cambioVelocidad * vectorX;
+        this.velocidadY -= cambioVelocidad * vectorY;
+        otroDisco.setVelocidadX(otroDisco.getVelocidadX() + cambioVelocidad * vectorX);
+        otroDisco.setVelocidadY(otroDisco.getVelocidadY() + cambioVelocidad * vectorY);
+
+        this.hitboxDisco.setPosition(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO);
+        otroDisco.getHitbox().setPosition(otroDisco.getPosicionX() + otroDisco.getRadioDisco(),
+            otroDisco.getPosicionY() + otroDisco.getRadioDisco());
     }
 
     public void actualizarPosicion(float delta, float xCancha, float yCancha, float CANCHA_ANCHO, float CANCHA_ALTO) {
@@ -157,6 +224,10 @@ public class Disco {
         }
     }
 
+    public float getVelocidadTotal() {
+        return (float) Math.sqrt(velocidadX * velocidadX + velocidadY * velocidadY);
+    }
+
     public float getVelocidadX() {
         return this.velocidadX;
     }
@@ -204,6 +275,10 @@ public class Disco {
         return this.textura;
     }
 
+    public Circle getHitbox() {
+        return this.hitboxDisco;
+    }
+
     public void dispose() {
         if (textura != null) {
             textura.dispose();
@@ -227,5 +302,17 @@ public class Disco {
     public void reiniciarPosesion() {
         ultimoMazoConPosesion = null;
         cambioDePosesion = false;
+    }
+
+    public boolean haAnotadoGol() {
+        return haAnotadoGol;
+    }
+
+    public void marcarGolAnotado() {
+        this.haAnotadoGol = true;
+    }
+
+    public void reiniciarEstadoGol() {
+        this.haAnotadoGol = false;
     }
 }

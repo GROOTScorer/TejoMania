@@ -19,6 +19,7 @@ import io.github.grootscorer.tejomania.Principal;
 import io.github.grootscorer.tejomania.entidades.Disco;
 import io.github.grootscorer.tejomania.entidades.Jugador;
 import io.github.grootscorer.tejomania.entidades.Mazo;
+import io.github.grootscorer.tejomania.entidades.modificadores.GestorModificadores;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
 import io.github.grootscorer.tejomania.estado.EstadoFisico;
 import io.github.grootscorer.tejomania.estado.EstadoPartida;
@@ -27,10 +28,15 @@ import io.github.grootscorer.tejomania.hud.EncabezadoPartida;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 import io.github.grootscorer.tejomania.utiles.ManejoDeInput;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 public class PantallaJuego extends ScreenAdapter {
     private Stage stage;
     private Principal juego;
-    private Disco disco;
+    private Disco discoOriginal;
+    private Disco discoSecundario;
     private Mazo mazo1, mazo2;
     private Jugador jugador1, jugador2;
     private TipoJuegoLibre tipoJuegoLibre;
@@ -56,6 +62,8 @@ public class PantallaJuego extends ScreenAdapter {
 
     private SpriteBatch batch;
 
+    private GestorModificadores gestorModificadores;
+
     private final Texture mazoRojo = new Texture(Gdx.files.internal("imagenes/sprites/mazo_rojo.png"));
     private final Texture mazoAzul = new Texture(Gdx.files.internal("imagenes/sprites/mazo_azul.png"));
 
@@ -79,12 +87,14 @@ public class PantallaJuego extends ScreenAdapter {
         this.juego = juego;
         this.tipoJuegoLibre = tipoJuegoLibre;
         this.estadoPartida = estadoPartida;
+        this.discoSecundario = null;
     }
 
     public PantallaJuego(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida, EstadoFisico estadoFisicoGuardado) {
         this.juego = juego;
         this.tipoJuegoLibre = tipoJuegoLibre;
         this.estadoPartida = estadoPartida;
+        this.discoSecundario = null;
 
         if (estadoFisicoGuardado != null) {
             this.estadoFisico = estadoFisicoGuardado;
@@ -99,17 +109,20 @@ public class PantallaJuego extends ScreenAdapter {
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
-        disco = new Disco();
+        discoOriginal = new Disco();
         mazo1 = new Mazo();
         mazo2 = new Mazo();
 
-        estadoFisico.restaurarEstado(mazo1, mazo2, disco);
+        estadoFisico.restaurarEstado(mazo1, mazo2, discoOriginal);
 
         mazo1.setTextura(mazoAzul);
         mazo1.setSpritesheet(spritesheetMazoAzul);
 
         mazo2.setTextura(mazoRojo);
         mazo2.setSpritesheet(spritesheetMazoRojo);
+
+        gestorModificadores = new GestorModificadores(this, mazo1, mazo2, discoOriginal,
+            xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
 
         manejoDeInput = new ManejoDeInput(mazo1, mazo2, tipoJuegoLibre, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, manejoDeInput));
@@ -165,28 +178,16 @@ public class PantallaJuego extends ScreenAdapter {
             mazo1.actualizarAnimacion(delta);
             mazo2.actualizarAnimacion(delta);
 
-            if (disco.colisionaConMazo(mazo1)) {
-                disco.manejarColision(mazo1);
-                if (disco.isCambioDePosesion()) {
-                    if(estadoPartida.isJugarConTirosEspeciales()) {
-                        mazo1.activarEncendido();
-                    }
-                    disco.resetearCambioDePosesion();
-                }
+            float velocidadDisco = discoOriginal.getVelocidadTotal();
+            gestorModificadores.actualizar(delta, velocidadDisco);
+
+            procesarColisionesDisco(discoOriginal, delta);
+
+            if (discoSecundario != null) {
+                procesarColisionesDisco(discoSecundario, delta);
             }
 
-            if (disco.colisionaConMazo(mazo2)) {
-                disco.manejarColision(mazo2);
-                if (disco.isCambioDePosesion()) {
-                    if(estadoPartida.isJugarConTirosEspeciales()) {
-                        mazo2.activarEncendido();
-                    }
-
-                    disco.resetearCambioDePosesion();
-                }
-            }
-
-            disco.actualizarPosicion(delta, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+            verificarColisionesEntreDisco();
 
             verificarGoles();
             verificarFinDeJuego();
@@ -212,7 +213,15 @@ public class PantallaJuego extends ScreenAdapter {
         batch.begin();
         mazo1.dibujarConTextura(batch);
         mazo2.dibujarConTextura(batch);
-        disco.dibujarConTextura(batch);
+
+        discoOriginal.dibujarConTextura(batch);
+
+        if (discoSecundario != null) {
+            discoSecundario.dibujarConTextura(batch);
+        }
+
+        gestorModificadores.dibujar(batch);
+
         batch.end();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
@@ -221,10 +230,46 @@ public class PantallaJuego extends ScreenAdapter {
         if (!juegoTerminado && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             estaPausado = !estaPausado;
             if (estaPausado) {
-                estadoFisico.guardarEstado(mazo1, mazo2, disco);
+                estadoFisico.guardarEstado(mazo1, mazo2, discoOriginal);
                 juego.setScreen(new MenuPausa(juego, tipoJuegoLibre, estadoPartida, estadoFisico));
             }
         }
+    }
+
+    private void verificarColisionesEntreDisco() {
+        if (discoSecundario != null) {
+            if (discoOriginal.colisionaConOtroDisco(discoSecundario)) {
+                manejarColisionEntreDisco(discoOriginal, discoSecundario);
+            }
+        }
+    }
+
+    private void manejarColisionEntreDisco(Disco disco1, Disco disco2) {
+        disco1.manejarColisionConOtroDisco(disco2);
+    }
+
+    private void procesarColisionesDisco(Disco disco, float delta) {
+        if (disco.colisionaConMazo(mazo1)) {
+            disco.manejarColision(mazo1);
+            if (disco.isCambioDePosesion()) {
+                if(estadoPartida.isJugarConTirosEspeciales()) {
+                    mazo1.activarEncendido();
+                }
+                disco.resetearCambioDePosesion();
+            }
+        }
+
+        if (disco.colisionaConMazo(mazo2)) {
+            disco.manejarColision(mazo2);
+            if (disco.isCambioDePosesion()) {
+                if(estadoPartida.isJugarConTirosEspeciales()) {
+                    mazo2.activarEncendido();
+                }
+                disco.resetearCambioDePosesion();
+            }
+        }
+
+        disco.actualizarPosicion(delta, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
     }
 
     private void dibujarLineasCancha() {
@@ -282,9 +327,54 @@ public class PantallaJuego extends ScreenAdapter {
     }
 
     private void verificarGoles() {
+        List<Disco> discosQueAnotaron = new ArrayList<>();
+
+        verificarGolDisco(discoOriginal, discosQueAnotaron);
+
+        if (discoSecundario != null) {
+            verificarGolDisco(discoSecundario, discosQueAnotaron);
+        }
+
+        for (Disco disco : discosQueAnotaron) {
+            disco.marcarGolAnotado();
+        }
+
+        boolean hayDiscoSecundario = (discoSecundario != null);
+
+        if (hayDiscoSecundario || gestorModificadores.isDiscoDobleActivo()) {
+            if (discoSecundario != null && discoSecundario.haAnotadoGol()) {
+                discoSecundario.dispose();
+                discoSecundario = null;
+            }
+
+            if (discoOriginal.haAnotadoGol()) {
+                discoOriginal.setPosicion(-1000, -1000);
+                discoOriginal.setVelocidadX(0);
+                discoOriginal.setVelocidadY(0);
+            }
+
+            boolean todosDiscosTerminados = discoOriginal.haAnotadoGol() && (discoSecundario == null);
+
+            if (todosDiscosTerminados) {
+                reiniciarTrasGolCompleto();
+                if (gestorModificadores.isDiscoDobleActivo()) {
+                    gestorModificadores.desactivarDiscoDoble();
+                }
+            }
+        } else {
+            if (discoOriginal.haAnotadoGol()) {
+                reiniciarTrasGolCompleto();
+            }
+        }
+    }
+
+    private void verificarGolDisco(Disco disco, List<Disco> discosQueAnotaron) {
+        if (disco.haAnotadoGol()) {
+            return;
+        }
+
         float radioSemicirculo = CANCHA_ALTO / 4.5f;
         float centroSemicirculoY = yCancha + CANCHA_ALTO / 2f;
-
         float limiteInferiorGol = centroSemicirculoY - radioSemicirculo;
         float limiteSuperiorGol = centroSemicirculoY + radioSemicirculo;
 
@@ -292,12 +382,41 @@ public class PantallaJuego extends ScreenAdapter {
             (disco.getPosicionY() + disco.getRadioDisco() <= limiteSuperiorGol);
 
         if (disco.getPosicionX() + disco.getRadioDisco() * 2 < xCancha) {
-            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_gol.mp3"))));
-            anotarGol(2);
+            if (discoEnAreaVerticalGol) {
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_gol.mp3"))));
+                estadoPartida.agregarGolJugador2();
+                discosQueAnotaron.add(disco);
+            }
         }
         else if (disco.getPosicionX() > xCancha + CANCHA_ANCHO) {
-            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_gol.mp3"))));
-            anotarGol(1);
+            if (discoEnAreaVerticalGol) {
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_gol.mp3"))));
+                estadoPartida.agregarGolJugador1();
+                discosQueAnotaron.add(disco);
+            }
+        }
+    }
+
+    private void reiniciarTrasGolCompleto() {
+        if (discoSecundario != null) {
+            discoSecundario.dispose();
+            discoSecundario = null;
+        }
+
+        discoOriginal.reiniciarEstadoGol();
+        reiniciarPosicionesTrasGol();
+
+        gestorModificadores.reiniciarModificadores();
+
+        pausaGol = true;
+        tiempoPausaGol = 0;
+    }
+
+    public void agregarDiscoSecundario(Disco nuevoDisco) {
+        if (discoSecundario == null) {
+            discoSecundario = nuevoDisco;
+        } else {
+            nuevoDisco.dispose();
         }
     }
 
@@ -332,8 +451,7 @@ public class PantallaJuego extends ScreenAdapter {
 
             labelGanador.pack();
 
-            labelGanador.setPosition(Gdx.graphics.getWidth() / 2f, 100
-            );
+            labelGanador.setPosition(Gdx.graphics.getWidth() / 2f, 100);
 
             stage.addActor(labelGanador);
         }
@@ -353,12 +471,18 @@ public class PantallaJuego extends ScreenAdapter {
     }
 
     private void reiniciarPosicionesTrasGol() {
-        disco.setPosicion(xCancha + CANCHA_ANCHO / 2f - disco.getRadioDisco(),
-            yCancha + CANCHA_ALTO / 2f - disco.getRadioDisco());
-        disco.setVelocidadX(0);
-        disco.setVelocidadY(0);
+        discoOriginal.setPosicion(xCancha + CANCHA_ANCHO / 2f - discoOriginal.getRadioDisco(),
+            yCancha + CANCHA_ALTO / 2f - discoOriginal.getRadioDisco());
+        discoOriginal.setVelocidadX(0);
+        discoOriginal.setVelocidadY(0);
+        discoOriginal.reiniciarPosesion();
 
-        disco.reiniciarPosesion();
+        if (discoSecundario != null) {
+            discoSecundario.setPosicion(xCancha + CANCHA_ANCHO / 2f - discoSecundario.getRadioDisco() + (float)(Math.random() * 20 - 10),yCancha + CANCHA_ALTO / 2f - discoSecundario.getRadioDisco() + (float)(Math.random() * 20 - 10));
+            discoSecundario.setVelocidadX(0);
+            discoSecundario.setVelocidadY(0);
+            discoSecundario.reiniciarPosesion();
+        }
 
         float offsetMazos = 50 * Math.min(escalaX, escalaY);
 
@@ -381,7 +505,16 @@ public class PantallaJuego extends ScreenAdapter {
         stage.dispose();
         skin.dispose();
         batch.dispose();
-        disco.dispose();
+        discoOriginal.dispose();
+
+        if (discoSecundario != null) {
+            discoSecundario.dispose();
+        }
+
+        if (gestorModificadores != null) {
+            gestorModificadores.dispose();
+        }
+
         mazoRojo.dispose();
         mazoAzul.dispose();
         spritesheetMazoRojo.dispose();

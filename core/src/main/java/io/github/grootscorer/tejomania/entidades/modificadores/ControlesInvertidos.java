@@ -9,4 +9,9 @@ public class ControlesInvertidos extends Modificador {
 
         }
     }
+
+    @Override
+    protected void ejecutarEfecto() {
+
+    }
 }

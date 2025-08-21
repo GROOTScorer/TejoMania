@@ -11,4 +11,9 @@ public class CongelarRival extends Modificador {
             }
         }
     }
+
+    @Override
+    protected void ejecutarEfecto() {
+
+    }
 }
