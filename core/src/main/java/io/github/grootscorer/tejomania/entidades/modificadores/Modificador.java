@@ -58,6 +58,15 @@ public abstract class Modificador {
         this.hitboxModificador.setRadius(radio);
     }
 
+    public void restaurarDesdeEstado(float x, float y, float tiempo, boolean estaActivo) {
+        this.posicionX = x;
+        this.posicionY = y;
+        this.tiempoVida = tiempo;
+        this.activo = estaActivo;
+        this.hitboxModificador.setPosition(posicionX + radio, posicionY + radio);
+        this.hitboxModificador.setRadius(radio);
+    }
+
     private float distancia(float x1, float y1, float x2, float y2) {
         return (float) Math.sqrt((x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2));
     }
@@ -127,6 +136,10 @@ public abstract class Modificador {
 
     public Circle getHitbox() {
         return hitboxModificador;
+    }
+
+    public float getTiempoVida() {
+        return tiempoVida;
     }
 
     public void dispose() {

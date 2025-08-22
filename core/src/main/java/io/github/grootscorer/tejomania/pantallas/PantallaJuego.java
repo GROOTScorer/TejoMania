@@ -115,6 +115,10 @@ public class PantallaJuego extends ScreenAdapter {
 
         estadoFisico.restaurarEstado(mazo1, mazo2, discoOriginal);
 
+        if (estadoFisico.tieneDiscoSecundario()) {
+            discoSecundario = estadoFisico.restaurarDiscoSecundario();
+        }
+
         mazo1.setTextura(mazoAzul);
         mazo1.setSpritesheet(spritesheetMazoAzul);
 
@@ -123,6 +127,8 @@ public class PantallaJuego extends ScreenAdapter {
 
         gestorModificadores = new GestorModificadores(this, mazo1, mazo2, discoOriginal,
             xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+
+        gestorModificadores.restaurarDesdeEstado(estadoFisico);
 
         manejoDeInput = new ManejoDeInput(mazo1, mazo2, tipoJuegoLibre, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, manejoDeInput));
@@ -230,7 +236,9 @@ public class PantallaJuego extends ScreenAdapter {
         if (!juegoTerminado && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             estaPausado = !estaPausado;
             if (estaPausado) {
-                estadoFisico.guardarEstado(mazo1, mazo2, discoOriginal);
+                estadoFisico.guardarEstadoCompleto(mazo1, mazo2, discoOriginal, discoSecundario,
+                    gestorModificadores.getModificadores(), gestorModificadores.isDiscoDobleActivo(),
+                    gestorModificadores.isModificadorEnPantalla(), gestorModificadores.getTiempoSinGenerar());
                 juego.setScreen(new MenuPausa(juego, tipoJuegoLibre, estadoPartida, estadoFisico));
             }
         }

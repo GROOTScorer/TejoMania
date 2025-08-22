@@ -35,6 +35,11 @@ public class DiscoDoble extends Modificador {
         }
     }
 
+    public void restaurarDesdeEstadoCompleto(float x, float y, float tiempo, boolean estaActivo, boolean efectoEjecutado) {
+        restaurarDesdeEstado(x, y, tiempo, estaActivo);
+        this.efectoEjecutado = efectoEjecutado;
+    }
+
     @Override
     public void actualizar(float delta) {
         super.actualizar(delta);
@@ -47,5 +52,9 @@ public class DiscoDoble extends Modificador {
 
     public boolean isEfectoEjecutado() {
         return this.efectoEjecutado;
+    }
+
+    public void setEfectoEjecutado(boolean efectoEjecutado) {
+        this.efectoEjecutado = efectoEjecutado;
     }
 }

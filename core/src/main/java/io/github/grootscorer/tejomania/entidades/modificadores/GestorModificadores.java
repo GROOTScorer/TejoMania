@@ -3,6 +3,7 @@ package io.github.grootscorer.tejomania.entidades.modificadores;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.github.grootscorer.tejomania.entidades.Disco;
 import io.github.grootscorer.tejomania.entidades.Mazo;
+import io.github.grootscorer.tejomania.estado.EstadoFisico;
 import io.github.grootscorer.tejomania.pantallas.PantallaJuego;
 
 import java.util.ArrayList;
@@ -87,6 +88,24 @@ public class GestorModificadores {
         hayModificadorEnPantalla = true;
     }
 
+    public void restaurarDesdeEstado(EstadoFisico estadoFisico) {
+        this.discoDobleActivo = estadoFisico.discoDobleActivo;
+        this.hayModificadorEnPantalla = estadoFisico.hayModificadorEnPantalla;
+        this.tiempoSinGenerar = estadoFisico.tiempoSinGenerar;
+
+        modificadores.clear();
+
+        for (EstadoFisico.DatosModificador datos : estadoFisico.modificadoresGuardados) {
+            if ("DiscoDoble".equals(datos.tipo)) {
+                DiscoDoble discoDoble = new DiscoDoble(pantallaJuego);
+                discoDoble.restaurarDesdeEstadoCompleto(datos.posicionX, datos.posicionY,
+                    datos.tiempoVida, datos.activo, datos.efectoEjecutado);
+                discoDoble.setDisco(disco);
+                modificadores.add(discoDoble);
+            }
+        }
+    }
+
     public void dibujar(SpriteBatch batch) {
         for (Modificador modificador : modificadores) {
             modificador.dibujar(batch);
@@ -110,6 +129,7 @@ public class GestorModificadores {
 
     public void reiniciarModificadores() {
         limpiarTodos();
+        tiempoSinGenerar = 0;
     }
 
     public boolean isDiscoDobleActivo() {
@@ -118,6 +138,10 @@ public class GestorModificadores {
 
     public boolean isModificadorEnPantalla() {
         return this.hayModificadorEnPantalla;
+    }
+
+    public float getTiempoSinGenerar() {
+        return this.tiempoSinGenerar;
     }
 
     public void desactivarDiscoDoble() {
