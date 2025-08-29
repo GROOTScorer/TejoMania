@@ -3,6 +3,7 @@ package io.github.grootscorer.tejomania.entidades.modificadores;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.github.grootscorer.tejomania.entidades.Disco;
 import io.github.grootscorer.tejomania.entidades.Mazo;
+import io.github.grootscorer.tejomania.estado.DatosModificador;
 import io.github.grootscorer.tejomania.estado.EstadoFisico;
 import io.github.grootscorer.tejomania.pantallas.PantallaJuego;
 
@@ -89,17 +90,17 @@ public class GestorModificadores {
     }
 
     public void restaurarDesdeEstado(EstadoFisico estadoFisico) {
-        this.discoDobleActivo = estadoFisico.discoDobleActivo;
-        this.hayModificadorEnPantalla = estadoFisico.hayModificadorEnPantalla;
-        this.tiempoSinGenerar = estadoFisico.tiempoSinGenerar;
+        this.discoDobleActivo = estadoFisico.isDiscoDobleActivo();
+        this.hayModificadorEnPantalla = estadoFisico.isModificadorEnPantalla();
+        this.tiempoSinGenerar = estadoFisico.getTiempoSinGenerar();
 
         modificadores.clear();
 
-        for (EstadoFisico.DatosModificador datos : estadoFisico.modificadoresGuardados) {
-            if ("DiscoDoble".equals(datos.tipo)) {
+        for (DatosModificador datos : estadoFisico.getModificadoresGuardados()) {
+            if ("DiscoDoble".equals(datos.getTipo())) {
                 DiscoDoble discoDoble = new DiscoDoble(pantallaJuego);
-                discoDoble.restaurarDesdeEstadoCompleto(datos.posicionX, datos.posicionY,
-                    datos.tiempoVida, datos.activo, datos.efectoEjecutado);
+                discoDoble.restaurarDesdeEstadoCompleto(datos.getPosicionX(), datos.getPosicionY(),
+                    datos.getTiempoVida(), datos.isActivo(), datos.isEfectoEjecutado());
                 discoDoble.setDisco(disco);
                 modificadores.add(discoDoble);
             }
