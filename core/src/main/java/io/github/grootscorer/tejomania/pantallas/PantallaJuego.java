@@ -27,6 +27,8 @@ import io.github.grootscorer.tejomania.hud.BarraEspecial;
 import io.github.grootscorer.tejomania.hud.EncabezadoPartida;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 import io.github.grootscorer.tejomania.utiles.ManejoDeInput;
+import io.github.grootscorer.tejomania.entidades.modificadores.CongelarRival;
+import io.github.grootscorer.tejomania.estado.DatosMazo;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -131,6 +133,12 @@ public class PantallaJuego extends ScreenAdapter {
         gestorModificadores.restaurarDesdeEstado(estadoFisico);
 
         manejoDeInput = new ManejoDeInput(mazo1, mazo2, tipoJuegoLibre, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+
+        CongelarRival congelarRivalActivo = gestorModificadores.getCongelarRivalActivo();
+        if (congelarRivalActivo != null && estadoFisico.getMazoEnPosesionId() != -1) {
+            manejoDeInput.configurarCongelacionDesdeEstado(congelarRivalActivo, estadoFisico.getMazoEnPosesionId());
+        }
+
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, manejoDeInput));
 
         encabezadoPartida = new EncabezadoPartida(estadoPartida);
@@ -174,6 +182,24 @@ public class PantallaJuego extends ScreenAdapter {
 
         if (!estaPausado && !pausaGol && !juegoTerminado) {
             estadoPartida.actualizarTiempo(delta);
+
+            CongelarRival congelarRivalActivo = gestorModificadores.getCongelarRivalActivo();
+            if (congelarRivalActivo != null) {
+                if (manejoDeInput.getCongelarRival() != congelarRivalActivo) {
+                    manejoDeInput.setCongelarRival(congelarRivalActivo);
+                    DatosMazo datosMazo = new DatosMazo(
+                        mazo1.getPosicionX(), mazo1.getPosicionY(), mazo1.getVelocidadX(), mazo1.getVelocidadY(),
+                        mazo2.getPosicionX(), mazo2.getPosicionY(), mazo2.getVelocidadX(), mazo2.getVelocidadY(),
+                        discoOriginal.getMazoConPosesion()
+                    );
+                    manejoDeInput.setDatosMazo(datosMazo);
+                }
+            } else {
+                if (manejoDeInput.getCongelarRival() != null) {
+                    manejoDeInput.limpiarCongelarRival();
+                }
+            }
+
             manejoDeInput.actualizarMovimiento();
 
             if(estadoPartida.isJugarConTirosEspeciales()) {
@@ -237,8 +263,11 @@ public class PantallaJuego extends ScreenAdapter {
             estaPausado = !estaPausado;
             if (estaPausado) {
                 estadoFisico.guardarEstadoCompleto(mazo1, mazo2, discoOriginal, discoSecundario,
-                    gestorModificadores.getModificadores(), gestorModificadores.isDiscoDobleActivo(),
-                    gestorModificadores.isModificadorEnPantalla(), gestorModificadores.getTiempoSinGenerar());
+                    discoOriginal.getMazoConPosesion(),
+                    gestorModificadores.getModificadores(),
+                    gestorModificadores.isDiscoDobleActivo(),
+                    gestorModificadores.isModificadorEnPantalla(),
+                    gestorModificadores.getTiempoSinGenerar());
                 juego.setScreen(new MenuPausa(juego, tipoJuegoLibre, estadoPartida, estadoFisico));
             }
         }
@@ -258,22 +287,28 @@ public class PantallaJuego extends ScreenAdapter {
 
     private void procesarColisionesDisco(Disco disco, float delta) {
         if (disco.colisionaConMazo(mazo1)) {
-            disco.manejarColision(mazo1);
-            if (disco.isCambioDePosesion()) {
-                if(estadoPartida.isJugarConTirosEspeciales()) {
-                    mazo1.activarEncendido();
+            disco.manejarColision(mazo1, gestorModificadores);
+            if(gestorModificadores.getCongelarRivalActivo() == null) {
+                disco.setMazoConPosesion(mazo1);
+                if (disco.isCambioDePosesion()) {
+                    if(estadoPartida.isJugarConTirosEspeciales()) {
+                        mazo1.activarEncendido();
+                    }
+                    disco.resetearCambioDePosesion();
                 }
-                disco.resetearCambioDePosesion();
             }
         }
 
         if (disco.colisionaConMazo(mazo2)) {
-            disco.manejarColision(mazo2);
-            if (disco.isCambioDePosesion()) {
-                if(estadoPartida.isJugarConTirosEspeciales()) {
-                    mazo2.activarEncendido();
+            disco.manejarColision(mazo2, gestorModificadores);
+            if(gestorModificadores.getCongelarRivalActivo() == null) {
+                disco.setMazoConPosesion(mazo2);
+                if (disco.isCambioDePosesion()) {
+                    if(estadoPartida.isJugarConTirosEspeciales()) {
+                        mazo2.activarEncendido();
+                    }
+                    disco.resetearCambioDePosesion();
                 }
-                disco.resetearCambioDePosesion();
             }
         }
 
@@ -367,6 +402,7 @@ public class PantallaJuego extends ScreenAdapter {
                 reiniciarTrasGolCompleto();
                 if (gestorModificadores.isDiscoDobleActivo()) {
                     gestorModificadores.desactivarDiscoDoble();
+                    gestorModificadores.desactivarCongelarRival();
                 }
             }
         } else {
@@ -415,6 +451,8 @@ public class PantallaJuego extends ScreenAdapter {
         reiniciarPosicionesTrasGol();
 
         gestorModificadores.reiniciarModificadores();
+        gestorModificadores.desactivarCongelarRival();
+        manejoDeInput.limpiarCongelarRival();
 
         pausaGol = true;
         tiempoPausaGol = 0;

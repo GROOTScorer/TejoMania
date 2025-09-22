@@ -1,19 +1,70 @@
 package io.github.grootscorer.tejomania.entidades.modificadores;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.Texture;
+
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import io.github.grootscorer.tejomania.entidades.Jugador;
+import io.github.grootscorer.tejomania.estado.EstadoFisico;
+import io.github.grootscorer.tejomania.pantallas.PantallaJuego;
 
 public class CongelarRival extends Modificador {
-    private Jugador jugador1, jugador2;
-    public void congelarRival() {
+    private PantallaJuego pantallaJuego;
+    private EstadoFisico estadoFisico;
+    private boolean efectoEjecutado;
+    private boolean debeDesaparecer;
+    private float tiempoEfecto = 0;
+    private final float DURACION_EFECTO = 5.0f;
+
+    public CongelarRival(PantallaJuego pantallaJuego, EstadoFisico estadoFisico) {
+        this.pantallaJuego = pantallaJuego;
+        this.estadoFisico = estadoFisico;
+        this.texturaPowerUp = new Texture(Gdx.files.internal("imagenes/sprites/congelar.png"));
+    }
+
+    @Override
+    protected void ejecutarEfecto() {
+        if (!efectoEjecutado && pantallaJuego != null) {
+            congelarRival();
+            this.efectoEjecutado = true;
+            tiempoEfecto = 0;
+        }
+    }
+
+    private void congelarRival() {
         if(isActivo()) {
-            if(getJugadorSinPosesion() == jugador1) {
-                //jugador1.setPosicion(jugador1.getPosicionX(), jugador1.getPosicionY());
+
+        }
+    }
+
+    public void restaurarDesdeEstadoCompleto(float x, float y, float tiempo, boolean estaActivo, boolean efectoEjecutado) {
+        restaurarDesdeEstado(x, y, tiempo, estaActivo);
+        this.efectoEjecutado = efectoEjecutado;
+    }
+
+    @Override
+    public void actualizar(float delta) {
+        super.actualizar(delta);
+
+        if (efectoEjecutado) {
+            tiempoEfecto += delta;
+            if (tiempoEfecto >= DURACION_EFECTO) {
+                this.debeDesaparecer = true;
+                this.efectoEjecutado = false;
             }
         }
     }
 
     @Override
-    protected void ejecutarEfecto() {
+    protected boolean debeDesaparecerEspecifico() {
+        return this.debeDesaparecer;
+    }
 
+    public boolean isEfectoEjecutado() {
+        return this.efectoEjecutado;
+    }
+
+    public void setEfectoEjecutado(boolean efectoEjecutado) {
+        this.efectoEjecutado = efectoEjecutado;
     }
 }

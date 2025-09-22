@@ -2,11 +2,10 @@ package io.github.grootscorer.tejomania.estado;
 
 public class DatosDisco {
     private float discoPosX, discoPosY, discoVelX, discoVelY;
-    private boolean discoHaAnotadoGol = false;
-
-    private boolean hayDiscoSecundario = false;
+    private boolean discoHaAnotadoGol;
+    private boolean hayDiscoSecundario;
     private float discoSecundarioPosX, discoSecundarioPosY, discoSecundarioVelX, discoSecundarioVelY;
-    private boolean discoSecundarioHaAnotadoGol = false;
+    private boolean discoSecundarioHaAnotadoGol;
 
     public DatosDisco() {}
 

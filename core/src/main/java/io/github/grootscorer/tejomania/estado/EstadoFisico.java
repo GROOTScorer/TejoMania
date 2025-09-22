@@ -4,6 +4,7 @@ import io.github.grootscorer.tejomania.entidades.Disco;
 import io.github.grootscorer.tejomania.entidades.Mazo;
 import io.github.grootscorer.tejomania.entidades.modificadores.Modificador;
 import io.github.grootscorer.tejomania.entidades.modificadores.DiscoDoble;
+import io.github.grootscorer.tejomania.entidades.modificadores.CongelarRival;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,20 +18,38 @@ public class EstadoFisico {
     private boolean hayModificadorEnPantalla = false;
     private float tiempoSinGenerar = 0;
 
+    private int mazoEnPosesionId = -1;
+    private int mazoEnPosesionIdRespaldo = -1;
+
     public EstadoFisico() {
         this.datosMazo = new DatosMazo();
         this.datosDisco = new DatosDisco();
         this.datosModificadores = new ArrayList<>();
     }
 
-    public void guardarEstadoCompleto(Mazo mazo1, Mazo mazo2, Disco disco, Disco discoSecundario,
+    public void guardarEstadoCompleto(Mazo mazo1, Mazo mazo2, Disco disco, Disco discoSecundario, Mazo mazoEnPosesion,
                                       List<Modificador> modificadores, boolean discoDobleActivo,
                                       boolean hayModificadorEnPantalla, float tiempoSinGenerar) {
 
         this.datosMazo = new DatosMazo(
             mazo1.getPosicionX(), mazo1.getPosicionY(), mazo1.getVelocidadX(), mazo1.getVelocidadY(),
-            mazo2.getPosicionX(), mazo2.getPosicionY(), mazo2.getVelocidadX(), mazo2.getVelocidadY()
+            mazo2.getPosicionX(), mazo2.getPosicionY(), mazo2.getVelocidadX(), mazo2.getVelocidadY(), mazoEnPosesion
         );
+
+        this.mazoEnPosesionId = -1;
+        if (mazoEnPosesion != null) {
+            if (mazoEnPosesion == mazo1) {
+                this.mazoEnPosesionId = 1;
+            } else if (mazoEnPosesion == mazo2) {
+                this.mazoEnPosesionId = 2;
+            }
+        }
+
+        if (this.mazoEnPosesionId == -1 && this.mazoEnPosesionIdRespaldo != -1) {
+            this.mazoEnPosesionId = this.mazoEnPosesionIdRespaldo;
+        } else if (this.mazoEnPosesionId != -1) {
+            this.mazoEnPosesionIdRespaldo = this.mazoEnPosesionId;
+        }
 
         if (discoSecundario != null) {
             this.datosDisco = new DatosDisco(
@@ -56,8 +75,13 @@ public class EstadoFisico {
             datosModificador.setPosicionY(modificador.getPosicionY());
             datosModificador.setTiempoVida(modificador.getTiempoVida());
             datosModificador.setActivo(modificador.isActivo());
-            datosModificador.setEfectoEjecutado((modificador instanceof DiscoDoble) ?
-                ((DiscoDoble) modificador).isEfectoEjecutado() : false);
+
+            if (modificador instanceof DiscoDoble) {
+                datosModificador.setEfectoEjecutado(((DiscoDoble) modificador).isEfectoEjecutado());
+            } else if (modificador instanceof CongelarRival) {
+                datosModificador.setEfectoEjecutado(((CongelarRival) modificador).isEfectoEjecutado());
+            }
+
             datosModificador.setTipo(modificador.getClass().getSimpleName());
             datosModificadores.add(datosModificador);
         }
@@ -115,5 +139,9 @@ public class EstadoFisico {
 
     public List<DatosModificador> getModificadoresGuardados() {
         return this.datosModificadores;
+    }
+
+    public int getMazoEnPosesionId() {
+        return this.mazoEnPosesionId;
     }
 }

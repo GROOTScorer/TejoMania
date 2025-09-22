@@ -16,14 +16,16 @@ public class GestorModificadores {
     private List<Modificador> modificadores;
     private Random random;
     private float tiempoSinGenerar = 0;
-    private final float PROBABILIDAD_POR_SEGUNDO = 0.1f;
+    private final float PROBABILIDAD_POR_SEGUNDO = 0.3f;
     private PantallaJuego pantallaJuego;
     private boolean discoDobleActivo = false;
+    private boolean congelarRivalActivo = false;
     private boolean hayModificadorEnPantalla = false;
 
     private Mazo mazo1, mazo2;
     private Disco disco;
     private float xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO;
+    private EstadoFisico estadoFisico;
 
     public GestorModificadores(PantallaJuego pantallaJuego, Mazo mazo1, Mazo mazo2, Disco disco,
                                float xCancha, float yCancha, float CANCHA_ANCHO, float CANCHA_ALTO) {
@@ -37,17 +39,17 @@ public class GestorModificadores {
         this.yCancha = yCancha;
         this.CANCHA_ANCHO = CANCHA_ANCHO;
         this.CANCHA_ALTO = CANCHA_ALTO;
+        this.estadoFisico = new EstadoFisico();
     }
 
     public void actualizar(float delta, float velocidadDisco) {
         tiempoSinGenerar += delta;
 
-        if (velocidadDisco > 200 && tiempoSinGenerar >= 1.0f &&
-            !discoDobleActivo && !hayModificadorEnPantalla) {
+        if (velocidadDisco > 200 && tiempoSinGenerar >= 1.0f && !hayModificadorEnPantalla) {
             tiempoSinGenerar = 0;
 
             if (random.nextFloat() < PROBABILIDAD_POR_SEGUNDO) {
-                generarModificador();
+                generarModificadorAleatorio();
             }
         }
 
@@ -60,9 +62,16 @@ public class GestorModificadores {
                 discoDobleActivo = true;
             }
 
+            if (modificador instanceof CongelarRival && modificador.isActivo() && !congelarRivalActivo) {
+                congelarRivalActivo = true;
+            }
+
             if (modificador.debeDesaparecer()) {
                 if (modificador instanceof DiscoDoble && discoDobleActivo) {
                     discoDobleActivo = false;
+                }
+                if (modificador instanceof CongelarRival && congelarRivalActivo) {
+                    congelarRivalActivo = false;
                 }
                 hayModificadorEnPantalla = false;
 
@@ -74,7 +83,33 @@ public class GestorModificadores {
         hayModificadorEnPantalla = !modificadores.isEmpty();
     }
 
-    private void generarModificador() {
+    private void generarModificadorAleatorio() {
+        boolean tieneDiscoDoble = false;
+        boolean tieneCongelarRival = false;
+
+        for (Modificador mod : modificadores) {
+            if (mod instanceof DiscoDoble) tieneDiscoDoble = true;
+            if (mod instanceof CongelarRival) tieneCongelarRival = true;
+        }
+
+        List<Integer> tiposDisponibles = new ArrayList<>();
+        if (!tieneDiscoDoble) tiposDisponibles.add(0);
+        if (!tieneCongelarRival) tiposDisponibles.add(1);
+
+        if (tiposDisponibles.isEmpty()) return;
+
+        int tipoSeleccionado = tiposDisponibles.get(random.nextInt(tiposDisponibles.size()));
+
+        if (tipoSeleccionado == 0) {
+            generarDiscoDoble();
+        } else {
+            generarCongelarRival();
+        }
+
+        hayModificadorEnPantalla = true;
+    }
+
+    private void generarDiscoDoble() {
         DiscoDoble discoDoble = new DiscoDoble(pantallaJuego);
 
         discoDoble.inicializar(xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO,
@@ -85,8 +120,28 @@ public class GestorModificadores {
 
         discoDoble.setDisco(disco);
         modificadores.add(discoDoble);
+    }
 
-        hayModificadorEnPantalla = true;
+    private void generarCongelarRival() {
+        CongelarRival congelarRival = new CongelarRival(pantallaJuego, estadoFisico);
+
+        congelarRival.inicializar(xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO,
+            mazo1.getPosicionX(), mazo1.getPosicionY(),
+            mazo2.getPosicionX(), mazo2.getPosicionY(),
+            disco.getPosicionX(), disco.getPosicionY(),
+            mazo1.getRadioMazo(), disco.getRadioDisco());
+
+        congelarRival.setDisco(disco);
+        modificadores.add(congelarRival);
+    }
+
+    public CongelarRival getCongelarRivalActivo() {
+        for (Modificador mod : modificadores) {
+            if (mod instanceof CongelarRival && ((CongelarRival) mod).isEfectoEjecutado()) {
+                return (CongelarRival) mod;
+            }
+        }
+        return null;
     }
 
     public void restaurarDesdeEstado(EstadoFisico estadoFisico) {
@@ -103,6 +158,12 @@ public class GestorModificadores {
                     datos.getTiempoVida(), datos.isActivo(), datos.isEfectoEjecutado());
                 discoDoble.setDisco(disco);
                 modificadores.add(discoDoble);
+            } else if ("CongelarRival".equals(datos.getTipo())) {
+                CongelarRival congelarRival = new CongelarRival(pantallaJuego, estadoFisico);
+                congelarRival.restaurarDesdeEstadoCompleto(datos.getPosicionX(), datos.getPosicionY(),
+                    datos.getTiempoVida(), datos.isActivo(), datos.isEfectoEjecutado());
+                congelarRival.setDisco(disco);
+                modificadores.add(congelarRival);
             }
         }
     }
@@ -117,6 +178,9 @@ public class GestorModificadores {
         for (Modificador modificador : modificadores) {
             if (modificador instanceof DiscoDoble && discoDobleActivo) {
                 discoDobleActivo = false;
+            }
+            if (modificador instanceof CongelarRival && congelarRivalActivo) {
+                congelarRivalActivo = false;
             }
             modificador.dispose();
         }
@@ -137,6 +201,10 @@ public class GestorModificadores {
         return this.discoDobleActivo;
     }
 
+    public boolean isCongelarRivalActivo() {
+        return this.congelarRivalActivo;
+    }
+
     public boolean isModificadorEnPantalla() {
         return this.hayModificadorEnPantalla;
     }
@@ -152,6 +220,22 @@ public class GestorModificadores {
         while (iterator.hasNext()) {
             Modificador modificador = iterator.next();
             if (modificador instanceof DiscoDoble) {
+                modificador.dispose();
+                iterator.remove();
+                break;
+            }
+        }
+
+        hayModificadorEnPantalla = !modificadores.isEmpty();
+    }
+
+    public void desactivarCongelarRival() {
+        congelarRivalActivo = false;
+
+        Iterator<Modificador> iterator = modificadores.iterator();
+        while (iterator.hasNext()) {
+            Modificador modificador = iterator.next();
+            if (modificador instanceof CongelarRival) {
                 modificador.dispose();
                 iterator.remove();
                 break;

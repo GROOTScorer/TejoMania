@@ -1,13 +1,16 @@
 package io.github.grootscorer.tejomania.estado;
 
+import io.github.grootscorer.tejomania.entidades.Mazo;
+
 public class DatosMazo {
     private float mazo1PosX, mazo1PosY, mazo1VelX, mazo1VelY;
     private float mazo2PosX, mazo2PosY, mazo2VelX, mazo2VelY;
+    private Mazo mazoEnPosesion;
 
     public DatosMazo() {}
 
     public DatosMazo(float mazo1PosX, float mazo1PosY, float mazo1VelX, float mazo1VelY,
-                     float mazo2PosX, float mazo2PosY, float mazo2VelX, float mazo2VelY) {
+                     float mazo2PosX, float mazo2PosY, float mazo2VelX, float mazo2VelY, Mazo mazoEnPosesion) {
         this.mazo1PosX = mazo1PosX;
         this.mazo1PosY = mazo1PosY;
         this.mazo1VelX = mazo1VelX;
@@ -16,6 +19,7 @@ public class DatosMazo {
         this.mazo2PosY = mazo2PosY;
         this.mazo2VelX = mazo2VelX;
         this.mazo2VelY = mazo2VelY;
+        this.mazoEnPosesion = mazoEnPosesion;
     }
 
     public float getMazo1PosX() {
@@ -48,5 +52,9 @@ public class DatosMazo {
 
     public float getMazo2VelY() {
         return this.mazo2VelY;
+    }
+
+    public Mazo getMazoEnPosesion() {
+        return this.mazoEnPosesion;
     }
 }

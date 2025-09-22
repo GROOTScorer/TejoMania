@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
+import io.github.grootscorer.tejomania.entidades.modificadores.GestorModificadores;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 import java.util.Random;
@@ -150,7 +151,7 @@ public class Disco {
         this.hitboxDisco.setPosition(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO);
     }
 
-    public void manejarColision(Mazo mazo) {
+    public void manejarColision(Mazo mazo, GestorModificadores gestorModificadores) {
         long tiempoActual = com.badlogic.gdx.utils.TimeUtils.millis();
 
         if (tiempoActual - tiempoUltimoSonidoMazo >= COOLDOWN_SONIDO_MAZO_MS) {
@@ -158,11 +159,13 @@ public class Disco {
             tiempoUltimoSonidoMazo = tiempoActual;
         }
 
-        if (ultimoMazoConPosesion != mazo) {
-            cambioDePosesion = true;
-            ultimoMazoConPosesion = mazo;
-        } else {
-            cambioDePosesion = false;
+        if(gestorModificadores.getCongelarRivalActivo() == null) {
+            if (ultimoMazoConPosesion != mazo) {
+                cambioDePosesion = true;
+                ultimoMazoConPosesion = mazo;
+            } else {
+                cambioDePosesion = false;
+            }
         }
 
         if (this.velocidadX == 0 && this.velocidadY == 0) {
@@ -279,6 +282,10 @@ public class Disco {
         return this.hitboxDisco;
     }
 
+    public Mazo getMazoConPosesion() {
+        return this.ultimoMazoConPosesion;
+    }
+
     public void dispose() {
         if (textura != null) {
             textura.dispose();
@@ -314,5 +321,9 @@ public class Disco {
 
     public void reiniciarEstadoGol() {
         this.haAnotadoGol = false;
+    }
+
+    public void setMazoConPosesion(Mazo mazo) {
+        this.ultimoMazoConPosesion = mazo;
     }
 }
