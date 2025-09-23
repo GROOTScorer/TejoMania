@@ -16,6 +16,7 @@ import io.github.grootscorer.tejomania.entidades.Mazo;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
 import io.github.grootscorer.tejomania.estado.EstadoFisico;
 import io.github.grootscorer.tejomania.estado.EstadoPartida;
+import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 public class MenuPausa extends ScreenAdapter {
     private Stage stage;
@@ -25,7 +26,8 @@ public class MenuPausa extends ScreenAdapter {
     private EstadoPartida estadoPartida;
 
     private int opcionSeleccionada = 0;
-    private Label seguir, salir;
+    private Label seguir, volumenSonido, salir;
+    private int volumenSonidoValor = (int) (ManejoDeAudio.getVolumenSonido() * 100);
 
     float escalaX = (float) Gdx.graphics.getWidth() / 640f;
     float escalaY = (float) Gdx.graphics.getHeight() / 480f;
@@ -53,10 +55,13 @@ public class MenuPausa extends ScreenAdapter {
 
         seguir = new Label("Reanudar", skin);
         seguir.setFontScale(1.5f * escalaFuente);
+        volumenSonido = new Label("Volumen de sonido: " + volumenSonidoValor, skin);
+        volumenSonido.setFontScale(1.5f * escalaFuente);
         salir = new Label("Salir", skin);
         salir.setFontScale(1.5f * escalaFuente);
 
         table.add(seguir).width(200).pad(20).row();
+        table.add(volumenSonido).width(200).pad(20).row();
         table.add(salir).width(200).pad(20);
 
         actualizarColores();
@@ -67,19 +72,29 @@ public class MenuPausa extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
-            opcionSeleccionada = (opcionSeleccionada == 0) ? 1 : 0;
+            opcionSeleccionada = (opcionSeleccionada - 1 + 3) % 3;
             actualizarColores();
+            ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
-            opcionSeleccionada = (opcionSeleccionada == 0) ? 1 : 0;
+            opcionSeleccionada = (opcionSeleccionada + 1) % 3;
             actualizarColores();
+            ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && opcionSeleccionada == 1) {
+            manejarInputIzquierda();
+        }
+
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) && opcionSeleccionada == 1) {
+            manejarInputDerecha();
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             if (opcionSeleccionada == 0) {
                 juego.setScreen(new PantallaJuego(juego, tipoJuegoLibre, estadoPartida, estadoFisico));
-            } else if (opcionSeleccionada == 1) {
+            } else if (opcionSeleccionada == 2) {
                 juego.setScreen(new MenuPrincipal(juego));
             }
         }
@@ -90,7 +105,26 @@ public class MenuPausa extends ScreenAdapter {
 
     private void actualizarColores() {
         seguir.setColor(opcionSeleccionada == 0 ? Color.RED : Color.WHITE);
-        salir.setColor(opcionSeleccionada == 1 ? Color.RED : Color.WHITE);
+        volumenSonido.setColor(opcionSeleccionada == 1 ? Color.RED : Color.WHITE);
+        salir.setColor(opcionSeleccionada == 2 ? Color.RED : Color.WHITE);
+    }
+
+    private void manejarInputIzquierda() {
+        if (volumenSonidoValor > 0) {
+            volumenSonidoValor--;
+            if (volumenSonidoValor == 0) ManejoDeAudio.setSonidoActivado(false);
+            volumenSonido.setText("Volumen de sonido: " + volumenSonidoValor);
+            ManejoDeAudio.setVolumenSonido(volumenSonidoValor);
+        }
+    }
+
+    private void manejarInputDerecha() {
+        if (volumenSonidoValor < 100) {
+            if (volumenSonidoValor == 0) ManejoDeAudio.setSonidoActivado(true);
+            volumenSonidoValor++;
+            volumenSonido.setText("Volumen de sonido: " + volumenSonidoValor);
+            ManejoDeAudio.setVolumenSonido(volumenSonidoValor);
+        }
     }
 
     @Override
