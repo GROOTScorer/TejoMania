@@ -2,6 +2,7 @@ package io.github.grootscorer.tejomania.estado;
 
 import io.github.grootscorer.tejomania.entidades.Disco;
 import io.github.grootscorer.tejomania.entidades.Mazo;
+import io.github.grootscorer.tejomania.entidades.modificadores.ControlesInvertidos;
 import io.github.grootscorer.tejomania.entidades.modificadores.Modificador;
 import io.github.grootscorer.tejomania.entidades.modificadores.DiscoDoble;
 import io.github.grootscorer.tejomania.entidades.modificadores.CongelarRival;
@@ -73,13 +74,25 @@ public class EstadoFisico {
             DatosModificador datosModificador = new DatosModificador();
             datosModificador.setPosicionX(modificador.getPosicionX());
             datosModificador.setPosicionY(modificador.getPosicionY());
-            datosModificador.setTiempoVida(modificador.getTiempoVida());
+
             datosModificador.setActivo(modificador.isActivo());
 
             if (modificador instanceof DiscoDoble) {
-                datosModificador.setEfectoEjecutado(((DiscoDoble) modificador).isEfectoEjecutado());
+                DiscoDoble discoDoble = (DiscoDoble) modificador;
+                datosModificador.setEfectoEjecutado(discoDoble.isEfectoEjecutado());
+                datosModificador.setTiempoVida(modificador.getTiempoVida());
             } else if (modificador instanceof CongelarRival) {
-                datosModificador.setEfectoEjecutado(((CongelarRival) modificador).isEfectoEjecutado());
+                CongelarRival congelarRival = (CongelarRival) modificador;
+                datosModificador.setEfectoEjecutado(congelarRival.isEfectoEjecutado());
+                datosModificador.setTiempoVida(modificador.getTiempoVida());
+            } else if (modificador instanceof ControlesInvertidos) {
+                ControlesInvertidos controlesInvertidos = (ControlesInvertidos) modificador;
+                datosModificador.setEfectoEjecutado(controlesInvertidos.isEfectoEjecutado());
+                if (controlesInvertidos.isEfectoEjecutado()) {
+                    datosModificador.setTiempoVida(controlesInvertidos.getTiempoEfectoActivo());
+                } else {
+                    datosModificador.setTiempoVida(modificador.getTiempoVida());
+                }
             }
 
             datosModificador.setTipo(modificador.getClass().getSimpleName());

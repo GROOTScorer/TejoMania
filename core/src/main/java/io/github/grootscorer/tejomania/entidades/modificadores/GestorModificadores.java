@@ -20,6 +20,7 @@ public class GestorModificadores {
     private PantallaJuego pantallaJuego;
     private boolean discoDobleActivo = false;
     private boolean congelarRivalActivo = false;
+    private boolean controlesInvertidosActivo = false;
     private boolean hayModificadorEnPantalla = false;
 
     private Mazo mazo1, mazo2;
@@ -66,12 +67,19 @@ public class GestorModificadores {
                 congelarRivalActivo = true;
             }
 
+            if (modificador instanceof ControlesInvertidos && modificador.isActivo() && !controlesInvertidosActivo) {
+                controlesInvertidosActivo = true;
+            }
+
             if (modificador.debeDesaparecer()) {
                 if (modificador instanceof DiscoDoble && discoDobleActivo) {
                     discoDobleActivo = false;
                 }
                 if (modificador instanceof CongelarRival && congelarRivalActivo) {
                     congelarRivalActivo = false;
+                }
+                if (modificador instanceof ControlesInvertidos && controlesInvertidosActivo) {
+                    controlesInvertidosActivo = false;
                 }
                 hayModificadorEnPantalla = false;
 
@@ -86,15 +94,18 @@ public class GestorModificadores {
     private void generarModificadorAleatorio() {
         boolean tieneDiscoDoble = false;
         boolean tieneCongelarRival = false;
+        boolean tieneControlesInvertidos = false;
 
         for (Modificador mod : modificadores) {
             if (mod instanceof DiscoDoble) tieneDiscoDoble = true;
             if (mod instanceof CongelarRival) tieneCongelarRival = true;
+            if (mod instanceof ControlesInvertidos) tieneControlesInvertidos = true;
         }
 
         List<Integer> tiposDisponibles = new ArrayList<>();
         if (!tieneDiscoDoble) tiposDisponibles.add(0);
         if (!tieneCongelarRival) tiposDisponibles.add(1);
+        if (!tieneControlesInvertidos) tiposDisponibles.add(2);
 
         if (tiposDisponibles.isEmpty()) return;
 
@@ -102,8 +113,10 @@ public class GestorModificadores {
 
         if (tipoSeleccionado == 0) {
             generarDiscoDoble();
-        } else {
+        } else if (tipoSeleccionado == 1) {
             generarCongelarRival();
+        } else {
+            generarControlesInvertidos();
         }
 
         hayModificadorEnPantalla = true;
@@ -135,10 +148,32 @@ public class GestorModificadores {
         modificadores.add(congelarRival);
     }
 
+    private void generarControlesInvertidos() {
+        ControlesInvertidos controlesInvertidos = new ControlesInvertidos(pantallaJuego);
+
+        controlesInvertidos.inicializar(xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO,
+            mazo1.getPosicionX(), mazo1.getPosicionY(),
+            mazo2.getPosicionX(), mazo2.getPosicionY(),
+            disco.getPosicionX(), disco.getPosicionY(),
+            mazo1.getRadioMazo(), disco.getRadioDisco());
+
+        controlesInvertidos.setDisco(disco);
+        modificadores.add(controlesInvertidos);
+    }
+
     public CongelarRival getCongelarRivalActivo() {
         for (Modificador mod : modificadores) {
             if (mod instanceof CongelarRival && ((CongelarRival) mod).isEfectoEjecutado()) {
                 return (CongelarRival) mod;
+            }
+        }
+        return null;
+    }
+
+    public ControlesInvertidos getControlesInvertidosActivo() {
+        for (Modificador mod : modificadores) {
+            if (mod instanceof ControlesInvertidos && ((ControlesInvertidos) mod).isEfectoEjecutado()) {
+                return (ControlesInvertidos) mod;
             }
         }
         return null;
@@ -164,6 +199,12 @@ public class GestorModificadores {
                     datos.getTiempoVida(), datos.isActivo(), datos.isEfectoEjecutado());
                 congelarRival.setDisco(disco);
                 modificadores.add(congelarRival);
+            } else if ("ControlesInvertidos".equals(datos.getTipo())) {
+                ControlesInvertidos controlesInvertidos = new ControlesInvertidos(pantallaJuego);
+                controlesInvertidos.restaurarDesdeEstadoCompleto(datos.getPosicionX(), datos.getPosicionY(),
+                    datos.getTiempoVida(), datos.isActivo(), datos.isEfectoEjecutado());
+                controlesInvertidos.setDisco(disco);
+                modificadores.add(controlesInvertidos);
             }
         }
     }
@@ -181,6 +222,9 @@ public class GestorModificadores {
             }
             if (modificador instanceof CongelarRival && congelarRivalActivo) {
                 congelarRivalActivo = false;
+            }
+            if (modificador instanceof ControlesInvertidos && controlesInvertidosActivo) {
+                controlesInvertidosActivo = false;
             }
             modificador.dispose();
         }
@@ -236,6 +280,22 @@ public class GestorModificadores {
         while (iterator.hasNext()) {
             Modificador modificador = iterator.next();
             if (modificador instanceof CongelarRival) {
+                modificador.dispose();
+                iterator.remove();
+                break;
+            }
+        }
+
+        hayModificadorEnPantalla = !modificadores.isEmpty();
+    }
+
+    public void desactivarControlesInvertidos() {
+        controlesInvertidosActivo = false;
+
+        Iterator<Modificador> iterator = modificadores.iterator();
+        while (iterator.hasNext()) {
+            Modificador modificador = iterator.next();
+            if (modificador instanceof ControlesInvertidos) {
                 modificador.dispose();
                 iterator.remove();
                 break;

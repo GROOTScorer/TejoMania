@@ -29,6 +29,7 @@ import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 import io.github.grootscorer.tejomania.utiles.ManejoDeInput;
 import io.github.grootscorer.tejomania.entidades.modificadores.CongelarRival;
 import io.github.grootscorer.tejomania.estado.DatosMazo;
+import io.github.grootscorer.tejomania.entidades.modificadores.ControlesInvertidos;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -139,6 +140,11 @@ public class PantallaJuego extends ScreenAdapter {
             manejoDeInput.configurarCongelacionDesdeEstado(congelarRivalActivo, estadoFisico.getMazoEnPosesionId());
         }
 
+        ControlesInvertidos controlesInvertidosActivo = gestorModificadores.getControlesInvertidosActivo();
+        if (controlesInvertidosActivo != null) {
+            manejoDeInput.configurarControlesInvertidosDesdeEstado(controlesInvertidosActivo);
+        }
+
         Gdx.input.setInputProcessor(new InputMultiplexer(stage, manejoDeInput));
 
         encabezadoPartida = new EncabezadoPartida(estadoPartida);
@@ -197,6 +203,17 @@ public class PantallaJuego extends ScreenAdapter {
             } else {
                 if (manejoDeInput.getCongelarRival() != null) {
                     manejoDeInput.limpiarCongelarRival();
+                }
+            }
+
+            ControlesInvertidos controlesInvertidosActivo = gestorModificadores.getControlesInvertidosActivo();
+            if (controlesInvertidosActivo != null) {
+                if (manejoDeInput.getControlesInvertidos() != controlesInvertidosActivo) {
+                    manejoDeInput.setControlesInvertidos(controlesInvertidosActivo);
+                }
+            } else {
+                if (manejoDeInput.getControlesInvertidos() != null) {
+                    manejoDeInput.limpiarControlesInvertidos();
                 }
             }
 
@@ -403,6 +420,7 @@ public class PantallaJuego extends ScreenAdapter {
                 if (gestorModificadores.isDiscoDobleActivo()) {
                     gestorModificadores.desactivarDiscoDoble();
                     gestorModificadores.desactivarCongelarRival();
+                    gestorModificadores.desactivarControlesInvertidos();
                 }
             }
         } else {
@@ -453,6 +471,7 @@ public class PantallaJuego extends ScreenAdapter {
         gestorModificadores.reiniciarModificadores();
         gestorModificadores.desactivarCongelarRival();
         manejoDeInput.limpiarCongelarRival();
+        manejoDeInput.limpiarControlesInvertidos();
 
         pausaGol = true;
         tiempoPausaGol = 0;

@@ -5,6 +5,7 @@ import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import io.github.grootscorer.tejomania.entidades.Mazo;
 import io.github.grootscorer.tejomania.entidades.modificadores.CongelarRival;
+import io.github.grootscorer.tejomania.entidades.modificadores.ControlesInvertidos;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
 import io.github.grootscorer.tejomania.estado.DatosMazo;
 
@@ -13,6 +14,7 @@ public class ManejoDeInput extends InputAdapter {
     private final Mazo mazo2;
     private final TipoJuegoLibre tipoJuegoLibre;
     private CongelarRival congelarRival;
+    private ControlesInvertidos controlesInvertidos;
     private DatosMazo datosMazo;
 
     private final float xCancha, yCancha;
@@ -34,6 +36,10 @@ public class ManejoDeInput extends InputAdapter {
 
     public void setCongelarRival(CongelarRival congelarRival) {
         this.congelarRival = congelarRival;
+    }
+
+    public void setControlesInvertidos(ControlesInvertidos controlesInvertidos) {
+        this.controlesInvertidos = controlesInvertidos;
     }
 
     public void setDatosMazo(DatosMazo datosMazo) {
@@ -69,9 +75,16 @@ public class ManejoDeInput extends InputAdapter {
         }
     }
 
+    public void configurarControlesInvertidosDesdeEstado(ControlesInvertidos controlesInvertidosActivo) {
+        if (controlesInvertidosActivo != null) {
+            this.controlesInvertidos = controlesInvertidosActivo;
+        }
+    }
+
     public void actualizarMovimiento() {
         boolean mazo1Congelado = false;
         boolean mazo2Congelado = false;
+        boolean controlesInvertidosActivo = false;
 
         if (congelarRival != null && congelarRival.isEfectoEjecutado()) {
             if (mazoCongeladoId == 1) {
@@ -85,12 +98,24 @@ public class ManejoDeInput extends InputAdapter {
             }
         }
 
+        if (controlesInvertidos != null && controlesInvertidos.isEfectoEjecutado()) {
+            controlesInvertidosActivo = true;
+        }
+
         if (mazo1 != null && !mazo1Congelado) {
-            moverMazoWASD(mazo1, xCancha, xCancha + canchaAncho / 2f);
+            if (controlesInvertidosActivo) {
+                moverMazoFlechas(mazo1, xCancha, xCancha + canchaAncho / 2f);
+            } else {
+                moverMazoWASD(mazo1, xCancha, xCancha + canchaAncho / 2f);
+            }
         }
 
         if (mazo2 != null && !mazo2Congelado && tipoJuegoLibre == TipoJuegoLibre.DOS_JUGADORES) {
-            moverMazoFlechas(mazo2, xCancha + canchaAncho / 2f, xCancha + canchaAncho);
+            if (controlesInvertidosActivo) {
+                moverMazoWASD(mazo2, xCancha + canchaAncho / 2f, xCancha + canchaAncho);
+            } else {
+                moverMazoFlechas(mazo2, xCancha + canchaAncho / 2f, xCancha + canchaAncho);
+            }
         }
     }
 
@@ -140,10 +165,17 @@ public class ManejoDeInput extends InputAdapter {
         return this.congelarRival;
     }
 
+    public ControlesInvertidos getControlesInvertidos() {
+        return this.controlesInvertidos;
+    }
+
     public void limpiarCongelarRival() {
         this.congelarRival = null;
         this.datosMazo = null;
         this.mazoCongeladoId = -1;
     }
 
+    public void limpiarControlesInvertidos() {
+        this.controlesInvertidos = null;
+    }
 }
