@@ -6,6 +6,7 @@ import io.github.grootscorer.tejomania.entidades.modificadores.ControlesInvertid
 import io.github.grootscorer.tejomania.entidades.modificadores.Modificador;
 import io.github.grootscorer.tejomania.entidades.modificadores.DiscoDoble;
 import io.github.grootscorer.tejomania.entidades.modificadores.CongelarRival;
+import io.github.grootscorer.tejomania.entidades.obstaculos.GestorObstaculos;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,8 @@ public class EstadoFisico {
     private int mazoEnPosesionId = -1;
     private int mazoEnPosesionIdRespaldo = -1;
 
+    private EstadoObstaculo estadoObstaculo = new EstadoObstaculo();
+
     public EstadoFisico() {
         this.datosMazo = new DatosMazo();
         this.datosDisco = new DatosDisco();
@@ -30,7 +33,8 @@ public class EstadoFisico {
 
     public void guardarEstadoCompleto(Mazo mazo1, Mazo mazo2, Disco disco, Disco discoSecundario, Mazo mazoEnPosesion,
                                       List<Modificador> modificadores, boolean discoDobleActivo,
-                                      boolean hayModificadorEnPantalla, float tiempoSinGenerar) {
+                                      boolean hayModificadorEnPantalla, float tiempoSinGenerar,
+                                      GestorObstaculos gestorObstaculos) {
 
         this.datosMazo = new DatosMazo(
             mazo1.getPosicionX(), mazo1.getPosicionY(), mazo1.getVelocidadX(), mazo1.getVelocidadY(),
@@ -68,6 +72,10 @@ public class EstadoFisico {
         this.discoDobleActivo = discoDobleActivo;
         this.hayModificadorEnPantalla = hayModificadorEnPantalla;
         this.tiempoSinGenerar = tiempoSinGenerar;
+
+        if (gestorObstaculos != null) {
+            gestorObstaculos.guardarEstado(this.estadoObstaculo);
+        }
 
         datosModificadores.clear();
         for (Modificador modificador : modificadores) {
@@ -156,5 +164,9 @@ public class EstadoFisico {
 
     public int getMazoEnPosesionId() {
         return this.mazoEnPosesionId;
+    }
+
+    public EstadoObstaculo getEstadoObstaculo() {
+        return this.estadoObstaculo;
     }
 }

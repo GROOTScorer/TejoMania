@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
 import io.github.grootscorer.tejomania.entidades.Disco;
@@ -30,6 +31,7 @@ import io.github.grootscorer.tejomania.utiles.ManejoDeInput;
 import io.github.grootscorer.tejomania.entidades.modificadores.CongelarRival;
 import io.github.grootscorer.tejomania.estado.DatosMazo;
 import io.github.grootscorer.tejomania.entidades.modificadores.ControlesInvertidos;
+import io.github.grootscorer.tejomania.entidades.obstaculos.GestorObstaculos;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -66,6 +68,7 @@ public class PantallaJuego extends ScreenAdapter {
     private SpriteBatch batch;
 
     private GestorModificadores gestorModificadores;
+    private GestorObstaculos gestorObstaculos;
 
     private final Texture mazoRojo = new Texture(Gdx.files.internal("imagenes/sprites/mazo_rojo.png"));
     private final Texture mazoAzul = new Texture(Gdx.files.internal("imagenes/sprites/mazo_azul.png"));
@@ -132,6 +135,13 @@ public class PantallaJuego extends ScreenAdapter {
             xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
 
         gestorModificadores.restaurarDesdeEstado(estadoFisico);
+
+        if (estadoPartida.isJugarConObstaculos()) {
+            gestorObstaculos = new GestorObstaculos(xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO,
+                mazo1, mazo2, discoOriginal);
+            gestorObstaculos.setDiscoSecundario(discoSecundario);
+            gestorObstaculos.restaurarEstado(estadoFisico.getEstadoObstaculo());
+        }
 
         manejoDeInput = new ManejoDeInput(mazo1, mazo2, tipoJuegoLibre, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
 
@@ -227,6 +237,11 @@ public class PantallaJuego extends ScreenAdapter {
             mazo1.actualizarAnimacion(delta);
             mazo2.actualizarAnimacion(delta);
 
+            if (estadoPartida.isJugarConObstaculos() && gestorObstaculos != null) {
+                gestorObstaculos.actualizar(delta);
+                gestorObstaculos.setDiscoSecundario(discoSecundario);
+            }
+
             float velocidadDisco = discoOriginal.getVelocidadTotal();
             gestorModificadores.actualizar(delta, velocidadDisco);
 
@@ -255,6 +270,11 @@ public class PantallaJuego extends ScreenAdapter {
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
         shapeRenderer.setColor(Color.WHITE);
         shapeRenderer.rect(xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+
+        if (estadoPartida.isJugarConObstaculos() && gestorObstaculos != null) {
+            gestorObstaculos.dibujar(shapeRenderer);
+        }
+
         shapeRenderer.end();
 
         dibujarLineasCancha();
@@ -284,7 +304,8 @@ public class PantallaJuego extends ScreenAdapter {
                     gestorModificadores.getModificadores(),
                     gestorModificadores.isDiscoDobleActivo(),
                     gestorModificadores.isModificadorEnPantalla(),
-                    gestorModificadores.getTiempoSinGenerar());
+                    gestorModificadores.getTiempoSinGenerar(),
+                    gestorObstaculos);
                 juego.setScreen(new MenuPausa(juego, tipoJuegoLibre, estadoPartida, estadoFisico));
             }
         }
@@ -303,6 +324,26 @@ public class PantallaJuego extends ScreenAdapter {
     }
 
     private void procesarColisionesDisco(Disco disco, float delta) {
+        long tiempoActual = TimeUtils.millis();
+
+        if (estadoPartida.isJugarConObstaculos() && gestorObstaculos != null) {
+            if (gestorObstaculos.hayColisionConDisco(disco)) {
+                int tipoObstaculo = gestorObstaculos.getTipoObstaculoActivo();
+                float tiempoEsperaColision;
+
+                if (tipoObstaculo == 2) {
+                    tiempoEsperaColision = 300f;
+                } else {
+                    tiempoEsperaColision = 100f;
+                }
+
+                if ((tiempoActual - gestorObstaculos.getUltimaColisionObstaculo()) >= tiempoEsperaColision) {
+                    gestorObstaculos.manejarColisionConDisco(disco);
+                    gestorObstaculos.actualizarUltimaColision(tiempoActual);
+                }
+            }
+        }
+
         if (disco.colisionaConMazo(mazo1)) {
             disco.manejarColision(mazo1, gestorModificadores);
             if(gestorModificadores.getCongelarRivalActivo() == null) {
@@ -326,6 +367,15 @@ public class PantallaJuego extends ScreenAdapter {
                     }
                     disco.resetearCambioDePosesion();
                 }
+            }
+        }
+
+        if (estadoPartida.isJugarConObstaculos() && gestorObstaculos != null) {
+            if (gestorObstaculos.hayColisionConMazo(mazo1)) {
+                gestorObstaculos.manejarColisionConMazo(mazo1);
+            }
+            if (gestorObstaculos.hayColisionConMazo(mazo2)) {
+                gestorObstaculos.manejarColisionConMazo(mazo2);
             }
         }
 
@@ -473,6 +523,10 @@ public class PantallaJuego extends ScreenAdapter {
         manejoDeInput.limpiarCongelarRival();
         manejoDeInput.limpiarControlesInvertidos();
 
+        if (estadoPartida.isJugarConObstaculos() && gestorObstaculos != null) {
+            gestorObstaculos.eliminarObstaculo();
+        }
+
         pausaGol = true;
         tiempoPausaGol = 0;
     }
@@ -578,6 +632,10 @@ public class PantallaJuego extends ScreenAdapter {
 
         if (gestorModificadores != null) {
             gestorModificadores.dispose();
+        }
+
+        if (gestorObstaculos != null) {
+            gestorObstaculos = null;
         }
 
         mazoRojo.dispose();
