@@ -21,7 +21,7 @@ public class Disco {
     float escalaFuente = Math.max(escalaX, escalaY);
 
     private final int RADIO_DISCO = (int) (13 * escalaY);
-    private final int MAX_VELOCIDAD = 500;
+    private  int maxVelocidad = 500;
     private long tiempoUltimoSonidoMazo = 0;
     private long tiempoUltimoSonidoDisco = 0;
     private static final long COOLDOWN_SONIDO_MAZO_MS = 300;
@@ -227,6 +227,17 @@ public class Disco {
         }
     }
 
+    public void dibujarConTexturaYAlpha(SpriteBatch batch, float alpha) {
+        if (textura != null) {
+            int tamanio = RADIO_DISCO * 2;
+
+            float colorAnterior = batch.getColor().a;
+            batch.setColor(1, 1, 1, alpha);
+            batch.draw(textura, posicionX, posicionY, tamanio, tamanio);
+            batch.setColor(1, 1, 1, colorAnterior);
+        }
+    }
+
     public float getVelocidadTotal() {
         return (float) Math.sqrt(velocidadX * velocidadX + velocidadY * velocidadY);
     }
@@ -237,24 +248,24 @@ public class Disco {
 
     public void setVelocidadX(float velocidadX) {
         this.velocidadX = velocidadX;
-        if(this.velocidadX > MAX_VELOCIDAD) {
-            this.velocidadX = MAX_VELOCIDAD;
+        if(this.velocidadX > maxVelocidad) {
+            this.velocidadX = maxVelocidad;
         }
 
-        if(this.velocidadX < -MAX_VELOCIDAD) {
-            this.velocidadX = -MAX_VELOCIDAD;
+        if(this.velocidadX < -maxVelocidad) {
+            this.velocidadX = -maxVelocidad;
         }
     }
 
     public void setVelocidadY(float velocidadY) {
         this.velocidadY = velocidadY;
 
-        if(this.velocidadY > MAX_VELOCIDAD) {
-            this.velocidadY = MAX_VELOCIDAD;
+        if(this.velocidadY > maxVelocidad) {
+            this.velocidadY = maxVelocidad;
         }
 
-        if(this.velocidadY < -MAX_VELOCIDAD) {
-            this.velocidadY = -MAX_VELOCIDAD;
+        if(this.velocidadY < -maxVelocidad) {
+            this.velocidadY = -maxVelocidad;
         }
     }
 
@@ -325,5 +336,9 @@ public class Disco {
 
     public void setMazoConPosesion(Mazo mazo) {
         this.ultimoMazoConPosesion = mazo;
+    }
+
+    public void setMaxVelocidad(int velocidad) {
+        this.maxVelocidad = velocidad;
     }
 }

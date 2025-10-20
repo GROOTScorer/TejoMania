@@ -25,6 +25,9 @@ public class EstadoFisico {
 
     private EstadoObstaculo estadoObstaculo = new EstadoObstaculo();
 
+    private int cantidadLlenadaBarra1 = 0;
+    private int cantidadLlenadaBarra2 = 0;
+
     public EstadoFisico() {
         this.datosMazo = new DatosMazo();
         this.datosDisco = new DatosDisco();
@@ -34,7 +37,8 @@ public class EstadoFisico {
     public void guardarEstadoCompleto(Mazo mazo1, Mazo mazo2, Disco disco, Disco discoSecundario, Mazo mazoEnPosesion,
                                       List<Modificador> modificadores, boolean discoDobleActivo,
                                       boolean hayModificadorEnPantalla, float tiempoSinGenerar,
-                                      GestorObstaculos gestorObstaculos) {
+                                      GestorObstaculos gestorObstaculos,
+                                      int cantidadLlenadaBarra1, int cantidadLlenadaBarra2) {
 
         this.datosMazo = new DatosMazo(
             mazo1.getPosicionX(), mazo1.getPosicionY(), mazo1.getVelocidadX(), mazo1.getVelocidadY(),
@@ -105,6 +109,9 @@ public class EstadoFisico {
 
             datosModificador.setTipo(modificador.getClass().getSimpleName());
             datosModificadores.add(datosModificador);
+
+            this.cantidadLlenadaBarra1 = cantidadLlenadaBarra1;
+            this.cantidadLlenadaBarra2 = cantidadLlenadaBarra2;
         }
     }
 
@@ -168,5 +175,13 @@ public class EstadoFisico {
 
     public EstadoObstaculo getEstadoObstaculo() {
         return this.estadoObstaculo;
+    }
+
+    public int getCantidadLlenadaBarra1() {
+        return this.cantidadLlenadaBarra1;
+    }
+
+    public int getCantidadLlenadaBarra2() {
+        return this.cantidadLlenadaBarra2;
     }
 }
