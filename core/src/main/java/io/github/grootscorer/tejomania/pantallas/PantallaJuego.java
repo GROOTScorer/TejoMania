@@ -283,7 +283,15 @@ public class PantallaJuego extends ScreenAdapter {
         }
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.WHITE);
+
+        if(estadoPartida.getCanchaSeleccionada().equals("Cancha estandar")) {
+            shapeRenderer.setColor(Color.WHITE);
+        } else if(estadoPartida.getCanchaSeleccionada().equals("Cancha estanque")) {
+            shapeRenderer.setColor(80 / 255f, 127 / 255f, 128 / 255f, 1);
+        } else {
+            shapeRenderer.setColor(239 / 255f, 228 / 255f, 176 / 255f, 1);
+        }
+
         shapeRenderer.rect(xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
 
         if (estadoPartida.isJugarConObstaculos() && gestorObstaculos != null) {
@@ -452,8 +460,15 @@ public class PantallaJuego extends ScreenAdapter {
 
         shapeRenderer.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        if (estadoPartida.getCanchaSeleccionada().equals("Cancha estanque")) {
+            shapeRenderer.setColor(161 / 255f, 251 / 255f, 142 / 255f, 1f);
+        } else if (estadoPartida.getCanchaSeleccionada().equals("Cancha marron")) {
+            shapeRenderer.setColor(185 / 255f, 122 / 255f, 87 / 255f, 1f);
+        } else {
+            shapeRenderer.setColor(Color.WHITE);
+        }
 
         float radioY = CANCHA_ALTO / 4.5f;
         float radioX = radioY / 1.4f;
@@ -471,11 +486,40 @@ public class PantallaJuego extends ScreenAdapter {
             float x2 = centroIzquierdoX + radioX * (float) Math.cos(angulo2);
             float y2 = centroIzquierdoY + radioY * (float) Math.sin(angulo2);
 
-            shapeRenderer.line(x1, y1, x2, y2);
+            shapeRenderer.triangle(centroIzquierdoX, centroIzquierdoY, x1, y1, x2, y2);
         }
 
         float centroDerechoX = xCancha + CANCHA_ANCHO;
         float centroDerechoY = yCancha + CANCHA_ALTO / 2f;
+
+        for (int i = 0; i < segmentos; i++) {
+            float angulo1 = (float) (Math.PI / 2 + (Math.PI * i) / segmentos);
+            float angulo2 = (float) (Math.PI / 2 + (Math.PI * (i + 1)) / segmentos);
+
+            float x1 = centroDerechoX + radioX * (float) Math.cos(angulo1);
+            float y1 = centroDerechoY + radioY * (float) Math.sin(angulo1);
+            float x2 = centroDerechoX + radioX * (float) Math.cos(angulo2);
+            float y2 = centroDerechoY + radioY * (float) Math.sin(angulo2);
+
+            shapeRenderer.triangle(centroDerechoX, centroDerechoY, x1, y1, x2, y2);
+        }
+
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.BLACK);
+
+        for (int i = 0; i < segmentos; i++) {
+            float angulo1 = (float) (-Math.PI / 2 + (Math.PI * i) / segmentos);
+            float angulo2 = (float) (-Math.PI / 2 + (Math.PI * (i + 1)) / segmentos);
+
+            float x1 = centroIzquierdoX + radioX * (float) Math.cos(angulo1);
+            float y1 = centroIzquierdoY + radioY * (float) Math.sin(angulo1);
+            float x2 = centroIzquierdoX + radioX * (float) Math.cos(angulo2);
+            float y2 = centroIzquierdoY + radioY * (float) Math.sin(angulo2);
+
+            shapeRenderer.line(x1, y1, x2, y2);
+        }
 
         for (int i = 0; i < segmentos; i++) {
             float angulo1 = (float) (Math.PI / 2 + (Math.PI * i) / segmentos);

@@ -34,7 +34,7 @@ public class EleccionNombre extends ScreenAdapter {
     private float tiempoDesdeUltimoBorrado = 0f;
     private boolean primerBorradoRealizado = false;
 
-    public EleccionNombre(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida) {
+    public EleccionNombre(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida, String CanchaSeleccionado) {
         this.juego = juego;
         this.tipoJuegoLibre = tipoJuegoLibre;
         this.estadoPartida = estadoPartida;

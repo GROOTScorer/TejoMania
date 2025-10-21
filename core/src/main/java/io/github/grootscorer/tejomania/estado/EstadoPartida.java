@@ -15,6 +15,7 @@ public class EstadoPartida {
     private boolean jugarConObstaculos;
     private boolean jugarConTirosEspeciales;
     private boolean jugarConModificadores;
+    private String canchaSeleccionada;
 
     public String getJugador1() {
         return this.jugador1;
@@ -125,5 +126,13 @@ public class EstadoPartida {
 
     public void setJugarConModificadores(boolean jugarConModificadores) {
         this.jugarConModificadores = jugarConModificadores;
+    }
+
+    public String getCanchaSeleccionada() {
+        return this.canchaSeleccionada;
+    }
+
+    public void setCanchaSeleccionada(String cancha) {
+        this.canchaSeleccionada = cancha;
     }
 }

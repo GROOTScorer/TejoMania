@@ -255,7 +255,7 @@ public class MenuOpcionesJuego extends ScreenAdapter {
                 estadoPartida.setJugarConTirosEspeciales(eleccionTirosEspeciales);
                 estadoPartida.setJugarConModificadores(eleccionModificador);
 
-                juego.setScreen(new EleccionNombre(juego, tipoJuegoLibre, estadoPartida));
+                juego.setScreen(new EleccionCancha(juego, tipoJuegoLibre, estadoPartida));
                 break;
             case OPCION_MODIFICADORES:
                 eleccionModificador = !eleccionModificador;
