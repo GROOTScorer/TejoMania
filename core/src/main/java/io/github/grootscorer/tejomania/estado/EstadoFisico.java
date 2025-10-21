@@ -7,6 +7,7 @@ import io.github.grootscorer.tejomania.entidades.modificadores.Modificador;
 import io.github.grootscorer.tejomania.entidades.modificadores.DiscoDoble;
 import io.github.grootscorer.tejomania.entidades.modificadores.CongelarRival;
 import io.github.grootscorer.tejomania.entidades.obstaculos.GestorObstaculos;
+import io.github.grootscorer.tejomania.hud.BarraEspecial;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -77,6 +78,9 @@ public class EstadoFisico {
         this.hayModificadorEnPantalla = hayModificadorEnPantalla;
         this.tiempoSinGenerar = tiempoSinGenerar;
 
+        this.cantidadLlenadaBarra1 = cantidadLlenadaBarra1;
+        this.cantidadLlenadaBarra2 = cantidadLlenadaBarra2;
+
         if (gestorObstaculos != null) {
             gestorObstaculos.guardarEstado(this.estadoObstaculo);
         }
@@ -109,9 +113,6 @@ public class EstadoFisico {
 
             datosModificador.setTipo(modificador.getClass().getSimpleName());
             datosModificadores.add(datosModificador);
-
-            this.cantidadLlenadaBarra1 = cantidadLlenadaBarra1;
-            this.cantidadLlenadaBarra2 = cantidadLlenadaBarra2;
         }
     }
 

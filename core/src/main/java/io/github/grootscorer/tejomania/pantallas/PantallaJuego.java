@@ -186,17 +186,6 @@ public class PantallaJuego extends ScreenAdapter {
         for (Actor actor : encabezadoStage.getActors()) {
             stage.addActor(actor);
         }
-
-        if(estadoPartida.isJugarConTirosEspeciales()) {
-            barraEspecial1 = new BarraEspecial(0, 100, 1, false, skin);
-            barraEspecial2 = new BarraEspecial(0, 100, 1, false, skin);
-
-            barraEspecial1.setPosition(xCancha, yCancha - 30);
-            barraEspecial2.setPosition(xCancha + CANCHA_ANCHO - barraEspecial2.getWidth(), yCancha - 30);
-
-            stage.addActor(barraEspecial1);
-            stage.addActor(barraEspecial2);
-        }
     }
 
     @Override
@@ -789,8 +778,10 @@ public class PantallaJuego extends ScreenAdapter {
             tiro.iniciarRalentizacion();
         }
 
-        if(gestorObstaculos.hayColisionConDisco(discoOriginal)) {
-            tiro.iniciarRalentizacion();
+        if(gestorObstaculos != null) {
+            if(gestorObstaculos.hayColisionConDisco(discoOriginal)) {
+                tiro.iniciarRalentizacion();
+            }
         }
 
         boolean colisionParedRival = false;
