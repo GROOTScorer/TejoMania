@@ -1,5 +1,6 @@
 package io.github.grootscorer.tejomania.estado;
 
+import io.github.grootscorer.tejomania.enums.DificultadCPU;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
 
 public class EstadoPartida {
@@ -16,6 +17,7 @@ public class EstadoPartida {
     private boolean jugarConTirosEspeciales;
     private boolean jugarConModificadores;
     private String canchaSeleccionada;
+    private DificultadCPU dificultadCPU;
 
     public String getJugador1() {
         return this.jugador1;
@@ -134,5 +136,13 @@ public class EstadoPartida {
 
     public void setCanchaSeleccionada(String cancha) {
         this.canchaSeleccionada = cancha;
+    }
+
+    public DificultadCPU getDificultadCPU() {
+        return this.dificultadCPU;
+    }
+
+    public void setDificultadCPU(DificultadCPU dificultad) {
+        this.dificultadCPU = dificultad;
     }
 }

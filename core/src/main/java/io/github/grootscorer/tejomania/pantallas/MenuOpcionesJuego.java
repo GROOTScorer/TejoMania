@@ -255,6 +255,10 @@ public class MenuOpcionesJuego extends ScreenAdapter {
                 estadoPartida.setJugarConTirosEspeciales(eleccionTirosEspeciales);
                 estadoPartida.setJugarConModificadores(eleccionModificador);
 
+                if(tipoJuegoLibre.equals(TipoJuegoLibre.CPU)) {
+                    estadoPartida.setDificultadCPU(dificultad);
+                }
+
                 juego.setScreen(new EleccionCancha(juego, tipoJuegoLibre, estadoPartida));
                 break;
             case OPCION_MODIFICADORES:

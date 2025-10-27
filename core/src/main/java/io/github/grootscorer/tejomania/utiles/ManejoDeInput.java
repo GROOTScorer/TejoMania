@@ -4,6 +4,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
 import io.github.grootscorer.tejomania.entidades.Mazo;
+import io.github.grootscorer.tejomania.entidades.Cpu;
 import io.github.grootscorer.tejomania.entidades.modificadores.CongelarRival;
 import io.github.grootscorer.tejomania.entidades.modificadores.ControlesInvertidos;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
@@ -23,6 +24,39 @@ public class ManejoDeInput extends InputAdapter {
 
     private int mazoCongeladoId = -1;
 
+    private boolean solicitudCpuTiroEspecial = false;
+    private int mazoIdTiroEspecial = -1;
+
+    private Cpu cpu;
+
+    private static class InputSimulado {
+        boolean arriba = false, abajo = false, izquierda = false, derecha = false, golpe = false;
+        void clear(){
+            arriba = abajo = izquierda = derecha = golpe = false;
+        }
+
+        @Override
+        public String toString() {
+            return "ARRIBA:" + arriba + " ABAJO:" + abajo + " IZQUIERDA:" + izquierda + " DERECHA:" + derecha + " GOLPE:" + golpe;
+        }
+    }
+    private final InputSimulado inputSimuladoMazo1 = new InputSimulado();
+    private final InputSimulado inputSimuladoMazo2 = new InputSimulado();
+
+    public void setInputSimuladoParaMazo(int mazoId, boolean arriba, boolean abajo, boolean izquierda, boolean derecha, boolean golpe){
+        InputSimulado s = (mazoId == 1) ? inputSimuladoMazo1 : inputSimuladoMazo2;
+        s.arriba = arriba;
+        s.abajo = abajo;
+        s.izquierda = izquierda;
+        s.derecha = derecha;
+        s.golpe = golpe;
+    }
+
+    public void clearInputSimuladoParaMazo(int mazoId){
+        InputSimulado s = (mazoId == 1) ? inputSimuladoMazo1 : inputSimuladoMazo2;
+        s.clear();
+    }
+
     public ManejoDeInput(Mazo mazo1, Mazo mazo2, TipoJuegoLibre tipoJuegoLibre,
                          float xCancha, float yCancha, int canchaAncho, int canchaAlto) {
         this.mazo1 = mazo1;
@@ -32,6 +66,10 @@ public class ManejoDeInput extends InputAdapter {
         this.yCancha = yCancha;
         this.canchaAncho = canchaAncho;
         this.canchaAlto = canchaAlto;
+    }
+
+    public void setCpu(Cpu cpu) {
+        this.cpu = cpu;
     }
 
     public void setCongelarRival(CongelarRival congelarRival) {
@@ -110,11 +148,15 @@ public class ManejoDeInput extends InputAdapter {
             }
         }
 
-        if (mazo2 != null && !mazo2Congelado && tipoJuegoLibre == TipoJuegoLibre.DOS_JUGADORES) {
-            if (controlesInvertidosActivo) {
-                moverMazoWASD(mazo2, xCancha + canchaAncho / 2f, xCancha + canchaAncho);
+        if (mazo2 != null && !mazo2Congelado) {
+            if (tipoJuegoLibre == TipoJuegoLibre.DOS_JUGADORES) {
+                if (controlesInvertidosActivo) {
+                    moverMazoWASD(mazo2, xCancha + canchaAncho / 2f, xCancha + canchaAncho);
+                } else {
+                    moverMazoFlechas(mazo2, xCancha + canchaAncho / 2f, xCancha + canchaAncho);
+                }
             } else {
-                moverMazoFlechas(mazo2, xCancha + canchaAncho / 2f, xCancha + canchaAncho);
+                moverMazoSimulado(mazo2, xCancha + canchaAncho / 2f, xCancha + canchaAncho);
             }
         }
     }
@@ -123,42 +165,69 @@ public class ManejoDeInput extends InputAdapter {
         mazo.setVelocidadX(0);
         mazo.setVelocidadY(0);
 
-        if (Gdx.input.isKeyPressed(Input.Keys.W)) {
+        int mazoId = (mazo == mazo1) ? 1 : 2;
+        InputSimulado sim = (mazoId == 1) ? inputSimuladoMazo1 : inputSimuladoMazo2;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.W) || sim.arriba) {
             mazo.setVelocidadY(velocidad);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.S)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.S) || sim.abajo) {
             mazo.setVelocidadY(-velocidad);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.A)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.A) || sim.izquierda) {
             mazo.setVelocidadX(-velocidad);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.D)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.D) || sim.derecha) {
             mazo.setVelocidadX(velocidad);
         }
 
-        mazo.actualizarPosicion((int) limiteIzq, (int) limiteDer, (int) yCancha, (int) (yCancha + canchaAlto)
-        );
+        mazo.actualizarPosicion((int) limiteIzq, (int) limiteDer, (int) yCancha, (int) (yCancha + canchaAlto));
     }
 
     private void moverMazoFlechas(Mazo mazo, float limiteIzq, float limiteDer) {
         mazo.setVelocidadX(0);
         mazo.setVelocidadY(0);
 
-        if (Gdx.input.isKeyPressed(Input.Keys.UP)) {
+        int mazoId = (mazo == mazo1) ? 1 : 2;
+        InputSimulado sim = (mazoId == 1) ? inputSimuladoMazo1 : inputSimuladoMazo2;
+
+        if (Gdx.input.isKeyPressed(Input.Keys.UP) || sim.arriba) {
             mazo.setVelocidadY(velocidad);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN) || sim.abajo) {
             mazo.setVelocidadY(-velocidad);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.LEFT) || sim.izquierda) {
             mazo.setVelocidadX(-velocidad);
         }
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT)) {
+        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT) || sim.derecha) {
             mazo.setVelocidadX(velocidad);
         }
 
-        mazo.actualizarPosicion((int) limiteIzq, (int) limiteDer, (int) yCancha, (int) (yCancha + canchaAlto)
-        );
+        mazo.actualizarPosicion((int) limiteIzq, (int) limiteDer, (int) yCancha, (int) (yCancha + canchaAlto));
+    }
+
+    private void moverMazoSimulado(Mazo mazo, float limiteIzq, float limiteDer) {
+        mazo.setVelocidadX(0);
+        mazo.setVelocidadY(0);
+
+        int mazoId = (mazo == mazo1) ? 1 : 2;
+        InputSimulado sim = (mazoId == 1) ? inputSimuladoMazo1 : inputSimuladoMazo2;
+
+        if (sim.arriba) {
+            mazo.setVelocidadY(velocidad);
+        }
+        if (sim.abajo) {
+            mazo.setVelocidadY(-velocidad);
+        }
+        if (sim.izquierda) {
+            mazo.setVelocidadX(-velocidad);
+        }
+        if (sim.derecha) {
+            mazo.setVelocidadX(velocidad);
+        }
+
+        mazo.actualizarPosicion((int) limiteIzq, (int) limiteDer, (int) yCancha, (int) (yCancha + canchaAlto));
     }
 
     public CongelarRival getCongelarRival() {
@@ -177,5 +246,23 @@ public class ManejoDeInput extends InputAdapter {
 
     public void limpiarControlesInvertidos() {
         this.controlesInvertidos = null;
+    }
+
+    public void simularTiroEspecial(int mazoId) {
+        this.solicitudCpuTiroEspecial = true;
+        this.mazoIdTiroEspecial = mazoId;
+    }
+
+    public boolean getSolicitudCpuTiroEspecial() {
+        return this.solicitudCpuTiroEspecial;
+    }
+
+    public int getMazoIdTiroEspecial() {
+        return this.mazoIdTiroEspecial;
+    }
+
+    public void limpiarSolicitudTiroEspecial() {
+        solicitudCpuTiroEspecial = false;
+        mazoIdTiroEspecial = -1;
     }
 }

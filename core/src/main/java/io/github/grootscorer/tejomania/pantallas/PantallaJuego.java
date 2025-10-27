@@ -36,6 +36,7 @@ import io.github.grootscorer.tejomania.entidades.tirosespeciales.TiroPotente;
 import io.github.grootscorer.tejomania.entidades.tirosespeciales.TiroInvisible;
 import java.util.ArrayList;
 import java.util.List;
+import io.github.grootscorer.tejomania.entidades.Cpu;
 
 public class PantallaJuego extends ScreenAdapter {
     private Stage stage;
@@ -73,6 +74,8 @@ public class PantallaJuego extends ScreenAdapter {
     private TiroPotente tiroPotente1, tiroPotente2;
     private TiroInvisible tiroInvisible1, tiroInvisible2;
     private boolean tiroEspecialActivo = false;
+
+    private Cpu cpu;
 
     private final Texture mazoRojo = new Texture(Gdx.files.internal("imagenes/sprites/mazo_rojo.png"));
     private final Texture mazoAzul = new Texture(Gdx.files.internal("imagenes/sprites/mazo_azul.png"));
@@ -168,6 +171,15 @@ public class PantallaJuego extends ScreenAdapter {
 
         manejoDeInput = new ManejoDeInput(mazo1, mazo2, tipoJuegoLibre, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
 
+        if (tipoJuegoLibre == TipoJuegoLibre.CPU) {
+            BarraEspecial barraCpu = estadoPartida.isJugarConTirosEspeciales() ? barraEspecial2 : null;
+            cpu = new Cpu(mazo2, mazo1, discoOriginal, manejoDeInput, 2, estadoPartida.getDificultadCPU(),
+                barraCpu, estadoPartida.isJugarConTirosEspeciales());
+            manejoDeInput.setCpu(cpu);
+        } else {
+            cpu = null;
+        }
+
         CongelarRival congelarRivalActivo = gestorModificadores.getCongelarRivalActivo();
         if (congelarRivalActivo != null && estadoFisico.getMazoEnPosesionId() != -1) {
             manejoDeInput.configurarCongelacionDesdeEstado(congelarRivalActivo, estadoFisico.getMazoEnPosesionId());
@@ -237,6 +249,16 @@ public class PantallaJuego extends ScreenAdapter {
                 if (manejoDeInput.getControlesInvertidos() != null) {
                     manejoDeInput.limpiarControlesInvertidos();
                 }
+            }
+
+            if (cpu != null) {
+                if (discoSecundario != null && gestorModificadores.isDiscoDobleActivo()) {
+                    cpu.setDiscoSecundario(discoSecundario);
+                } else {
+                    cpu.restaurarDiscoOriginal(discoOriginal);
+                }
+
+                cpu.update(delta);
             }
 
             manejoDeInput.actualizarMovimiento();
@@ -355,7 +377,8 @@ public class PantallaJuego extends ScreenAdapter {
                     cantidadBarra1, cantidadBarra2);
                 juego.setScreen(new MenuPausa(juego, tipoJuegoLibre, estadoPartida, estadoFisico));
             }
-        }    }
+        }
+    }
 
     private void verificarColisionesEntreDisco() {
         if (discoSecundario != null) {
@@ -637,6 +660,10 @@ public class PantallaJuego extends ScreenAdapter {
             tiroEspecialActivo = false;
         }
 
+        if (cpu != null) {
+            cpu.restaurarDiscoOriginal(discoOriginal);
+        }
+
         pausaGol = true;
         tiempoPausaGol = 0;
     }
@@ -729,6 +756,19 @@ public class PantallaJuego extends ScreenAdapter {
     }
 
     private void verificarActivacionTirosEspeciales() {
+        if (manejoDeInput.getSolicitudCpuTiroEspecial()) {
+            int mazoId = manejoDeInput.getMazoIdTiroEspecial();
+
+            if (mazoId == 2 && barraEspecial2.isLlenado() && !tiroEspecialActivo) {
+                float distancia = calcularDistanciaDiscoMazo(discoOriginal, mazo2);
+                if (distancia < 100 * Math.min(escalaX, escalaY)) {
+                    activarTiroEspecial(mazo2, 2);
+                }
+            }
+
+            manejoDeInput.limpiarSolicitudTiroEspecial();
+        }
+
         if (barraEspecial1.isLlenado() && !tiroEspecialActivo) {
             if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
                 float distancia = calcularDistanciaDiscoMazo(discoOriginal, mazo1);
