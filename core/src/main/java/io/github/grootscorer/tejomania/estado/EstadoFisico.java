@@ -185,4 +185,8 @@ public class EstadoFisico {
     public int getCantidadLlenadaBarra2() {
         return this.cantidadLlenadaBarra2;
     }
+
+    public DatosMazo getDatosMazo() {
+        return this.datosMazo;
+    }
 }

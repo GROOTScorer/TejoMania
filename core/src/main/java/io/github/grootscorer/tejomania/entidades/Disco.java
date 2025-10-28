@@ -341,4 +341,28 @@ public class Disco {
     public void setMaxVelocidad(int velocidad) {
         this.maxVelocidad = velocidad;
     }
+
+    public void reposicionarDisco(Mazo mazo, float xCancha, float yCancha, float CANCHA_ANCHO, float CANCHA_ALTO) {
+        if(colisionaConMazo(mazo)) {
+            if(posicionX == xCancha && (posicionY == yCancha || posicionY + (RADIO_DISCO * 2) >= yCancha + CANCHA_ALTO)) {
+                setPosicionX(posicionX + 16);
+            }
+        } else if(this.posicionX + (RADIO_DISCO * 2) >= xCancha + CANCHA_ANCHO && (posicionY == 80 || posicionY + (RADIO_DISCO * 2) >= yCancha + CANCHA_ALTO)) {
+            setPosicionX(posicionX - 16);
+        }
+    }
+
+    public void reposicionarEntreDosMazos(Mazo mazo1, Mazo mazo2, float CANCHA_ALTO) {
+        if(colisionaConMazo(mazo1) && colisionaConMazo(mazo2)) {
+            if(posicionY < CANCHA_ALTO - 15) {
+                this.posicionY += 10;
+            } else {
+                this.posicionY -= 10;
+            }
+        }
+    }
+
+    public void setPosicionX(float x) {
+        this.posicionX = x;
+    }
 }

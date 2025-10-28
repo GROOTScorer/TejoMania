@@ -5,6 +5,7 @@ import io.github.grootscorer.tejomania.entidades.Disco;
 import io.github.grootscorer.tejomania.entidades.Mazo;
 import io.github.grootscorer.tejomania.estado.DatosModificador;
 import io.github.grootscorer.tejomania.estado.EstadoFisico;
+import io.github.grootscorer.tejomania.estado.EstadoPartida;
 import io.github.grootscorer.tejomania.pantallas.PantallaJuego;
 
 import java.util.ArrayList;
@@ -27,9 +28,10 @@ public class GestorModificadores {
     private Disco disco;
     private float xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO;
     private EstadoFisico estadoFisico;
+    private EstadoPartida estadoPartida;
 
     public GestorModificadores(PantallaJuego pantallaJuego, Mazo mazo1, Mazo mazo2, Disco disco,
-                               float xCancha, float yCancha, float CANCHA_ANCHO, float CANCHA_ALTO) {
+                               float xCancha, float yCancha, float CANCHA_ANCHO, float CANCHA_ALTO, EstadoPartida estadoPartida) {
         this.modificadores = new ArrayList<>();
         this.random = new Random();
         this.pantallaJuego = pantallaJuego;
@@ -41,6 +43,7 @@ public class GestorModificadores {
         this.CANCHA_ANCHO = CANCHA_ANCHO;
         this.CANCHA_ALTO = CANCHA_ALTO;
         this.estadoFisico = new EstadoFisico();
+        this.estadoPartida = estadoPartida;
     }
 
     public void actualizar(float delta, float velocidadDisco) {
@@ -92,6 +95,10 @@ public class GestorModificadores {
     }
 
     private void generarModificadorAleatorio() {
+        if(!estadoPartida.isJugarConModificadores()) {
+            return;
+        }
+
         boolean tieneDiscoDoble = false;
         boolean tieneCongelarRival = false;
         boolean tieneControlesInvertidos = false;
