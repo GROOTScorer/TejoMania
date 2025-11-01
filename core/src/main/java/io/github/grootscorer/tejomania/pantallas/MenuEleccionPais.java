@@ -167,7 +167,7 @@ public class MenuEleccionPais extends ScreenAdapter {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             Pais paisSeleccionado = paisesDisponibles.get(opcionPais);
-            // juego.setScreen(new (juego, paisSeleccionado));
+            juego.setScreen(new EleccionDificultadCompetencia(juego, paisSeleccionado, tipoCompetencia));
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {

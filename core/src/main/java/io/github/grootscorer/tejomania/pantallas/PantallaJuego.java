@@ -14,6 +14,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
@@ -21,6 +22,7 @@ import io.github.grootscorer.tejomania.entidades.Disco;
 import io.github.grootscorer.tejomania.entidades.Jugador;
 import io.github.grootscorer.tejomania.entidades.Mazo;
 import io.github.grootscorer.tejomania.entidades.modificadores.GestorModificadores;
+import io.github.grootscorer.tejomania.enums.TipoCompetencia;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
 import io.github.grootscorer.tejomania.estado.EstadoFisico;
 import io.github.grootscorer.tejomania.estado.EstadoPartida;
@@ -325,7 +327,29 @@ public class PantallaJuego extends ScreenAdapter {
         if (juegoTerminado) {
             tiempoMostrandoResultado += delta;
             if (tiempoMostrandoResultado >= DURACION_MOSTRAR_RESULTADO) {
-                juego.setScreen(new MenuPrincipal(juego));
+                int resultado = 0; // 0 = empate, 1 = gana jugador1, 2 = gana jugador2
+
+                if (estadoPartida.getPuntaje1() > estadoPartida.getPuntaje2()) {
+                    resultado = 1;
+                } else if (estadoPartida.getPuntaje2() > estadoPartida.getPuntaje1()) {
+                    resultado = 2;
+                }
+
+                if (estadoPartida.getTipoCompetencia() == TipoCompetencia.LIGA && estadoPartida.getGestorLiga() != null) {
+                    estadoPartida.getGestorLiga().registrarResultadoJugador(
+                        estadoPartida.getFechaLiga(),
+                        estadoPartida.getPuntaje1(),
+                        estadoPartida.getPuntaje2()
+                    );
+
+                    estadoPartida.getGestorLiga().simularPartidosIA(estadoPartida.getFechaLiga());
+                }
+
+                if (estadoPartida.getTipoCompetencia() != null) {
+                    juego.setScreen(new PostPartidoCompetencia(juego, estadoPartida.getTipoCompetencia(), resultado, estadoPartida));
+                } else {
+                    juego.setScreen(new MenuPrincipal(juego));
+                }
                 return;
             }
         }
@@ -726,8 +750,19 @@ public class PantallaJuego extends ScreenAdapter {
             (estadoPartida.getPuntaje1() >= estadoPartida.getPuntajeGanador() ||
                 estadoPartida.getPuntaje2() >= estadoPartida.getPuntajeGanador());
 
-        if (finPorTiempo || finPorPuntaje) {
+        if (finPorPuntaje) {
             mostrarResultado();
+        } else {
+            if(finPorTiempo && estadoPartida.getTipoCompetencia() == TipoCompetencia.TORNEO) {
+                int puntaje1 = estadoPartida.getPuntaje1();
+                int puntaje2 = estadoPartida.getPuntaje2();
+
+                if(puntaje1 > puntaje2 || puntaje2 > puntaje1) {
+                    mostrarResultado();
+                }
+            } else if(finPorTiempo && estadoPartida.getTipoCompetencia() != TipoCompetencia.TORNEO) {
+                mostrarResultado();
+            }
         }
     }
 
