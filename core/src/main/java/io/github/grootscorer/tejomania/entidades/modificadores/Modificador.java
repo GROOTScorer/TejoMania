@@ -1,5 +1,6 @@
 package io.github.grootscorer.tejomania.entidades.modificadores;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Circle;
@@ -10,7 +11,8 @@ import io.github.grootscorer.tejomania.entidades.Jugador;
 import java.util.Random;
 
 public abstract class Modificador {
-    protected int radio = 20;
+    protected float escalaY = (float) Gdx.graphics.getHeight() / 480f;
+    protected int radio = (int) (20 * escalaY);
     protected float posicionX, posicionY;
     protected Jugador jugadorConPosesion;
     protected Jugador jugadorSinPosesion;

@@ -780,15 +780,14 @@ public class PantallaJuego extends ScreenAdapter {
                 textoGanador = "EMPATE!";
             }
 
+            Table tableGanador = new Table();
+            stage.addActor(tableGanador);
+
             labelGanador = new Label(textoGanador, skin, "default");
             labelGanador.setColor(Color.RED);
             labelGanador.setFontScale(escalaFuente * 4.0f);
 
-            labelGanador.pack();
-
-            labelGanador.setPosition(Gdx.graphics.getWidth() / 2f, 100);
-
-            stage.addActor(labelGanador);
+            tableGanador.add(labelGanador).padBottom(50 * escalaFuente).padLeft(Gdx.graphics.getWidth() / 2f);
         }
     }
 

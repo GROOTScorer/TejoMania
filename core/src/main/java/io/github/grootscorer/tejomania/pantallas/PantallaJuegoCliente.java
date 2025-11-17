@@ -395,7 +395,10 @@ public class PantallaJuegoCliente extends ScreenAdapter implements ControladorJu
             try { hiloCliente.join(); } catch (Exception ignored) {}
         }
 
-        Gdx.app.postRunnable(() -> juego.setScreen(new MenuPrincipal(juego)));
+        Gdx.app.postRunnable(() -> {
+            ManejoDeAudio.activarMusica("audio/musica/musica_menu.mp3", true);
+            juego.setScreen(new MenuPrincipal(juego));
+        });
     }
 
     @Override

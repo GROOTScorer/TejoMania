@@ -18,6 +18,8 @@ import io.github.grootscorer.tejomania.estado.EstadoPartida;
 
 import com.badlogic.gdx.graphics.Color;
 import io.github.grootscorer.tejomania.estado.GestorLiga;
+import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
+
 import java.util.List;
 import java.util.Map;
 
@@ -148,6 +150,7 @@ public class PostPartidoCompetencia extends ScreenAdapter {
                 }
 
                 if(estadoPartida.getFaseActual() >= 3) {
+                    ManejoDeAudio.activarMusica("audio/musica/musica_menu.mp3", true);
                     juego.setScreen(new MenuPrincipal(juego));
                 } else {
                     estadoPartida.setFaseActual(estadoPartida.getFaseActual() + 1);
@@ -163,6 +166,7 @@ public class PostPartidoCompetencia extends ScreenAdapter {
                     juego.setScreen(new PantallaJuego(juego, TipoJuegoLibre.CPU, estadoPartida));
                 }
             } else {
+                ManejoDeAudio.activarMusica("audio/musica/musica_menu.mp3", true);
                 juego.setScreen(new MenuPrincipal(juego));
             }
         }

@@ -15,6 +15,8 @@ import io.github.grootscorer.tejomania.Principal;
 import io.github.grootscorer.tejomania.estado.EstadoPartida;
 import io.github.grootscorer.tejomania.estado.GestorLiga;
 import io.github.grootscorer.tejomania.enums.Pais;
+import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
+
 import java.util.List;
 import java.util.Map;
 
@@ -151,6 +153,7 @@ public class PantallaResultadoFinalLiga extends ScreenAdapter {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+            ManejoDeAudio.activarMusica("audio/musica/musica_menu.mp3", true);
             juego.setScreen(new MenuPrincipal(juego));
         }
 

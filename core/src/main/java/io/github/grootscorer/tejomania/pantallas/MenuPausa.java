@@ -9,6 +9,7 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
 import io.github.grootscorer.tejomania.entidades.Disco;
@@ -51,6 +52,7 @@ public class MenuPausa extends ScreenAdapter {
 
         Table table = new Table();
         table.setFillParent(true);
+        table.center();
         stage.addActor(table);
 
         seguir = new Label("Reanudar", skin);
@@ -60,9 +62,13 @@ public class MenuPausa extends ScreenAdapter {
         salir = new Label("Salir", skin);
         salir.setFontScale(1.5f * escalaFuente);
 
-        table.add(seguir).width(200).pad(20).row();
-        table.add(volumenSonido).width(200).pad(20).row();
-        table.add(salir).width(200).pad(20);
+        seguir.setAlignment(Align.center);
+        volumenSonido.setAlignment(Align.center);
+        salir.setAlignment(Align.center);
+
+        table.add(seguir).width(200).pad(20).center().row();
+        table.add(volumenSonido).width(200).pad(20).center().row();
+        table.add(salir).width(200).pad(20).center();
 
         actualizarColores();
     }
@@ -95,6 +101,7 @@ public class MenuPausa extends ScreenAdapter {
             if (opcionSeleccionada == 0) {
                 juego.setScreen(new PantallaJuego(juego, tipoJuegoLibre, estadoPartida, estadoFisico));
             } else if (opcionSeleccionada == 2) {
+                ManejoDeAudio.activarMusica("audio/musica/musica_menu.mp3", true);
                 juego.setScreen(new MenuPrincipal(juego));
             }
         }

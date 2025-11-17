@@ -44,6 +44,8 @@ public class MenuConfiguracion extends ScreenAdapter {
 
         skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
 
+        indiceResolucion = buscarIndice();
+
         Table table = new Table();
         table.setFillParent(true);
         table.center();
@@ -177,5 +179,21 @@ public class MenuConfiguracion extends ScreenAdapter {
         stage.getViewport().update(ancho, altura, true);
         opciones[2].setText("Resolucion: " + ancho + "x" + altura);
         ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
+    }
+
+    private int buscarIndice() {
+        int i = 0;
+        int ancho = Gdx.graphics.getWidth();
+        int altura = Gdx.graphics.getHeight();
+
+        do {
+            if(ancho == resoluciones[i][0] && altura == resoluciones[i][1]) {
+                return i;
+            }
+
+            i++;
+        }   while(i < resoluciones.length);
+
+        return 0;
     }
 }

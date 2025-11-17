@@ -110,7 +110,7 @@ public class EleccionDificultadCompetencia extends ScreenAdapter {
     private void manejarEnter() {
         estadoPartida.setJugador1(paisSeleccionado.getnombre());
         estadoPartida.setDificultadCPU(dificultad);
-        estadoPartida.setTiempoRestante(5);
+        estadoPartida.setTiempoRestante(300);
         estadoPartida.setJugandoPorTiempo(true);
         estadoPartida.setJugandoPorPuntaje(false);
         estadoPartida.setJugarConModificadores(false);

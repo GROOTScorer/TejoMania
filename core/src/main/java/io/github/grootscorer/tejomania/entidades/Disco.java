@@ -159,12 +159,14 @@ public class Disco {
             tiempoUltimoSonidoMazo = tiempoActual;
         }
 
-        if(gestorModificadores.getCongelarRivalActivo() == null) {
-            if (ultimoMazoConPosesion != mazo) {
-                cambioDePosesion = true;
-                ultimoMazoConPosesion = mazo;
-            } else {
-                cambioDePosesion = false;
+        if(gestorModificadores != null) {
+            if(gestorModificadores.getCongelarRivalActivo() == null) {
+                if (ultimoMazoConPosesion != mazo) {
+                    cambioDePosesion = true;
+                    ultimoMazoConPosesion = mazo;
+                } else {
+                    cambioDePosesion = false;
+                }
             }
         }
 
