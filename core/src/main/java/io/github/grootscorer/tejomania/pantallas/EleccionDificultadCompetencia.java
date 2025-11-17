@@ -56,7 +56,9 @@ public class EleccionDificultadCompetencia extends ScreenAdapter {
 
     private void crearInterfaz() {
         stage = new Stage(new ScreenViewport());
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        String rutaRelativaSkin = "ui/uiskin.json";
+        String rutaAbsolutaSkin = Gdx.files.internal(rutaRelativaSkin).file().getAbsolutePath();
+        skin = new Skin(Gdx.files.internal(rutaAbsolutaSkin));
 
         Table table = new Table();
         table.setFillParent(true);
@@ -77,13 +79,15 @@ public class EleccionDificultadCompetencia extends ScreenAdapter {
     public void render(float delta) {
         Gdx.gl.glClearColor(0, 0, 0, 1);
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+        String rutaRelativaSonido = "audio/sonidos/sonido_seleccion.mp3";
+        String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.LEFT)) {
             manejarFlechaIzquierda();
-            ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
+            ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal(rutaAbsolutaSonido)));
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.RIGHT)) {
             manejarFlechaDerecha();
-            ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
+            ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal(rutaAbsolutaSonido)));
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             manejarEnter();
         } else if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {

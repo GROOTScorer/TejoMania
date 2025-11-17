@@ -13,7 +13,9 @@ public class ControlesInvertidos extends Modificador {
     public ControlesInvertidos(PantallaJuego pantallaJuego) {
         super();
         this.pantallaJuego = pantallaJuego;
-        this.texturaPowerUp = new Texture(Gdx.files.internal("imagenes/sprites/cambiar_controles.png"));
+        String rutaRelativaSprite = "imagenes/sprites/cambiar_controles.png";
+        String rutaAbsolutaSprite = Gdx.files.internal(rutaRelativaSprite).file().getAbsolutePath();
+        this.texturaPowerUp = new Texture(Gdx.files.internal(rutaAbsolutaSprite));
     }
 
     @Override

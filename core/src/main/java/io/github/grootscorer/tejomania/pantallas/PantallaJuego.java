@@ -79,11 +79,22 @@ public class PantallaJuego extends ScreenAdapter {
 
     private Cpu cpu;
 
-    private final Texture mazoRojo = new Texture(Gdx.files.internal("imagenes/sprites/mazo_rojo.png"));
-    private final Texture mazoAzul = new Texture(Gdx.files.internal("imagenes/sprites/mazo_azul.png"));
+    String rutaRelativaMazoRojo = "imagenes/sprites/mazo_rojo.png";
+    String rutaAbsolutaMazoRojo = Gdx.files.internal(rutaRelativaMazoRojo).file().getAbsolutePath();
 
-    private final Texture spritesheetMazoRojo = new Texture(Gdx.files.internal("imagenes/sprites/spritesheet_mazo_rojo.png"));
-    private final Texture spritesheetMazoAzul = new Texture(Gdx.files.internal("imagenes/sprites/spritesheet_mazo_azul.png"));
+    String rutaRelativaMazoAzul = "imagenes/sprites/mazo_azul.png";
+    String rutaAbsolutaMazoAzul = Gdx.files.internal(rutaRelativaMazoAzul).file().getAbsolutePath();
+    private final Texture mazoRojo = new Texture(Gdx.files.internal(rutaAbsolutaMazoRojo));
+    private final Texture mazoAzul = new Texture(Gdx.files.internal(rutaAbsolutaMazoAzul));
+
+    String rutaRelativaSpritesheetMazoRojo = "imagenes/sprites/spritesheet_mazo_rojo.png";
+    String rutaAbsolutaSpritesheetMazoRojo = Gdx.files.internal(rutaRelativaSpritesheetMazoRojo).file().getAbsolutePath();
+
+    String rutaRelativaSpritesheetMazoAzul = "imagenes/sprites/spritesheet_mazo_azul.png";
+    String rutaAbsolutaSpritesheetMazoAzul = Gdx.files.internal(rutaRelativaSpritesheetMazoAzul).file().getAbsolutePath();
+
+    private final Texture spritesheetMazoRojo = new Texture(Gdx.files.internal(rutaAbsolutaSpritesheetMazoRojo));
+    private final Texture spritesheetMazoAzul = new Texture(Gdx.files.internal(rutaAbsolutaSpritesheetMazoAzul));
 
     private final float BRILLO_NORMAL = 1.0f;
     private final float BRILLO_PAUSA = 0.5f;
@@ -121,7 +132,9 @@ public class PantallaJuego extends ScreenAdapter {
     @Override
     public void show() {
         stage = new Stage(new ScreenViewport());
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        String rutaRelativaSkin = "ui/uiskin.json";
+        String rutaAbsolutaSkin = Gdx.files.internal(rutaRelativaSkin).file().getAbsolutePath();
+        skin = new Skin(Gdx.files.internal(rutaAbsolutaSkin));
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
         discoOriginal = new Disco();
@@ -685,14 +698,18 @@ public class PantallaJuego extends ScreenAdapter {
 
         if (disco.getPosicionX() + disco.getRadioDisco() * 2 < xCancha) {
             if (discoEnAreaVerticalGol) {
-                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_gol.mp3"))));
+                String rutaRelativaSonido = "audio/sonidos/sonido_gol.mp3";
+                String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
                 estadoPartida.agregarGolJugador2();
                 discosQueAnotaron.add(disco);
             }
         }
         else if (disco.getPosicionX() > xCancha + CANCHA_ANCHO) {
             if (discoEnAreaVerticalGol) {
-                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_gol.mp3"))));
+                String rutaRelativaSonido = "audio/sonidos/sonido_gol.mp3";
+                String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
                 estadoPartida.agregarGolJugador1();
                 discosQueAnotaron.add(disco);
             }

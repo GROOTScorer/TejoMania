@@ -23,6 +23,9 @@ public class Obstaculo {
     private Rectangle hitboxRectangulo;
     private Polygon hitboxTriangulo;
 
+    String rutaRelativaSonido = "audio/sonidos/sonido_golpe_pared.mp3";
+    String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+
     public Obstaculo(float posicionX, float posicionY, int tipo) {
         this.posicionX = posicionX;
         this.posicionY = posicionY;
@@ -94,7 +97,7 @@ public class Obstaculo {
     }
 
     public void manejarColisionConMazo(Mazo mazo) {
-        ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
+        ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
 
         float centroMazoX = mazo.getPosicionX() + mazo.getRadioMazo();
         float centroMazoY = mazo.getPosicionY() + mazo.getRadioMazo();
@@ -120,7 +123,7 @@ public class Obstaculo {
     }
 
     public void manejarColisionConDisco(Disco disco) {
-        ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
+        ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
 
         float centroDiscoX = disco.getPosicionX() + disco.getRadioDisco();
         float centroDiscoY = disco.getPosicionY() + disco.getRadioDisco();

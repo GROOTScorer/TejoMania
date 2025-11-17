@@ -3,20 +3,22 @@ package io.github.grootscorer.tejomania.entidades;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Circle;
 
 import java.util.Random;
 
 public class DiscoCliente {
     private float posicionX, posicionY;
     private float velocidadX, velocidadY;
-    private Circle hitboxDisco;
 
     float escalaY = (float) Gdx.graphics.getHeight() / 480f;
 
     private final int RADIO_DISCO = (int) (13 * escalaY);
     private  int maxVelocidad = 500;
-    private Texture textura = new Texture(Gdx.files.internal("imagenes/sprites/disco.png"));
+
+    private String rutaRelativaSprite = "imagenes/sprites/disco.png";
+    private String rutaAbsolutaSprite = Gdx.files.internal(rutaRelativaSprite).file().getAbsolutePath();
+
+    private Texture textura = new Texture(Gdx.files.internal(rutaAbsolutaSprite));
 
     public DiscoCliente() {
         Random rand = new Random();
@@ -25,7 +27,6 @@ public class DiscoCliente {
         this.posicionY = 300;
         this.velocidadX = 0;
         this.velocidadY = 0;
-        this.hitboxDisco = new Circle(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO, RADIO_DISCO);
     }
 
     public void dibujarConTextura(SpriteBatch batch) {
@@ -84,6 +85,5 @@ public class DiscoCliente {
     public void setPosicion(float x, float y) {
         this.posicionX = x;
         this.posicionY = y;
-        this.hitboxDisco.setPosition(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO);
     }
 }

@@ -48,7 +48,9 @@ public class MenuPausa extends ScreenAdapter {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        String rutaRelativaSkin = "ui/uiskin.json";
+        String rutaAbsolutaSkin = Gdx.files.internal(rutaRelativaSkin).file().getAbsolutePath();
+        skin = new Skin(Gdx.files.internal(rutaAbsolutaSkin));
 
         Table table = new Table();
         table.setFillParent(true);
@@ -77,16 +79,19 @@ public class MenuPausa extends ScreenAdapter {
     public void render(float delta) {
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+        String rutaRelativaSonido = "audio/sonidos/sonido_seleccion.mp3";
+        String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             opcionSeleccionada = (opcionSeleccionada - 1 + 3) % 3;
             actualizarColores();
-            ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
+            ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal(rutaAbsolutaSonido)));
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             opcionSeleccionada = (opcionSeleccionada + 1) % 3;
             actualizarColores();
-            ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
+            ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal(rutaAbsolutaSonido)));
         }
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT) && opcionSeleccionada == 1) {

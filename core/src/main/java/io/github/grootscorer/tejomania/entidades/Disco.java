@@ -26,7 +26,10 @@ public class Disco {
     private long tiempoUltimoSonidoDisco = 0;
     private static final long COOLDOWN_SONIDO_MAZO_MS = 300;
     private static final long COOLDOWN_SONIDO_DISCO_MS = 200;
-    private Texture textura = new Texture(Gdx.files.internal("imagenes/sprites/disco.png"));
+    private String rutaRelativaSprite = "imagenes/sprites/disco.png";
+    private String rutaAbsolutaSprite = Gdx.files.internal(rutaRelativaSprite).file().getAbsolutePath();
+
+    private Texture textura = new Texture(Gdx.files.internal(rutaAbsolutaSprite));
 
     private Mazo ultimoMazoConPosesion;
     private boolean cambioDePosesion = false;
@@ -57,7 +60,9 @@ public class Disco {
         long tiempoActual = com.badlogic.gdx.utils.TimeUtils.millis();
 
         if (tiempoActual - tiempoUltimoSonidoDisco >= COOLDOWN_SONIDO_DISCO_MS) {
-            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_mazo.mp3"))));
+            String rutaRelativaSonido = "audio/sonidos/sonido_golpe_mazo.mp3";
+            String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
             tiempoUltimoSonidoDisco = tiempoActual;
         }
 
@@ -126,24 +131,32 @@ public class Disco {
 
         if (!discoEnAreaVerticalArco) {
             if (this.posicionX <= xCancha) {
-                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
+                String rutaRelativaSonido = "audio/sonidos/sonido_golpe_pared.mp3";
+                String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
                 this.posicionX = xCancha;
                 this.velocidadX = -this.velocidadX;
             }
             if (this.posicionX + (RADIO_DISCO * 2) >= xCancha + CANCHA_ANCHO) {
-                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
+                String rutaRelativaSonido = "audio/sonidos/sonido_golpe_pared.mp3";
+                String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
                 this.posicionX = xCancha + CANCHA_ANCHO - (RADIO_DISCO * 2);
                 this.velocidadX = -this.velocidadX;
             }
         }
 
         if (this.posicionY <= yCancha) {
-            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
+            String rutaRelativaSonido = "audio/sonidos/sonido_golpe_pared.mp3";
+            String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
             this.posicionY = yCancha;
             this.velocidadY = -this.velocidadY;
         }
         if (this.posicionY + (RADIO_DISCO * 2) >= yCancha + CANCHA_ALTO) {
-            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
+            String rutaRelativaSonido = "audio/sonidos/sonido_golpe_pared.mp3";
+            String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
             this.posicionY = yCancha + CANCHA_ALTO - (RADIO_DISCO * 2);
             this.velocidadY = -this.velocidadY;
         }
@@ -155,7 +168,10 @@ public class Disco {
         long tiempoActual = com.badlogic.gdx.utils.TimeUtils.millis();
 
         if (tiempoActual - tiempoUltimoSonidoMazo >= COOLDOWN_SONIDO_MAZO_MS) {
-            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_mazo.mp3"))));
+            String rutaRelativaSonido = "audio/sonidos/sonido_golpe_mazo.mp3";
+            String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
             tiempoUltimoSonidoMazo = tiempoActual;
         }
 

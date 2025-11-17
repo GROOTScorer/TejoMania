@@ -12,7 +12,9 @@ public class DiscoDoble extends Modificador {
 
     public DiscoDoble(PantallaJuego pantallaJuego) {
         this.pantallaJuego = pantallaJuego;
-        this.texturaPowerUp = new Texture(Gdx.files.internal("imagenes/sprites/disco_doble.png"));
+        String rutaRelativaSprite = "imagenes/sprites/disco_doble.png";
+        String rutaAbsolutaSprite = Gdx.files.internal(rutaRelativaSprite).file().getAbsolutePath();
+        this.texturaPowerUp = new Texture(Gdx.files.internal(rutaAbsolutaSprite));
     }
 
     @Override

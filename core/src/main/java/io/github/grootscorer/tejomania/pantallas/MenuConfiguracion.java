@@ -32,6 +32,9 @@ public class MenuConfiguracion extends ScreenAdapter {
     };
     private int indiceResolucion = 0;
 
+    private String rutaRelativaSonido = "audio/sonidos/sonido_seleccion.mp3";
+    private String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+
     public MenuConfiguracion(Principal juego) {
         this.juego = juego;
     }
@@ -42,7 +45,9 @@ public class MenuConfiguracion extends ScreenAdapter {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        String rutaRelativaSkin = "ui/uiskin.json";
+        String rutaAbsolutaSkin = Gdx.files.internal(rutaRelativaSkin).file().getAbsolutePath();
+        skin = new Skin(Gdx.files.internal(rutaAbsolutaSkin));
 
         indiceResolucion = buscarIndice();
 
@@ -122,7 +127,7 @@ public class MenuConfiguracion extends ScreenAdapter {
         for (int i = 0; i < opciones.length; i++) {
             opciones[i].setColor(i == opcionActual ? Color.RED : Color.WHITE);
         }
-        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
+        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal(rutaAbsolutaSonido)));
     }
 
     private void manejarInputEnter() {
@@ -178,7 +183,7 @@ public class MenuConfiguracion extends ScreenAdapter {
         Gdx.graphics.setWindowedMode(ancho, altura);
         stage.getViewport().update(ancho, altura, true);
         opciones[2].setText("Resolucion: " + ancho + "x" + altura);
-        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
+        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal(rutaAbsolutaSonido)));
     }
 
     private int buscarIndice() {

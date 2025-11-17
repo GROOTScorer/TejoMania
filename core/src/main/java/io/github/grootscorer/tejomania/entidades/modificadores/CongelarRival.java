@@ -19,7 +19,9 @@ public class CongelarRival extends Modificador {
     public CongelarRival(PantallaJuego pantallaJuego, EstadoFisico estadoFisico) {
         this.pantallaJuego = pantallaJuego;
         this.estadoFisico = estadoFisico;
-        this.texturaPowerUp = new Texture(Gdx.files.internal("imagenes/sprites/congelar.png"));
+        String rutaRelativaSprite = "imagenes/sprites/congelar.png";
+        String rutaAbsolutaSprite = Gdx.files.internal(rutaRelativaSprite).file().getAbsolutePath();
+        this.texturaPowerUp = new Texture(Gdx.files.internal(rutaAbsolutaSprite));
     }
 
     @Override
