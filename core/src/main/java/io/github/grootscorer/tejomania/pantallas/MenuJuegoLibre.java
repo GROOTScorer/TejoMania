@@ -35,7 +35,9 @@ public class MenuJuegoLibre extends ScreenAdapter {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        String rutaRelativaSkin = "ui/uiskin.json";
+        String rutaAbsolutaSkin = Gdx.files.internal(rutaRelativaSkin).file().getAbsolutePath();
+        skin = new Skin(Gdx.files.internal(rutaAbsolutaSkin));
 
         Table table = new Table();
         table.setFillParent(true);
@@ -48,7 +50,6 @@ public class MenuJuegoLibre extends ScreenAdapter {
         opciones[0].setColor(Color.RED);
         opciones[1] = new Label("2 jugadores", skin, "default");
         opciones[2] = new Label("Multijugador", skin, "default");
-        opciones[2].setColor(Color.LIGHT_GRAY);
         opciones[3] = new Label("Volver", skin, "default");
 
         for(Label opcion: opciones) {
@@ -70,10 +71,10 @@ public class MenuJuegoLibre extends ScreenAdapter {
         if (Gdx.input.isKeyJustPressed(Input.Keys.UP)) {
             opcionActual = (opcionActual - 1 + opciones.length) % opciones.length;
             actualizarSeleccion();
-        }   else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
+        } else if (Gdx.input.isKeyJustPressed(Input.Keys.DOWN)) {
             opcionActual = (opcionActual + 1) % opciones.length;
             actualizarSeleccion();
-        }   else if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
+        } else if(Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             manejarEnter();
         }
 
@@ -103,20 +104,14 @@ public class MenuJuegoLibre extends ScreenAdapter {
     private void actualizarSeleccion() {
         for(int i = 0; i < opciones.length; i++) {
             if(opcionActual == i) {
-                if(opcionActual == 2) {
-                    opciones[i].setColor(Color.GRAY);
-                }   else {
-                    opciones[i].setColor(Color.RED);
-                }
-            }   else {
-                if(i == 2) {
-                    opciones[i].setColor(Color.LIGHT_GRAY);
-                }   else {
-                    opciones[i].setColor(Color.WHITE);
-                }
+                opciones[i].setColor(Color.RED);
+            } else {
+                opciones[i].setColor(Color.WHITE);
             }
         }
-        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
+        String rutaRelativaSonido = "audio/sonidos/sonido_seleccion.mp3";
+        String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal(rutaAbsolutaSonido)));
 
         switch(opcionActual) {
             case 0:
@@ -126,7 +121,7 @@ public class MenuJuegoLibre extends ScreenAdapter {
                 textoDescripcion.setText("Juega contra otro jugador en este dispositivo");
                 break;
             case 2:
-                textoDescripcion.setText("Juega contra otro jugador en linea (proximamente...)");
+                textoDescripcion.setText("Juega contra otro jugador en linea");
                 break;
             default:
                 textoDescripcion.setText(" ");
@@ -143,6 +138,10 @@ public class MenuJuegoLibre extends ScreenAdapter {
             case 1:
                 estadoPartida.setTipoJuegoLibre(TipoJuegoLibre.DOS_JUGADORES);
                 juego.setScreen(new MenuOpcionesJuego(juego, TipoJuegoLibre.DOS_JUGADORES, estadoPartida));
+                break;
+            case 2:
+                juego.setScreen(new PantallaJuegoCliente(juego, estadoPartida));
+                ManejoDeAudio.pararMusica();
                 break;
             case 3:
                 juego.setScreen(new MenuModoJuego(juego));

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Circle;
+import io.github.grootscorer.tejomania.entidades.modificadores.GestorModificadores;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 
 import java.util.Random;
@@ -20,13 +21,19 @@ public class Disco {
     float escalaFuente = Math.max(escalaX, escalaY);
 
     private final int RADIO_DISCO = (int) (13 * escalaY);
-    private final int MAX_VELOCIDAD = 500;
+    private  int maxVelocidad = 500;
     private long tiempoUltimoSonidoMazo = 0;
-    private static final long COOLDOWN_SONIDO_MAZO_MS = 300; // 0.1 segundos
-    private Texture textura = new Texture(Gdx.files.internal("imagenes/sprites/disco.png"));
+    private long tiempoUltimoSonidoDisco = 0;
+    private static final long COOLDOWN_SONIDO_MAZO_MS = 300;
+    private static final long COOLDOWN_SONIDO_DISCO_MS = 200;
+    private String rutaRelativaSprite = "imagenes/sprites/disco.png";
+    private String rutaAbsolutaSprite = Gdx.files.internal(rutaRelativaSprite).file().getAbsolutePath();
+
+    private Texture textura = new Texture(Gdx.files.internal(rutaAbsolutaSprite));
 
     private Mazo ultimoMazoConPosesion;
     private boolean cambioDePosesion = false;
+    private boolean haAnotadoGol = false;
 
     public Disco() {
         Random rand = new Random();
@@ -37,11 +44,82 @@ public class Disco {
         this.velocidadY = 0;
         this.hitboxDisco = new Circle(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO, RADIO_DISCO);
         this.ultimoMazoConPosesion = null;
+        this.haAnotadoGol = false;
     }
 
     public boolean colisionaConMazo(Mazo mazo) {
         Circle hitboxMazo = new Circle(mazo.getPosicionX() + mazo.getRadioMazo(), mazo.getPosicionY() + mazo.getRadioMazo(), mazo.getRadioMazo());
         return hitboxDisco.overlaps(hitboxMazo);
+    }
+
+    public boolean colisionaConOtroDisco(Disco otroDisco) {
+        return hitboxDisco.overlaps(otroDisco.getHitbox());
+    }
+
+    public void manejarColisionConOtroDisco(Disco otroDisco) {
+        long tiempoActual = com.badlogic.gdx.utils.TimeUtils.millis();
+
+        if (tiempoActual - tiempoUltimoSonidoDisco >= COOLDOWN_SONIDO_DISCO_MS) {
+            String rutaRelativaSonido = "audio/sonidos/sonido_golpe_mazo.mp3";
+            String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
+            tiempoUltimoSonidoDisco = tiempoActual;
+        }
+
+        float centroThisX = this.posicionX + RADIO_DISCO;
+        float centroThisY = this.posicionY + RADIO_DISCO;
+        float centroOtroX = otroDisco.getPosicionX() + otroDisco.getRadioDisco();
+        float centroOtroY = otroDisco.getPosicionY() + otroDisco.getRadioDisco();
+
+        float vectorX = centroThisX - centroOtroX;
+        float vectorY = centroThisY - centroOtroY;
+        float distancia = (float) Math.sqrt(vectorX * vectorX + vectorY * vectorY);
+
+        if (distancia == 0) {
+            vectorX = 1;
+            vectorY = 0;
+            distancia = 1;
+        }
+
+        vectorX /= distancia;
+        vectorY /= distancia;
+
+        float overlap = (RADIO_DISCO + otroDisco.getRadioDisco()) - distancia;
+        if (overlap > 0) {
+            float separacion = overlap / 2f + 2f;
+
+            this.posicionX += vectorX * separacion;
+            this.posicionY += vectorY * separacion;
+            otroDisco.setPosicion(
+                otroDisco.getPosicionX() - vectorX * separacion,
+                otroDisco.getPosicionY() - vectorY * separacion
+            );
+        }
+
+        // Se calcula la diferencia en velocidades entre los discos
+        float velRelativaX = this.velocidadX - otroDisco.getVelocidadX();
+        float velRelativaY = this.velocidadY - otroDisco.getVelocidadY();
+
+        float velocidadEnColision = velRelativaX * vectorX + velRelativaY * vectorY;
+
+        // Si es positivo, los discos se están separando y no se sigue
+        if (velocidadEnColision > 0) return;
+
+        // Aplicación de choque elástico con coeficiente de restitución
+        // Restitución = Velocidad relativa después / Velocidad relativa antes
+        float restitution = 0.8f;
+
+        // Fórmula física de choque elástico
+        float cambioVelocidad = (1 + restitution) * velocidadEnColision / 2f;
+
+        this.velocidadX -= cambioVelocidad * vectorX;
+        this.velocidadY -= cambioVelocidad * vectorY;
+        otroDisco.setVelocidadX(otroDisco.getVelocidadX() + cambioVelocidad * vectorX);
+        otroDisco.setVelocidadY(otroDisco.getVelocidadY() + cambioVelocidad * vectorY);
+
+        this.hitboxDisco.setPosition(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO);
+        otroDisco.getHitbox().setPosition(otroDisco.getPosicionX() + otroDisco.getRadioDisco(),
+            otroDisco.getPosicionY() + otroDisco.getRadioDisco());
     }
 
     public void actualizarPosicion(float delta, float xCancha, float yCancha, float CANCHA_ANCHO, float CANCHA_ALTO) {
@@ -58,24 +136,32 @@ public class Disco {
 
         if (!discoEnAreaVerticalArco) {
             if (this.posicionX <= xCancha) {
-                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
+                String rutaRelativaSonido = "audio/sonidos/sonido_golpe_pared.mp3";
+                String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
                 this.posicionX = xCancha;
                 this.velocidadX = -this.velocidadX;
             }
             if (this.posicionX + (RADIO_DISCO * 2) >= xCancha + CANCHA_ANCHO) {
-                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
+                String rutaRelativaSonido = "audio/sonidos/sonido_golpe_pared.mp3";
+                String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
                 this.posicionX = xCancha + CANCHA_ANCHO - (RADIO_DISCO * 2);
                 this.velocidadX = -this.velocidadX;
             }
         }
 
         if (this.posicionY <= yCancha) {
-            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
+            String rutaRelativaSonido = "audio/sonidos/sonido_golpe_pared.mp3";
+            String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
             this.posicionY = yCancha;
             this.velocidadY = -this.velocidadY;
         }
         if (this.posicionY + (RADIO_DISCO * 2) >= yCancha + CANCHA_ALTO) {
-            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_pared.mp3"))));
+            String rutaRelativaSonido = "audio/sonidos/sonido_golpe_pared.mp3";
+            String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
             this.posicionY = yCancha + CANCHA_ALTO - (RADIO_DISCO * 2);
             this.velocidadY = -this.velocidadY;
         }
@@ -83,39 +169,57 @@ public class Disco {
         this.hitboxDisco.setPosition(posicionX + RADIO_DISCO, posicionY + RADIO_DISCO);
     }
 
-    public void manejarColision(Mazo mazo) {
+    public void manejarColision(Mazo mazo, GestorModificadores gestorModificadores) {
         long tiempoActual = com.badlogic.gdx.utils.TimeUtils.millis();
 
+        // Si el tiempo transcurrido desde el último sonido es mayor al cooldown, se efectúa el sonido
         if (tiempoActual - tiempoUltimoSonidoMazo >= COOLDOWN_SONIDO_MAZO_MS) {
-            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_golpe_mazo.mp3"))));
+            String rutaRelativaSonido = "audio/sonidos/sonido_golpe_mazo.mp3";
+            String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+
+            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
             tiempoUltimoSonidoMazo = tiempoActual;
         }
 
-        if (ultimoMazoConPosesion != mazo) {
-            cambioDePosesion = true;
-            ultimoMazoConPosesion = mazo;
-        } else {
-            cambioDePosesion = false;
+        // Si el mazo que colisiona con el disco es distinto al último que lo chocó, se da el cambio de poesión
+        if(gestorModificadores != null) {
+            if(gestorModificadores.getCongelarRivalActivo() == null) {
+                if (ultimoMazoConPosesion != mazo) {
+                    cambioDePosesion = true;
+                    ultimoMazoConPosesion = mazo;
+                } else {
+                    cambioDePosesion = false;
+                }
+            }
         }
 
+        // Si la velocidad del disco es 0, se da un empujón inicial
         if (this.velocidadX == 0 && this.velocidadY == 0) {
             setVelocidadX(mazo.getVelocidadX() * 5f);
             setVelocidadY(mazo.getVelocidadY() * 5f);
         } else {
+            // Calculo la posición de los centros del disco y el mazo
             float centroDiscoX = this.posicionX + RADIO_DISCO;
             float centroDiscoY = this.posicionY + RADIO_DISCO;
             float centroMazoX = mazo.getPosicionX() + mazo.getRadioMazo();
             float centroMazoY = mazo.getPosicionY() + mazo.getRadioMazo();
 
+            // Calculo si el disco está a la derecha o a la izquierda del mazo, y por cuánto
             float vectorX = centroDiscoX - centroMazoX;
+
+            // Calculo si el disco está arriba o abajo del mazo, y por cuánto
             float vectorY = centroDiscoY - centroMazoY;
 
+            // Toma los dos vectores y encuentra su ángulo para encontrar el ángulo de colisión
             float anguloColision = (float) Math.atan2(vectorY, vectorX);
 
+            // Teorema de Pitágoras para encontrar la velocidad
             float velocidadActual = (float) Math.sqrt(velocidadX * velocidadX + velocidadY * velocidadY);
 
+            // Se toma el mayor valor entre 40 o 120% de la velocidad actual para la nueva velocidad
             float nuevaVelocidad = Math.max(40f, velocidadActual * 1.2f);
 
+            // Se modifica el ángulo por el que sale el disco por un valor aleatorio
             float nuevoAngulo = anguloColision + (float)(Math.random() - 0.5) * 0.3f;
 
             setVelocidadX(nuevaVelocidad * (float) Math.cos(nuevoAngulo));
@@ -132,9 +236,11 @@ public class Disco {
         float longitud = (float) Math.sqrt(vectorX * vectorX + vectorY * vectorY);
 
         if (longitud > 0) {
+            // Se normaliza el vector
             vectorX /= longitud;
             vectorY /= longitud;
 
+            // Distancia para separar el disco con el mazo tras la colisión
             float distanciaSeparacion = RADIO_DISCO + mazo.getRadioMazo() + 10;
 
             float nuevoCentroDiscoX = centroMazoX + vectorX * distanciaSeparacion;
@@ -157,30 +263,45 @@ public class Disco {
         }
     }
 
+    public void dibujarConTexturaYAlpha(SpriteBatch batch, float alpha) {
+        if (textura != null) {
+            int tamanio = RADIO_DISCO * 2;
+
+            float colorAnterior = batch.getColor().a;
+            batch.setColor(1, 1, 1, alpha);
+            batch.draw(textura, posicionX, posicionY, tamanio, tamanio);
+            batch.setColor(1, 1, 1, colorAnterior);
+        }
+    }
+
+    public float getVelocidadTotal() {
+        return (float) Math.sqrt(velocidadX * velocidadX + velocidadY * velocidadY);
+    }
+
     public float getVelocidadX() {
         return this.velocidadX;
     }
 
     public void setVelocidadX(float velocidadX) {
         this.velocidadX = velocidadX;
-        if(this.velocidadX > MAX_VELOCIDAD) {
-            this.velocidadX = MAX_VELOCIDAD;
+        if(this.velocidadX > maxVelocidad) {
+            this.velocidadX = maxVelocidad;
         }
 
-        if(this.velocidadX < -MAX_VELOCIDAD) {
-            this.velocidadX = -MAX_VELOCIDAD;
+        if(this.velocidadX < -maxVelocidad) {
+            this.velocidadX = -maxVelocidad;
         }
     }
 
     public void setVelocidadY(float velocidadY) {
         this.velocidadY = velocidadY;
 
-        if(this.velocidadY > MAX_VELOCIDAD) {
-            this.velocidadY = MAX_VELOCIDAD;
+        if(this.velocidadY > maxVelocidad) {
+            this.velocidadY = maxVelocidad;
         }
 
-        if(this.velocidadY < -MAX_VELOCIDAD) {
-            this.velocidadY = -MAX_VELOCIDAD;
+        if(this.velocidadY < -maxVelocidad) {
+            this.velocidadY = -maxVelocidad;
         }
     }
 
@@ -202,6 +323,14 @@ public class Disco {
 
     public Texture getTextura() {
         return this.textura;
+    }
+
+    public Circle getHitbox() {
+        return this.hitboxDisco;
+    }
+
+    public Mazo getMazoConPosesion() {
+        return this.ultimoMazoConPosesion;
     }
 
     public void dispose() {
@@ -227,5 +356,49 @@ public class Disco {
     public void reiniciarPosesion() {
         ultimoMazoConPosesion = null;
         cambioDePosesion = false;
+    }
+
+    public boolean haAnotadoGol() {
+        return haAnotadoGol;
+    }
+
+    public void marcarGolAnotado() {
+        this.haAnotadoGol = true;
+    }
+
+    public void reiniciarEstadoGol() {
+        this.haAnotadoGol = false;
+    }
+
+    public void setMazoConPosesion(Mazo mazo) {
+        this.ultimoMazoConPosesion = mazo;
+    }
+
+    public void setMaxVelocidad(int velocidad) {
+        this.maxVelocidad = velocidad;
+    }
+
+    public void reposicionarDisco(Mazo mazo, float xCancha, float yCancha, float CANCHA_ANCHO, float CANCHA_ALTO) {
+        if(colisionaConMazo(mazo)) {
+            if(posicionX == xCancha && (posicionY == yCancha || posicionY + (RADIO_DISCO * 2) >= yCancha + CANCHA_ALTO)) {
+                setPosicionX(posicionX + 16);
+            }
+        } else if(this.posicionX + (RADIO_DISCO * 2) >= xCancha + CANCHA_ANCHO && (posicionY == 80 || posicionY + (RADIO_DISCO * 2) >= yCancha + CANCHA_ALTO)) {
+            setPosicionX(posicionX - 16);
+        }
+    }
+
+    public void reposicionarEntreDosMazos(Mazo mazo1, Mazo mazo2, float CANCHA_ALTO) {
+        if(colisionaConMazo(mazo1) && colisionaConMazo(mazo2)) {
+            if(posicionY < CANCHA_ALTO - 15) {
+                this.posicionY += 10;
+            } else {
+                this.posicionY -= 10;
+            }
+        }
+    }
+
+    public void setPosicionX(float x) {
+        this.posicionX = x;
     }
 }

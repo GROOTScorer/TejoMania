@@ -1,5 +1,8 @@
 package io.github.grootscorer.tejomania.estado;
 
+import io.github.grootscorer.tejomania.enums.DificultadCPU;
+import io.github.grootscorer.tejomania.enums.Pais;
+import io.github.grootscorer.tejomania.enums.TipoCompetencia;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
 
 public class EstadoPartida {
@@ -15,6 +18,16 @@ public class EstadoPartida {
     private boolean jugarConObstaculos;
     private boolean jugarConTirosEspeciales;
     private boolean jugarConModificadores;
+    private String canchaSeleccionada;
+    private DificultadCPU dificultadCPU;
+    private TipoCompetencia tipoCompetencia;
+    private Pais paisSeleccionado;
+    private int fechaLiga;
+    private String[] fase = {"Octavos de final", "Cuartos de final", "Semifinales", "Final"};
+    private int faseActual;
+    private GestorTorneo gestorTorneo;
+    private Pais rivalActual;
+    private GestorLiga gestorLiga;
 
     public String getJugador1() {
         return this.jugador1;
@@ -125,5 +138,81 @@ public class EstadoPartida {
 
     public void setJugarConModificadores(boolean jugarConModificadores) {
         this.jugarConModificadores = jugarConModificadores;
+    }
+
+    public String getCanchaSeleccionada() {
+        return this.canchaSeleccionada;
+    }
+
+    public void setCanchaSeleccionada(String cancha) {
+        this.canchaSeleccionada = cancha;
+    }
+
+    public DificultadCPU getDificultadCPU() {
+        return this.dificultadCPU;
+    }
+
+    public void setDificultadCPU(DificultadCPU dificultad) {
+        this.dificultadCPU = dificultad;
+    }
+
+    public TipoCompetencia getTipoCompetencia() {
+        return this.tipoCompetencia;
+    }
+
+    public void setTipoCompetencia(TipoCompetencia tipoCompetencia) {
+        this.tipoCompetencia = tipoCompetencia;
+    }
+
+    public Pais getPaisSelecionad() {
+        return this.paisSeleccionado;
+    }
+
+    public void setPaisSeleccionado(Pais pais) {
+        this.paisSeleccionado = pais;
+    }
+
+    public int getFechaLiga() {
+        return this.fechaLiga;
+    }
+
+    public void setFechaLiga(int fecha) {
+        this.fechaLiga = fecha;
+    }
+
+    public int getFaseActual() {
+        return this.faseActual;
+    }
+
+    public void setFaseActual(int ronda) {
+        this.faseActual = ronda;
+    }
+
+    public String getNombreFase(int ronda) {
+        return this.fase[ronda];
+    }
+
+    public GestorTorneo getGestorTorneo() {
+        return this.gestorTorneo;
+    }
+
+    public void setGestorTorneo(GestorTorneo gestorTorneo) {
+        this.gestorTorneo = gestorTorneo;
+    }
+
+    public Pais getRivalActual() {
+        return this.rivalActual;
+    }
+
+    public void setRivalActual(Pais rivalActual) {
+        this.rivalActual = rivalActual;
+    }
+
+    public GestorLiga getGestorLiga() {
+        return this.gestorLiga;
+    }
+
+    public void setGestorLiga(GestorLiga gestorLiga) {
+        this.gestorLiga = gestorLiga;
     }
 }

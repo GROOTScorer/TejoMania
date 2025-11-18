@@ -8,7 +8,6 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.*;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
-import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.graphics.Texture;
 import io.github.grootscorer.tejomania.Principal;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
@@ -32,7 +31,9 @@ public class MenuPrincipal extends ScreenAdapter {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        String rutaRelativaSkin = "ui/uiskin.json";
+        String rutaAbsolutaSkin = Gdx.files.internal(rutaRelativaSkin).file().getAbsolutePath();
+        skin = new Skin(Gdx.files.internal(rutaAbsolutaSkin));
 
         Table table = new Table();
         table.setFillParent(true);
@@ -48,7 +49,9 @@ public class MenuPrincipal extends ScreenAdapter {
         opciones[1] = new Label("Configuracion", skin, "default");
         opciones[2] = new Label("Salir", skin, "default");
 
-        Texture texturaGithub = new Texture(Gdx.files.internal("imagenes/github_logo.png"));
+        String rutaRelativaGithub = "imagenes/github_logo.png";
+        String rutaAbsolutaGithub = Gdx.files.internal(rutaRelativaGithub).file().getAbsolutePath();
+        Texture texturaGithub = new Texture(Gdx.files.internal(rutaAbsolutaGithub));
         Image logoGithub = new Image(texturaGithub);
         Label indicadorTeclaGithub1 = new Label("Presione 'G' para", skin, "default");
         Label indicadorTeclaGithub2 = new Label("acceder al repositorio", skin, "default");
@@ -120,7 +123,9 @@ public class MenuPrincipal extends ScreenAdapter {
                 opciones[i].setColor(Color.WHITE);
             }
         }
-        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal("audio/sonidos/sonido_seleccion.mp3")));
+        String rutaRelativaSonido = "audio/sonidos/sonido_seleccion.mp3";
+        String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+        ManejoDeAudio.activarSonido(String.valueOf(Gdx.files.internal(rutaAbsolutaSonido)));
     }
 
     private void manejarEnter() {

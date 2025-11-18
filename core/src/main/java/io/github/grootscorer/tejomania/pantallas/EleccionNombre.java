@@ -34,7 +34,7 @@ public class EleccionNombre extends ScreenAdapter {
     private float tiempoDesdeUltimoBorrado = 0f;
     private boolean primerBorradoRealizado = false;
 
-    public EleccionNombre(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida) {
+    public EleccionNombre(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida, String CanchaSeleccionado) {
         this.juego = juego;
         this.tipoJuegoLibre = tipoJuegoLibre;
         this.estadoPartida = estadoPartida;
@@ -44,7 +44,9 @@ public class EleccionNombre extends ScreenAdapter {
         stage = new Stage();
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        String rutaRelativaSkin = "ui/uiskin.json";
+        String rutaAbsolutaSkin = Gdx.files.internal(rutaRelativaSkin).file().getAbsolutePath();
+        skin = new Skin(Gdx.files.internal(rutaAbsolutaSkin));
         Table table = new Table();
         table.setFillParent(true);
         table.center();

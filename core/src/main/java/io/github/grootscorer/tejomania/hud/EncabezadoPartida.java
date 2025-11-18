@@ -28,7 +28,9 @@ public class EncabezadoPartida extends ScreenAdapter {
 
     @Override
     public void show() {
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        String rutaRelativaSkin = "ui/uiskin.json";
+        String rutaAbsolutaSkin = Gdx.files.internal(rutaRelativaSkin).file().getAbsolutePath();
+        skin = new Skin(Gdx.files.internal(rutaAbsolutaSkin));
         stage = new Stage(new ScreenViewport());
 
         nombre1 = estado.getJugador1();

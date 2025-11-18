@@ -14,16 +14,8 @@ public class BarraEspecial extends ProgressBar {
 
     public BarraEspecial(float min, float max, float stepSize, boolean vertical, Skin skin) {
         super(min, max, stepSize, vertical, skin);
+        this.setValue(0);
     }
-
-    private void actualizarCantidadLlenada() {
-        this.textoCantidadLlenada.setText(String.valueOf(cantidadLlenada));
-    }
-
-    public void otorgarTiroEspecial() {
-
-    }
-
     public int getCantidadLlenada() {
         return this.cantidadLlenada;
     }
@@ -32,16 +24,26 @@ public class BarraEspecial extends ProgressBar {
         return this.llenado;
     }
 
-    public void aumentarCantidadLlenada() {
-        this.cantidadLlenada++;
+    public void aumentarPorcentaje(int porcentaje) {
+        this.cantidadLlenada += porcentaje;
 
         if(this.cantidadLlenada >= this.MAX_CANTIDAD) {
             this.cantidadLlenada = this.MAX_CANTIDAD;
             this.llenado = true;
         }
+
+        this.setValue(this.cantidadLlenada);
     }
 
     public void vaciarCantidadLlenada() {
         this.cantidadLlenada = 0;
+        this.llenado = false;
+        this.setValue(0);
+    }
+
+    public void setCantidadLlenada(int cantidad) {
+        this.cantidadLlenada = Math.min(cantidad, MAX_CANTIDAD);
+        this.llenado = (this.cantidadLlenada >= MAX_CANTIDAD);
+        this.setValue(this.cantidadLlenada);
     }
 }

@@ -44,7 +44,9 @@ public class MenuEleccionPais extends ScreenAdapter {
         stage = new Stage(new ScreenViewport());
         Gdx.input.setInputProcessor(stage);
 
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        String rutaRelativaSkin = "ui/uiskin.json";
+        String rutaAbsolutaSkin = Gdx.files.internal(rutaRelativaSkin).file().getAbsolutePath();
+        skin = new Skin(Gdx.files.internal(rutaAbsolutaSkin));
 
         nombrePais = new Label("", skin);
         nombrePais.setFontScale(2f);
@@ -167,7 +169,7 @@ public class MenuEleccionPais extends ScreenAdapter {
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ENTER)) {
             Pais paisSeleccionado = paisesDisponibles.get(opcionPais);
-            // juego.setScreen(new (juego, paisSeleccionado));
+            juego.setScreen(new EleccionDificultadCompetencia(juego, paisSeleccionado, tipoCompetencia));
         }
 
         if (Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {

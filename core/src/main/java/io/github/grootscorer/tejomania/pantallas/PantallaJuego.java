@@ -14,11 +14,15 @@ import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Image;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.Skin;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.utils.TimeUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import io.github.grootscorer.tejomania.Principal;
 import io.github.grootscorer.tejomania.entidades.Disco;
 import io.github.grootscorer.tejomania.entidades.Jugador;
 import io.github.grootscorer.tejomania.entidades.Mazo;
+import io.github.grootscorer.tejomania.entidades.modificadores.GestorModificadores;
+import io.github.grootscorer.tejomania.enums.TipoCompetencia;
 import io.github.grootscorer.tejomania.enums.TipoJuegoLibre;
 import io.github.grootscorer.tejomania.estado.EstadoFisico;
 import io.github.grootscorer.tejomania.estado.EstadoPartida;
@@ -26,11 +30,21 @@ import io.github.grootscorer.tejomania.hud.BarraEspecial;
 import io.github.grootscorer.tejomania.hud.EncabezadoPartida;
 import io.github.grootscorer.tejomania.utiles.ManejoDeAudio;
 import io.github.grootscorer.tejomania.utiles.ManejoDeInput;
+import io.github.grootscorer.tejomania.entidades.modificadores.CongelarRival;
+import io.github.grootscorer.tejomania.estado.DatosMazo;
+import io.github.grootscorer.tejomania.entidades.modificadores.ControlesInvertidos;
+import io.github.grootscorer.tejomania.entidades.obstaculos.GestorObstaculos;
+import io.github.grootscorer.tejomania.entidades.tirosespeciales.TiroPotente;
+import io.github.grootscorer.tejomania.entidades.tirosespeciales.TiroInvisible;
+import java.util.ArrayList;
+import java.util.List;
+import io.github.grootscorer.tejomania.entidades.Cpu;
 
 public class PantallaJuego extends ScreenAdapter {
     private Stage stage;
     private Principal juego;
-    private Disco disco;
+    private Disco discoOriginal;
+    private Disco discoSecundario;
     private Mazo mazo1, mazo2;
     private Jugador jugador1, jugador2;
     private TipoJuegoLibre tipoJuegoLibre;
@@ -56,11 +70,31 @@ public class PantallaJuego extends ScreenAdapter {
 
     private SpriteBatch batch;
 
-    private final Texture mazoRojo = new Texture(Gdx.files.internal("imagenes/sprites/mazo_rojo.png"));
-    private final Texture mazoAzul = new Texture(Gdx.files.internal("imagenes/sprites/mazo_azul.png"));
+    private GestorModificadores gestorModificadores;
+    private GestorObstaculos gestorObstaculos;
 
-    private final Texture spritesheetMazoRojo = new Texture(Gdx.files.internal("imagenes/sprites/spritesheet_mazo_rojo.png"));
-    private final Texture spritesheetMazoAzul = new Texture(Gdx.files.internal("imagenes/sprites/spritesheet_mazo_azul.png"));
+    private TiroPotente tiroPotente1, tiroPotente2;
+    private TiroInvisible tiroInvisible1, tiroInvisible2;
+    private boolean tiroEspecialActivo = false;
+
+    private Cpu cpu;
+
+    String rutaRelativaMazoRojo = "imagenes/sprites/mazo_rojo.png";
+    String rutaAbsolutaMazoRojo = Gdx.files.internal(rutaRelativaMazoRojo).file().getAbsolutePath();
+
+    String rutaRelativaMazoAzul = "imagenes/sprites/mazo_azul.png";
+    String rutaAbsolutaMazoAzul = Gdx.files.internal(rutaRelativaMazoAzul).file().getAbsolutePath();
+    private final Texture mazoRojo = new Texture(Gdx.files.internal(rutaAbsolutaMazoRojo));
+    private final Texture mazoAzul = new Texture(Gdx.files.internal(rutaAbsolutaMazoAzul));
+
+    String rutaRelativaSpritesheetMazoRojo = "imagenes/sprites/spritesheet_mazo_rojo.png";
+    String rutaAbsolutaSpritesheetMazoRojo = Gdx.files.internal(rutaRelativaSpritesheetMazoRojo).file().getAbsolutePath();
+
+    String rutaRelativaSpritesheetMazoAzul = "imagenes/sprites/spritesheet_mazo_azul.png";
+    String rutaAbsolutaSpritesheetMazoAzul = Gdx.files.internal(rutaRelativaSpritesheetMazoAzul).file().getAbsolutePath();
+
+    private final Texture spritesheetMazoRojo = new Texture(Gdx.files.internal(rutaAbsolutaSpritesheetMazoRojo));
+    private final Texture spritesheetMazoAzul = new Texture(Gdx.files.internal(rutaAbsolutaSpritesheetMazoAzul));
 
     private final float BRILLO_NORMAL = 1.0f;
     private final float BRILLO_PAUSA = 0.5f;
@@ -79,12 +113,14 @@ public class PantallaJuego extends ScreenAdapter {
         this.juego = juego;
         this.tipoJuegoLibre = tipoJuegoLibre;
         this.estadoPartida = estadoPartida;
+        this.discoSecundario = null;
     }
 
     public PantallaJuego(Principal juego, TipoJuegoLibre tipoJuegoLibre, EstadoPartida estadoPartida, EstadoFisico estadoFisicoGuardado) {
         this.juego = juego;
         this.tipoJuegoLibre = tipoJuegoLibre;
         this.estadoPartida = estadoPartida;
+        this.discoSecundario = null;
 
         if (estadoFisicoGuardado != null) {
             this.estadoFisico = estadoFisicoGuardado;
@@ -96,14 +132,20 @@ public class PantallaJuego extends ScreenAdapter {
     @Override
     public void show() {
         stage = new Stage(new ScreenViewport());
-        skin = new Skin(Gdx.files.internal("ui/uiskin.json"));
+        String rutaRelativaSkin = "ui/uiskin.json";
+        String rutaAbsolutaSkin = Gdx.files.internal(rutaRelativaSkin).file().getAbsolutePath();
+        skin = new Skin(Gdx.files.internal(rutaAbsolutaSkin));
         batch = new SpriteBatch();
         shapeRenderer = new ShapeRenderer();
-        disco = new Disco();
+        discoOriginal = new Disco();
         mazo1 = new Mazo();
         mazo2 = new Mazo();
 
-        estadoFisico.restaurarEstado(mazo1, mazo2, disco);
+        estadoFisico.restaurarEstado(mazo1, mazo2, discoOriginal);
+
+        if (estadoFisico.tieneDiscoSecundario()) {
+            discoSecundario = estadoFisico.restaurarDiscoSecundario();
+        }
 
         mazo1.setTextura(mazoAzul);
         mazo1.setSpritesheet(spritesheetMazoAzul);
@@ -111,14 +153,29 @@ public class PantallaJuego extends ScreenAdapter {
         mazo2.setTextura(mazoRojo);
         mazo2.setSpritesheet(spritesheetMazoRojo);
 
-        manejoDeInput = new ManejoDeInput(mazo1, mazo2, tipoJuegoLibre, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
-        Gdx.input.setInputProcessor(new InputMultiplexer(stage, manejoDeInput));
+        if (estadoPartida.isJugarConModificadores()) {
+            gestorModificadores = new GestorModificadores(this, mazo1, mazo2, discoOriginal,
+                xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO, estadoPartida);
+            gestorModificadores.restaurarDesdeEstado(estadoFisico);
+        }
 
-        encabezadoPartida = new EncabezadoPartida(estadoPartida);
-        encabezadoPartida.show();
-        Stage encabezadoStage = encabezadoPartida.getStage();
-        for (Actor actor : encabezadoStage.getActors()) {
-            stage.addActor(actor);
+        if (estadoPartida.isJugarConObstaculos()) {
+            gestorObstaculos = new GestorObstaculos(xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO,
+                mazo1, mazo2, discoOriginal);
+            gestorObstaculos.setDiscoSecundario(discoSecundario);
+            gestorObstaculos.restaurarEstado(estadoFisico.getEstadoObstaculo());
+        }
+
+        gestorModificadores = new GestorModificadores(this, mazo1, mazo2, discoOriginal,
+            xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO, estadoPartida);
+
+        gestorModificadores.restaurarDesdeEstado(estadoFisico);
+
+        if (estadoPartida.isJugarConObstaculos()) {
+            gestorObstaculos = new GestorObstaculos(xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO,
+                mazo1, mazo2, discoOriginal);
+            gestorObstaculos.setDiscoSecundario(discoSecundario);
+            gestorObstaculos.restaurarEstado(estadoFisico.getEstadoObstaculo());
         }
 
         if(estadoPartida.isJugarConTirosEspeciales()) {
@@ -130,6 +187,51 @@ public class PantallaJuego extends ScreenAdapter {
 
             stage.addActor(barraEspecial1);
             stage.addActor(barraEspecial2);
+
+            tiroPotente1 = new TiroPotente(discoOriginal, mazo1, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+            tiroPotente2 = new TiroPotente(discoOriginal, mazo2, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+            tiroInvisible1 = new TiroInvisible(discoOriginal, mazo1, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+            tiroInvisible2 = new TiroInvisible(discoOriginal, mazo2, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+
+            barraEspecial1.setCantidadLlenada(estadoFisico.getCantidadLlenadaBarra1());
+            barraEspecial2.setCantidadLlenada(estadoFisico.getCantidadLlenadaBarra2());
+        }
+
+        // Verifica un dato que es nulo sólo al principio del juego y previo a cualquier pausa
+        if (estadoFisico.getDatosMazo().getMazoEnPosesion() == null) {
+            colocarPosicionInicial();
+        }
+
+        manejoDeInput = new ManejoDeInput(mazo1, mazo2, tipoJuegoLibre, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+
+        if (tipoJuegoLibre == TipoJuegoLibre.CPU) {
+            BarraEspecial barraCpu = estadoPartida.isJugarConTirosEspeciales() ? barraEspecial2 : null;
+            cpu = new Cpu(mazo2, mazo1, discoOriginal, manejoDeInput, 2, estadoPartida.getDificultadCPU(),
+                barraCpu, estadoPartida.isJugarConTirosEspeciales());
+            manejoDeInput.setCpu(cpu);
+        } else {
+            cpu = null;
+        }
+
+        if (gestorModificadores != null) {
+            CongelarRival congelarRivalActivo = gestorModificadores.getCongelarRivalActivo();
+            if (congelarRivalActivo != null && estadoFisico.getMazoEnPosesionId() != -1) {
+                manejoDeInput.configurarCongelacionDesdeEstado(congelarRivalActivo, estadoFisico.getMazoEnPosesionId());
+            }
+
+            ControlesInvertidos controlesInvertidosActivo = gestorModificadores.getControlesInvertidosActivo();
+            if (controlesInvertidosActivo != null) {
+                manejoDeInput.configurarControlesInvertidosDesdeEstado(controlesInvertidosActivo);
+            }
+        }
+
+        Gdx.input.setInputProcessor(new InputMultiplexer(stage, manejoDeInput));
+
+        encabezadoPartida = new EncabezadoPartida(estadoPartida);
+        encabezadoPartida.show();
+        Stage encabezadoStage = encabezadoPartida.getStage();
+        for (Actor actor : encabezadoStage.getActors()) {
+            stage.addActor(actor);
         }
     }
 
@@ -155,38 +257,79 @@ public class PantallaJuego extends ScreenAdapter {
 
         if (!estaPausado && !pausaGol && !juegoTerminado) {
             estadoPartida.actualizarTiempo(delta);
+
+            if (gestorModificadores != null) {
+                CongelarRival congelarRivalActivo = gestorModificadores.getCongelarRivalActivo();
+                if (congelarRivalActivo != null) {
+                    if (manejoDeInput.getCongelarRival() != congelarRivalActivo) {
+                        manejoDeInput.setCongelarRival(congelarRivalActivo);
+                        DatosMazo datosMazo = new DatosMazo(
+                            mazo1.getPosicionX(), mazo1.getPosicionY(), mazo1.getVelocidadX(), mazo1.getVelocidadY(),
+                            mazo2.getPosicionX(), mazo2.getPosicionY(), mazo2.getVelocidadX(), mazo2.getVelocidadY(),
+                            discoOriginal.getMazoConPosesion()
+                        );
+                        manejoDeInput.setDatosMazo(datosMazo);
+                    }
+                } else {
+                    if (manejoDeInput.getCongelarRival() != null) {
+                        manejoDeInput.limpiarCongelarRival();
+                    }
+                }
+
+                ControlesInvertidos controlesInvertidosActivo = gestorModificadores.getControlesInvertidosActivo();
+                if (controlesInvertidosActivo != null) {
+                    if (manejoDeInput.getControlesInvertidos() != controlesInvertidosActivo) {
+                        manejoDeInput.setControlesInvertidos(controlesInvertidosActivo);
+                    }
+                } else {
+                    if (manejoDeInput.getControlesInvertidos() != null) {
+                        manejoDeInput.limpiarControlesInvertidos();
+                    }
+                }
+            }
+
+            if (cpu != null) {
+                if (discoSecundario != null && gestorModificadores != null && gestorModificadores.isDiscoDobleActivo()) {
+                    cpu.setDiscoSecundario(discoSecundario);
+                } else {
+                    cpu.restaurarDiscoOriginal(discoOriginal);
+                }
+
+                cpu.update(delta);
+            }
+
             manejoDeInput.actualizarMovimiento();
 
             if(estadoPartida.isJugarConTirosEspeciales()) {
-                barraEspecial1.aumentarCantidadLlenada();
-                barraEspecial2.aumentarCantidadLlenada();
+                verificarActivacionTirosEspeciales();
+                actualizarTirosEspeciales(delta);
             }
 
             mazo1.actualizarAnimacion(delta);
             mazo2.actualizarAnimacion(delta);
 
-            if (disco.colisionaConMazo(mazo1)) {
-                disco.manejarColision(mazo1);
-                if (disco.isCambioDePosesion()) {
-                    if(estadoPartida.isJugarConTirosEspeciales()) {
-                        mazo1.activarEncendido();
-                    }
-                    disco.resetearCambioDePosesion();
-                }
+            mazo1.actualizarAnimacion(delta);
+            mazo2.actualizarAnimacion(delta);
+
+            if (estadoPartida.isJugarConObstaculos() && gestorObstaculos != null) {
+                gestorObstaculos.actualizar(delta);
+                gestorObstaculos.setDiscoSecundario(discoSecundario);
             }
 
-            if (disco.colisionaConMazo(mazo2)) {
-                disco.manejarColision(mazo2);
-                if (disco.isCambioDePosesion()) {
-                    if(estadoPartida.isJugarConTirosEspeciales()) {
-                        mazo2.activarEncendido();
-                    }
-
-                    disco.resetearCambioDePosesion();
-                }
+            if (gestorModificadores != null) {
+                float velocidadDisco = discoOriginal.getVelocidadTotal();
+                gestorModificadores.actualizar(delta, velocidadDisco);
             }
 
-            disco.actualizarPosicion(delta, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+            procesarColisionesDisco(discoOriginal, delta);
+
+            if (discoSecundario != null) {
+                procesarColisionesDisco(discoSecundario, delta);
+                discoSecundario.reposicionarDisco(mazo2, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+                discoSecundario.reposicionarEntreDosMazos(mazo1, mazo2, CANCHA_ALTO);
+            }
+
+            verificarColisionesEntreDisco();
 
             verificarGoles();
             verificarFinDeJuego();
@@ -197,14 +340,49 @@ public class PantallaJuego extends ScreenAdapter {
         if (juegoTerminado) {
             tiempoMostrandoResultado += delta;
             if (tiempoMostrandoResultado >= DURACION_MOSTRAR_RESULTADO) {
-                juego.setScreen(new MenuPrincipal(juego));
+                int resultado = 0; // 0 = empate, 1 = gana jugador1, 2 = gana jugador2
+
+                if (estadoPartida.getPuntaje1() > estadoPartida.getPuntaje2()) {
+                    resultado = 1;
+                } else if (estadoPartida.getPuntaje2() > estadoPartida.getPuntaje1()) {
+                    resultado = 2;
+                }
+
+                if (estadoPartida.getTipoCompetencia() == TipoCompetencia.LIGA && estadoPartida.getGestorLiga() != null) {
+                    estadoPartida.getGestorLiga().registrarResultadoJugador(
+                        estadoPartida.getFechaLiga(),
+                        estadoPartida.getPuntaje1(),
+                        estadoPartida.getPuntaje2()
+                    );
+
+                    estadoPartida.getGestorLiga().simularPartidosIA(estadoPartida.getFechaLiga());
+                }
+
+                if (estadoPartida.getTipoCompetencia() != null) {
+                    juego.setScreen(new PostPartidoCompetencia(juego, estadoPartida.getTipoCompetencia(), resultado, estadoPartida));
+                } else {
+                    juego.setScreen(new MenuPrincipal(juego));
+                }
                 return;
             }
         }
 
         shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
-        shapeRenderer.setColor(Color.WHITE);
+
+        if(estadoPartida.getCanchaSeleccionada().equals("Cancha estandar")) {
+            shapeRenderer.setColor(Color.WHITE);
+        } else if(estadoPartida.getCanchaSeleccionada().equals("Cancha estanque")) {
+            shapeRenderer.setColor(80 / 255f, 127 / 255f, 128 / 255f, 1);
+        } else {
+            shapeRenderer.setColor(239 / 255f, 228 / 255f, 176 / 255f, 1);
+        }
+
         shapeRenderer.rect(xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+
+        if (estadoPartida.isJugarConObstaculos() && gestorObstaculos != null) {
+            gestorObstaculos.dibujar(shapeRenderer);
+        }
+
         shapeRenderer.end();
 
         dibujarLineasCancha();
@@ -212,7 +390,37 @@ public class PantallaJuego extends ScreenAdapter {
         batch.begin();
         mazo1.dibujarConTextura(batch);
         mazo2.dibujarConTextura(batch);
-        disco.dibujarConTextura(batch);
+
+        if (estadoPartida.isJugarConTirosEspeciales()) {
+            if ((tiroInvisible1.isActivo() || tiroInvisible2.isActivo())) {
+                if (tiroInvisible1.isActivo()) {
+                    if (tiroInvisible1.isDesvaneciendo()) {
+                        discoOriginal.dibujarConTexturaYAlpha(batch, tiroInvisible1.getAlphaActual());
+                    } else if (!tiroInvisible1.isInvisible()) {
+                        discoOriginal.dibujarConTextura(batch);
+                    }
+                } else if (tiroInvisible2.isActivo()) {
+                    if (tiroInvisible2.isDesvaneciendo()) {
+                        discoOriginal.dibujarConTexturaYAlpha(batch, tiroInvisible2.getAlphaActual());
+                    } else if (!tiroInvisible2.isInvisible()) {
+                        discoOriginal.dibujarConTextura(batch);
+                    }
+                }
+            } else {
+                discoOriginal.dibujarConTextura(batch);
+            }
+        } else {
+            discoOriginal.dibujarConTextura(batch);
+        }
+
+        if (discoSecundario != null) {
+            discoSecundario.dibujarConTextura(batch);
+        }
+
+        if (gestorModificadores != null) {
+            gestorModificadores.dibujar(batch);
+        }
+
         batch.end();
 
         stage.act(Math.min(Gdx.graphics.getDeltaTime(), 1 / 30f));
@@ -221,9 +429,123 @@ public class PantallaJuego extends ScreenAdapter {
         if (!juegoTerminado && Gdx.input.isKeyJustPressed(Input.Keys.ESCAPE)) {
             estaPausado = !estaPausado;
             if (estaPausado) {
-                estadoFisico.guardarEstado(mazo1, mazo2, disco);
+                int cantidadBarra1 = estadoPartida.isJugarConTirosEspeciales() ? barraEspecial1.getCantidadLlenada() : 0;
+                int cantidadBarra2 = estadoPartida.isJugarConTirosEspeciales() ? barraEspecial2.getCantidadLlenada() : 0;
+
+                estadoFisico.guardarEstadoCompleto(mazo1, mazo2, discoOriginal, discoSecundario,
+                    discoOriginal.getMazoConPosesion(),
+                    gestorModificadores.getModificadores(),
+                    gestorModificadores.isDiscoDobleActivo(),
+                    gestorModificadores.isModificadorEnPantalla(),
+                    gestorModificadores.getTiempoSinGenerar(),
+                    gestorObstaculos,
+                    cantidadBarra1, cantidadBarra2);
                 juego.setScreen(new MenuPausa(juego, tipoJuegoLibre, estadoPartida, estadoFisico));
             }
+        }
+
+        discoOriginal.reposicionarDisco(mazo1, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+        discoOriginal.reposicionarEntreDosMazos(mazo1, mazo2, CANCHA_ALTO);
+    }
+
+    private void verificarColisionesEntreDisco() {
+        if (discoSecundario != null) {
+            if (discoOriginal.colisionaConOtroDisco(discoSecundario)) {
+                manejarColisionEntreDisco(discoOriginal, discoSecundario);
+            }
+        }
+    }
+
+    private void manejarColisionEntreDisco(Disco disco1, Disco disco2) {
+        disco1.manejarColisionConOtroDisco(disco2);
+    }
+
+    private void procesarColisionesDisco(Disco disco, float delta) {
+        if (disco.haAnotadoGol() || pausaGol) {
+            return;
+        }
+
+        long tiempoActual = TimeUtils.millis();
+
+        if (estadoPartida.isJugarConObstaculos() && gestorObstaculos != null) {
+            if (gestorObstaculos.hayColisionConDisco(disco)) {
+                int tipoObstaculo = gestorObstaculos.getTipoObstaculoActivo();
+                float tiempoEsperaColision;
+
+                if (tipoObstaculo == 2) {
+                    tiempoEsperaColision = 300f;
+                } else {
+                    tiempoEsperaColision = 100f;
+                }
+
+                if ((tiempoActual - gestorObstaculos.getUltimaColisionObstaculo()) >= tiempoEsperaColision) {
+                    gestorObstaculos.manejarColisionConDisco(disco);
+                    gestorObstaculos.actualizarUltimaColision(tiempoActual);
+                }
+
+                if(tiroInvisible1.isActivo()) {
+                    tiroInvisible1.hacerVisible();
+                } else if(tiroInvisible2.isActivo()) {
+                    tiroInvisible2.hacerVisible();
+                }
+            }
+        }
+
+        if (disco.colisionaConMazo(mazo1)) {
+            disco.reposicionarEntreDosMazos(mazo1, mazo2, CANCHA_ALTO);
+            disco.manejarColision(mazo1, gestorModificadores);
+            if(gestorModificadores == null || gestorModificadores.getCongelarRivalActivo() == null) {
+                disco.setMazoConPosesion(mazo1);
+                if (disco.isCambioDePosesion()) {
+                    if(estadoPartida.isJugarConTirosEspeciales()) {
+                        mazo1.activarEncendido();
+                        barraEspecial1.aumentarPorcentaje(10);
+                    }
+                    disco.resetearCambioDePosesion();
+                }
+            }
+
+            if(estadoPartida.isJugarConTirosEspeciales()) {
+                if (tiroInvisible2.isActivo() && (tiroInvisible2.isInvisible() || tiroInvisible2.isDesvaneciendo())) {
+                    tiroInvisible2.hacerVisible();
+                }
+            }
+        }
+
+        if (disco.colisionaConMazo(mazo2)) {
+            disco.reposicionarEntreDosMazos(mazo1, mazo2, CANCHA_ALTO);
+            disco.manejarColision(mazo2, gestorModificadores);
+            if(gestorModificadores == null || gestorModificadores.getCongelarRivalActivo() == null) {
+                disco.setMazoConPosesion(mazo2);
+                if (disco.isCambioDePosesion()) {
+                    if(estadoPartida.isJugarConTirosEspeciales()) {
+                        mazo2.activarEncendido();
+                        barraEspecial2.aumentarPorcentaje(10);
+                    }
+                    disco.resetearCambioDePosesion();
+                }
+            }
+
+            if(estadoPartida.isJugarConTirosEspeciales()) {
+                if (tiroInvisible1.isActivo() && (tiroInvisible1.isInvisible() || tiroInvisible1.isDesvaneciendo())) {
+                    tiroInvisible1.hacerVisible();
+                }
+            }
+        }
+
+        if (estadoPartida.isJugarConObstaculos() && gestorObstaculos != null) {
+            if (gestorObstaculos.hayColisionConMazo(mazo1)) {
+                gestorObstaculos.manejarColisionConMazo(mazo1);
+            }
+            if (gestorObstaculos.hayColisionConMazo(mazo2)) {
+                gestorObstaculos.manejarColisionConMazo(mazo2);
+            }
+        }
+
+        disco.actualizarPosicion(delta, xCancha, yCancha, CANCHA_ANCHO, CANCHA_ALTO);
+
+        if (estadoPartida.isJugarConTirosEspeciales()) {
+            verificarColisionParedVerticalTiroInvisible(disco);
         }
     }
 
@@ -239,8 +561,15 @@ public class PantallaJuego extends ScreenAdapter {
 
         shapeRenderer.end();
 
-        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
-        shapeRenderer.setColor(Color.BLACK);
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Filled);
+
+        if (estadoPartida.getCanchaSeleccionada().equals("Cancha estanque")) {
+            shapeRenderer.setColor(161 / 255f, 251 / 255f, 142 / 255f, 1f);
+        } else if (estadoPartida.getCanchaSeleccionada().equals("Cancha marron")) {
+            shapeRenderer.setColor(185 / 255f, 122 / 255f, 87 / 255f, 1f);
+        } else {
+            shapeRenderer.setColor(Color.WHITE);
+        }
 
         float radioY = CANCHA_ALTO / 4.5f;
         float radioX = radioY / 1.4f;
@@ -258,11 +587,40 @@ public class PantallaJuego extends ScreenAdapter {
             float x2 = centroIzquierdoX + radioX * (float) Math.cos(angulo2);
             float y2 = centroIzquierdoY + radioY * (float) Math.sin(angulo2);
 
-            shapeRenderer.line(x1, y1, x2, y2);
+            shapeRenderer.triangle(centroIzquierdoX, centroIzquierdoY, x1, y1, x2, y2);
         }
 
         float centroDerechoX = xCancha + CANCHA_ANCHO;
         float centroDerechoY = yCancha + CANCHA_ALTO / 2f;
+
+        for (int i = 0; i < segmentos; i++) {
+            float angulo1 = (float) (Math.PI / 2 + (Math.PI * i) / segmentos);
+            float angulo2 = (float) (Math.PI / 2 + (Math.PI * (i + 1)) / segmentos);
+
+            float x1 = centroDerechoX + radioX * (float) Math.cos(angulo1);
+            float y1 = centroDerechoY + radioY * (float) Math.sin(angulo1);
+            float x2 = centroDerechoX + radioX * (float) Math.cos(angulo2);
+            float y2 = centroDerechoY + radioY * (float) Math.sin(angulo2);
+
+            shapeRenderer.triangle(centroDerechoX, centroDerechoY, x1, y1, x2, y2);
+        }
+
+        shapeRenderer.end();
+
+        shapeRenderer.begin(ShapeRenderer.ShapeType.Line);
+        shapeRenderer.setColor(Color.BLACK);
+
+        for (int i = 0; i < segmentos; i++) {
+            float angulo1 = (float) (-Math.PI / 2 + (Math.PI * i) / segmentos);
+            float angulo2 = (float) (-Math.PI / 2 + (Math.PI * (i + 1)) / segmentos);
+
+            float x1 = centroIzquierdoX + radioX * (float) Math.cos(angulo1);
+            float y1 = centroIzquierdoY + radioY * (float) Math.sin(angulo1);
+            float x2 = centroIzquierdoX + radioX * (float) Math.cos(angulo2);
+            float y2 = centroIzquierdoY + radioY * (float) Math.sin(angulo2);
+
+            shapeRenderer.line(x1, y1, x2, y2);
+        }
 
         for (int i = 0; i < segmentos; i++) {
             float angulo1 = (float) (Math.PI / 2 + (Math.PI * i) / segmentos);
@@ -282,9 +640,56 @@ public class PantallaJuego extends ScreenAdapter {
     }
 
     private void verificarGoles() {
+        List<Disco> discosQueAnotaron = new ArrayList<>();
+
+        verificarGolDisco(discoOriginal, discosQueAnotaron);
+
+        if (discoSecundario != null) {
+            verificarGolDisco(discoSecundario, discosQueAnotaron);
+        }
+
+        for (Disco disco : discosQueAnotaron) {
+            disco.marcarGolAnotado();
+        }
+
+        boolean hayDiscoSecundario = (discoSecundario != null);
+
+        if (hayDiscoSecundario || (gestorModificadores != null && gestorModificadores.isDiscoDobleActivo())) {
+            if (discoSecundario != null && discoSecundario.haAnotadoGol()) {
+                discoSecundario.dispose();
+                discoSecundario = null;
+            }
+
+            if (discoOriginal.haAnotadoGol()) {
+                discoOriginal.setPosicion(-1000, -1000);
+                discoOriginal.setVelocidadX(0);
+                discoOriginal.setVelocidadY(0);
+                discoOriginal.reiniciarPosesion();
+            }
+
+            boolean todosDiscosTerminados = discoOriginal.haAnotadoGol() && (discoSecundario == null);
+
+            if (todosDiscosTerminados) {
+                reiniciarTrasGolCompleto();
+                if (gestorModificadores != null && gestorModificadores.isDiscoDobleActivo()) {
+                    gestorModificadores.desactivarDiscoDoble();
+                    gestorModificadores.desactivarCongelarRival();
+                    gestorModificadores.desactivarControlesInvertidos();
+                }
+            }
+        } else {
+            if (discoOriginal.haAnotadoGol()) {
+                reiniciarTrasGolCompleto();
+            }
+        }
+    }
+    private void verificarGolDisco(Disco disco, List<Disco> discosQueAnotaron) {
+        if (disco.haAnotadoGol()) {
+            return;
+        }
+
         float radioSemicirculo = CANCHA_ALTO / 4.5f;
         float centroSemicirculoY = yCancha + CANCHA_ALTO / 2f;
-
         float limiteInferiorGol = centroSemicirculoY - radioSemicirculo;
         float limiteSuperiorGol = centroSemicirculoY + radioSemicirculo;
 
@@ -292,12 +697,67 @@ public class PantallaJuego extends ScreenAdapter {
             (disco.getPosicionY() + disco.getRadioDisco() <= limiteSuperiorGol);
 
         if (disco.getPosicionX() + disco.getRadioDisco() * 2 < xCancha) {
-            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_gol.mp3"))));
-            anotarGol(2);
+            if (discoEnAreaVerticalGol) {
+                String rutaRelativaSonido = "audio/sonidos/sonido_gol.mp3";
+                String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
+                estadoPartida.agregarGolJugador2();
+                discosQueAnotaron.add(disco);
+            }
         }
         else if (disco.getPosicionX() > xCancha + CANCHA_ANCHO) {
-            ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal("audio/sonidos/sonido_gol.mp3"))));
-            anotarGol(1);
+            if (discoEnAreaVerticalGol) {
+                String rutaRelativaSonido = "audio/sonidos/sonido_gol.mp3";
+                String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
+                ManejoDeAudio.activarSonido((String.valueOf(Gdx.files.internal(rutaAbsolutaSonido))));
+                estadoPartida.agregarGolJugador1();
+                discosQueAnotaron.add(disco);
+            }
+        }
+    }
+
+    private void reiniciarTrasGolCompleto() {
+        if (discoSecundario != null) {
+            discoSecundario.dispose();
+            discoSecundario = null;
+        }
+
+        discoOriginal.reiniciarEstadoGol();
+        reiniciarPosicionesTrasGol();
+
+        if (gestorModificadores != null) {
+            gestorModificadores.reiniciarModificadores();
+            gestorModificadores.desactivarCongelarRival();
+        }
+
+        manejoDeInput.limpiarCongelarRival();
+        manejoDeInput.limpiarControlesInvertidos();
+
+        if (estadoPartida.isJugarConObstaculos() && gestorObstaculos != null) {
+            gestorObstaculos.eliminarObstaculo();
+        }
+
+        if (estadoPartida.isJugarConTirosEspeciales()) {
+            if (tiroPotente1.isActivo()) tiroPotente1.desactivar();
+            if (tiroPotente2.isActivo()) tiroPotente2.desactivar();
+            if (tiroInvisible1.isActivo()) tiroInvisible1.desactivar();
+            if (tiroInvisible2.isActivo()) tiroInvisible2.desactivar();
+            tiroEspecialActivo = false;
+        }
+
+        if (cpu != null) {
+            cpu.restaurarDiscoOriginal(discoOriginal);
+        }
+
+        pausaGol = true;
+        tiempoPausaGol = 0;
+    }
+
+    public void agregarDiscoSecundario(Disco nuevoDisco) {
+        if (discoSecundario == null) {
+            discoSecundario = nuevoDisco;
+        } else {
+            nuevoDisco.dispose();
         }
     }
 
@@ -307,8 +767,19 @@ public class PantallaJuego extends ScreenAdapter {
             (estadoPartida.getPuntaje1() >= estadoPartida.getPuntajeGanador() ||
                 estadoPartida.getPuntaje2() >= estadoPartida.getPuntajeGanador());
 
-        if (finPorTiempo || finPorPuntaje) {
+        if (finPorPuntaje) {
             mostrarResultado();
+        } else {
+            if(finPorTiempo && estadoPartida.getTipoCompetencia() == TipoCompetencia.TORNEO) {
+                int puntaje1 = estadoPartida.getPuntaje1();
+                int puntaje2 = estadoPartida.getPuntaje2();
+
+                if(puntaje1 > puntaje2 || puntaje2 > puntaje1) {
+                    mostrarResultado();
+                }
+            } else if(finPorTiempo && estadoPartida.getTipoCompetencia() != TipoCompetencia.TORNEO) {
+                mostrarResultado();
+            }
         }
     }
 
@@ -326,16 +797,14 @@ public class PantallaJuego extends ScreenAdapter {
                 textoGanador = "EMPATE!";
             }
 
+            Table tableGanador = new Table();
+            stage.addActor(tableGanador);
+
             labelGanador = new Label(textoGanador, skin, "default");
             labelGanador.setColor(Color.RED);
             labelGanador.setFontScale(escalaFuente * 4.0f);
 
-            labelGanador.pack();
-
-            labelGanador.setPosition(Gdx.graphics.getWidth() / 2f, 100
-            );
-
-            stage.addActor(labelGanador);
+            tableGanador.add(labelGanador).padBottom(50 * escalaFuente).padLeft(Gdx.graphics.getWidth() / 2f);
         }
     }
 
@@ -353,12 +822,20 @@ public class PantallaJuego extends ScreenAdapter {
     }
 
     private void reiniciarPosicionesTrasGol() {
-        disco.setPosicion(xCancha + CANCHA_ANCHO / 2f - disco.getRadioDisco(),
-            yCancha + CANCHA_ALTO / 2f - disco.getRadioDisco());
-        disco.setVelocidadX(0);
-        disco.setVelocidadY(0);
+        discoOriginal.setPosicion(xCancha + CANCHA_ANCHO / 2f - discoOriginal.getRadioDisco(),
+            yCancha + CANCHA_ALTO / 2f - discoOriginal.getRadioDisco());
+        discoOriginal.setVelocidadX(0);
+        discoOriginal.setVelocidadY(0);
+        discoOriginal.reiniciarPosesion();
 
-        disco.reiniciarPosesion();
+        discoOriginal.setMaxVelocidad(500);
+
+        if (discoSecundario != null) {
+            discoSecundario.setPosicion(xCancha + CANCHA_ANCHO / 2f - discoSecundario.getRadioDisco() + (float)(Math.random() * 20 - 10),yCancha + CANCHA_ALTO / 2f - discoSecundario.getRadioDisco() + (float)(Math.random() * 20 - 10));
+            discoSecundario.setVelocidadX(0);
+            discoSecundario.setVelocidadY(0);
+            discoSecundario.reiniciarPosesion();
+        }
 
         float offsetMazos = 50 * Math.min(escalaX, escalaY);
 
@@ -373,6 +850,179 @@ public class PantallaJuego extends ScreenAdapter {
         mazo2.setVelocidadY(0);
     }
 
+    private void colocarPosicionInicial() {
+        discoOriginal.setPosicion(xCancha + CANCHA_ANCHO / 2f - discoOriginal.getRadioDisco(),
+            yCancha + CANCHA_ALTO / 2f - discoOriginal.getRadioDisco());
+        discoOriginal.setVelocidadX(0);
+        discoOriginal.setVelocidadY(0);
+        discoOriginal.reiniciarPosesion();
+
+        float offsetMazos = 50 * Math.min(escalaX, escalaY);
+
+        mazo1.setPosicion((int)(xCancha + offsetMazos - mazo1.getRadioMazo()),
+            (int)(yCancha + CANCHA_ALTO / 2f - mazo1.getRadioMazo()));
+        mazo1.setVelocidadX(0);
+        mazo1.setVelocidadY(0);
+
+        mazo2.setPosicion((int)(xCancha + CANCHA_ANCHO - offsetMazos - mazo2.getRadioMazo()),
+            (int)(yCancha + CANCHA_ALTO / 2f - mazo2.getRadioMazo()));
+        mazo2.setVelocidadX(0);
+        mazo2.setVelocidadY(0);
+    }
+
+    private void verificarActivacionTirosEspeciales() {
+        if (manejoDeInput.getSolicitudCpuTiroEspecial()) {
+            int mazoId = manejoDeInput.getMazoIdTiroEspecial();
+
+            if (mazoId == 2 && barraEspecial2.isLlenado() && !tiroEspecialActivo) {
+                float distancia = calcularDistanciaDiscoMazo(discoOriginal, mazo2);
+                if (distancia < 100 * Math.min(escalaX, escalaY)) {
+                    activarTiroEspecial(mazo2, 2);
+                }
+            }
+
+            manejoDeInput.limpiarSolicitudTiroEspecial();
+        }
+
+        if (barraEspecial1.isLlenado() && !tiroEspecialActivo) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.X)) {
+                float distancia = calcularDistanciaDiscoMazo(discoOriginal, mazo1);
+                if (distancia < 100 * Math.min(escalaX, escalaY)) {
+                    activarTiroEspecial(mazo1, 1);
+                }
+            }
+        }
+
+        if (barraEspecial2.isLlenado() && !tiroEspecialActivo) {
+            if (Gdx.input.isKeyJustPressed(Input.Keys.M)) {
+                float distancia = calcularDistanciaDiscoMazo(discoOriginal, mazo2);
+                if (distancia < 100 * Math.min(escalaX, escalaY)) {
+                    activarTiroEspecial(mazo2, 2);
+                }
+            }
+        }
+    }
+
+    private float calcularDistanciaDiscoMazo(Disco disco, Mazo mazo) {
+        float discoX = disco.getPosicionX() + disco.getRadioDisco();
+        float discoY = disco.getPosicionY() + disco.getRadioDisco();
+        float mazoX = mazo.getPosicionX() + mazo.getRadioMazo();
+        float mazoY = mazo.getPosicionY() + mazo.getRadioMazo();
+
+        float dx = discoX - mazoX;
+        float dy = discoY - mazoY;
+
+        return (float) Math.sqrt(dx * dx + dy * dy);
+    }
+
+    private void activarTiroEspecial(Mazo mazo, int jugador) {
+        if (discoOriginal.getMazoConPosesion() != mazo) {
+            return;
+        }
+
+        int tipoTiro = (int) (Math.random() * 2);
+
+        if (tipoTiro == 0) {
+            if (jugador == 1) {
+                tiroPotente1.activar();
+                barraEspecial1.vaciarCantidadLlenada();
+                tiroEspecialActivo = true;
+            } else {
+                tiroPotente2.activar();
+                barraEspecial2.vaciarCantidadLlenada();
+                tiroEspecialActivo = true;
+            }
+        } else {
+            if (jugador == 1) {
+                tiroInvisible1.activar();
+                barraEspecial1.vaciarCantidadLlenada();
+                tiroEspecialActivo = true;
+            } else {
+                tiroInvisible2.activar();
+                barraEspecial2.vaciarCantidadLlenada();
+                tiroEspecialActivo = true;
+            }
+        }
+    }
+
+    private void actualizarTirosEspeciales(float delta) {
+        if (tiroPotente1.isActivo()) {
+            tiroPotente1.actualizar(delta);
+            verificarDesactivacionTiroPotente(tiroPotente1, 1);
+        }
+
+        if (tiroPotente2.isActivo()) {
+            tiroPotente2.actualizar(delta);
+            verificarDesactivacionTiroPotente(tiroPotente2, 2);
+        }
+
+        if (tiroInvisible1.isActivo()) {
+            tiroInvisible1.actualizar(delta);
+        }
+
+        if (tiroInvisible2.isActivo()) {
+            tiroInvisible2.actualizar(delta);
+        }
+
+        if (!tiroPotente1.isActivo() && !tiroPotente2.isActivo() &&
+            !tiroInvisible1.isActivo() && !tiroInvisible2.isActivo()) {
+            tiroEspecialActivo = false;
+        }
+    }
+
+    private void verificarDesactivacionTiroPotente(TiroPotente tiro, int jugador) {
+        float discoX = discoOriginal.getPosicionX() + discoOriginal.getRadioDisco();
+
+        if(discoOriginal.colisionaConMazo(mazo1) || discoOriginal.colisionaConMazo(mazo2)) {
+            tiro.iniciarRalentizacion();
+        }
+
+        if(gestorObstaculos != null) {
+            if(gestorObstaculos.hayColisionConDisco(discoOriginal)) {
+                tiro.iniciarRalentizacion();
+            }
+        }
+
+        boolean colisionParedRival = false;
+
+        if (jugador == 1) {
+            if (discoX + (discoOriginal.getRadioDisco() * escalaY) >= xCancha + CANCHA_ANCHO) {
+                colisionParedRival = true;
+            }
+        } else {
+            if (discoX - (discoOriginal.getRadioDisco() * escalaY) <= xCancha) {
+                colisionParedRival = true;
+            }
+        }
+
+        if (colisionParedRival && !tiro.isRalentizando()) {
+            tiro.iniciarRalentizacion();
+        }
+
+        discoOriginal.setMaxVelocidad(500);
+    }
+
+    private void verificarColisionParedVerticalTiroInvisible(Disco disco) {
+        float radioSemicirculo = CANCHA_ALTO / 4.5f;
+        float centroSemicirculoY = yCancha + CANCHA_ALTO / 2f;
+        float limiteInferiorArco = centroSemicirculoY - radioSemicirculo;
+        float limiteSuperiorArco = centroSemicirculoY + radioSemicirculo;
+
+        boolean discoEnAreaVerticalArco = (disco.getPosicionY() + disco.getRadioDisco() >= limiteInferiorArco) &&
+            (disco.getPosicionY() + disco.getRadioDisco() <= limiteSuperiorArco);
+
+        if (!discoEnAreaVerticalArco) {
+            boolean colisionParedIzquierda = disco.getPosicionX() <= xCancha;
+            boolean colisionParedDerecha = disco.getPosicionX() + (disco.getRadioDisco() * 2) >= xCancha + CANCHA_ANCHO;
+
+            if (colisionParedIzquierda && tiroInvisible2.isActivo()) {
+                tiroInvisible2.hacerVisible();
+            } else if (colisionParedDerecha && tiroInvisible1.isActivo()) {
+                tiroInvisible1.hacerVisible();
+            }
+        }
+    }
+
     public void resize(int width, int height) {
         stage.getViewport().update(width, height, true);
     }
@@ -381,7 +1031,20 @@ public class PantallaJuego extends ScreenAdapter {
         stage.dispose();
         skin.dispose();
         batch.dispose();
-        disco.dispose();
+        discoOriginal.dispose();
+
+        if (discoSecundario != null) {
+            discoSecundario.dispose();
+        }
+
+        if (gestorModificadores != null) {
+            gestorModificadores.dispose();
+        }
+
+        if (gestorObstaculos != null) {
+            gestorObstaculos = null;
+        }
+
         mazoRojo.dispose();
         mazoAzul.dispose();
         spritesheetMazoRojo.dispose();
