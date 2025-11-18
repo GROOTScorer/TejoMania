@@ -140,7 +140,6 @@ public class MenuJuegoLibre extends ScreenAdapter {
                 juego.setScreen(new MenuOpcionesJuego(juego, TipoJuegoLibre.DOS_JUGADORES, estadoPartida));
                 break;
             case 2:
-                configurarPartidaMultijugador();
                 juego.setScreen(new PantallaJuegoCliente(juego, estadoPartida));
                 ManejoDeAudio.pararMusica();
                 break;
@@ -150,17 +149,5 @@ public class MenuJuegoLibre extends ScreenAdapter {
             default:
                 break;
         }
-    }
-
-    private void configurarPartidaMultijugador() {
-        estadoPartida.setTiempoRestante(300);
-        estadoPartida.setJugandoPorTiempo(true);
-        estadoPartida.setJugandoPorPuntaje(false);
-        estadoPartida.setJugarConModificadores(false);
-        estadoPartida.setJugarConObstaculos(false);
-        estadoPartida.setJugarConTirosEspeciales(false);
-        estadoPartida.setCanchaSeleccionada("Cancha estandar");
-        estadoPartida.setJugador1("Jugador 1");
-        estadoPartida.setJugador2("Jugador 2");
     }
 }

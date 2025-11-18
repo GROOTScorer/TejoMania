@@ -45,6 +45,7 @@ public class PantallaJuegoCliente extends ScreenAdapter implements ControladorJu
     private Label labelPuntaje;
     private Label labelGanador;
     private Label labelTiempo;
+    private Label labelJugador1, labelJugador2;
 
     private String rutaRelativaMazoRojo = "imagenes/sprites/mazo_rojo.png";
     private String rutaAbsolutaMazoRojo = Gdx.files.internal(rutaRelativaMazoRojo).file().getAbsolutePath();
@@ -115,6 +116,26 @@ public class PantallaJuegoCliente extends ScreenAdapter implements ControladorJu
         );
         labelTiempo.setVisible(false);
         stage.addActor(labelTiempo);
+
+        labelJugador1 = new Label(estadoPartida.getJugador1(), skin, "default");
+        labelJugador1.setColor(Color.WHITE);
+        labelJugador1.setFontScale(escalaFuente * 1.2f);
+        labelJugador1.setPosition(
+            50 * escalaX,  // Margen izquierdo
+            Gdx.graphics.getHeight() - 50
+        );
+        labelJugador1.setVisible(false);
+        stage.addActor(labelJugador1);
+
+        labelJugador2 = new Label(estadoPartida.getJugador2(), skin, "default");
+        labelJugador2.setColor(Color.WHITE);
+        labelJugador2.setFontScale(escalaFuente * 1.2f);
+        labelJugador2.setPosition(
+            Gdx.graphics.getWidth() - 150 * escalaX,  // Margen derecho
+            Gdx.graphics.getHeight() - 50
+        );
+        labelJugador2.setVisible(false);
+        stage.addActor(labelJugador2);
 
         hiloCliente = new HiloCliente(this);
         hiloCliente.start();
@@ -264,9 +285,24 @@ public class PantallaJuegoCliente extends ScreenAdapter implements ControladorJu
     }
 
     @Override
-    public void onConectar(int numeroJugador) {
+    public void onConectar(int numeroJugador, float tiempoRestante, boolean jugandoPorTiempo,
+                           boolean jugandoPorPuntaje, int puntajeGanador, boolean conObstaculos,
+                           boolean conTirosEspeciales, boolean conModificadores, String cancha) {
         System.out.println("Conectado como jugador " + numeroJugador);
         this.miNumeroJugador = numeroJugador;
+
+        // Aplicar configuración recibida del servidor
+        estadoPartida.setTiempoRestante(tiempoRestante);
+        estadoPartida.setJugandoPorTiempo(jugandoPorTiempo);
+        estadoPartida.setJugandoPorPuntaje(jugandoPorPuntaje);
+        estadoPartida.setPuntajeGanador(puntajeGanador);
+        estadoPartida.setJugarConObstaculos(conObstaculos);
+        estadoPartida.setJugarConTirosEspeciales(conTirosEspeciales);
+        estadoPartida.setJugarConModificadores(conModificadores);
+        estadoPartida.setCanchaSeleccionada(cancha);
+
+        labelJugador1.setText("Jugador 1");
+        labelJugador2.setText("Jugador 2");
 
         manejoDeInput = new ManejoDeInputCliente(hiloCliente, numeroJugador);
 
@@ -291,12 +327,14 @@ public class PantallaJuegoCliente extends ScreenAdapter implements ControladorJu
         // Ocultar pantalla de espera
         labelEspera.setVisible(false);
 
-        // Mostrar puntaje
+        // Mostrar todos los labels del juego
         labelPuntaje.setVisible(true);
         actualizarLabelPuntaje();
 
         labelTiempo.setVisible(true);
 
+        labelJugador1.setVisible(true);
+        labelJugador2.setVisible(true);
     }
 
     @Override

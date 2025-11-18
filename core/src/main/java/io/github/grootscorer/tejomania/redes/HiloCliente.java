@@ -61,13 +61,25 @@ public class HiloCliente extends Thread {
         switch (partes[0]) {
 
             case "Conectado":
-                // El servidor responde indicando que el cliente está conectado
-                // Se guarda la IP real del servidor (ya no el broadcast)
+                // El servidor responde con: numJugador:tiempo:jugandoPorTiempo:jugandoPorPuntaje:puntajeGanador:obstaculos:tirosEspeciales:modificadores:cancha
                 this.ipServidor = paquete.getAddress();
 
-                // Encola ejecución en el hilo principal de LibGDX
+                // Parsear configuración
+                int numeroJugador = Integer.parseInt(partes[1]);
+                float tiempoRestante = Float.parseFloat(partes[2]);
+                boolean jugandoPorTiempo = Boolean.parseBoolean(partes[3]);
+                boolean jugandoPorPuntaje = Boolean.parseBoolean(partes[4]);
+                int puntajeGanador = Integer.parseInt(partes[5]);
+                boolean conObstaculos = Boolean.parseBoolean(partes[6]);
+                boolean conTirosEspeciales = Boolean.parseBoolean(partes[7]);
+                boolean conModificadores = Boolean.parseBoolean(partes[8]);
+                String cancha = partes[9];
+
+                // Encolar ejecución en el hilo principal
                 Gdx.app.postRunnable(() ->
-                    controladorJuego.onConectar(Integer.parseInt(partes[1]))
+                    controladorJuego.onConectar(numeroJugador, tiempoRestante,
+                        jugandoPorTiempo, jugandoPorPuntaje, puntajeGanador,
+                        conObstaculos, conTirosEspeciales, conModificadores, cancha)
                 );
                 break;
 
