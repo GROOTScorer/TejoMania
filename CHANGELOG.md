@@ -2,7 +2,7 @@
 
 Todos los cambios relevantes al proyecto serán documentados en este archivo. El formato se basa en [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), y el proyecto se adhiere a [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.8] - 2025-17-18
+## [0.8] - 2025-11-18
 ### Añadido
 - Modo multijugador en juego libre
 - Lógica de red del lado del cliente
