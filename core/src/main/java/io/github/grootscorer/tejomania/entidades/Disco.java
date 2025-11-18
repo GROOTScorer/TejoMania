@@ -96,15 +96,20 @@ public class Disco {
             );
         }
 
+        // Se calcula la diferencia en velocidades entre los discos
         float velRelativaX = this.velocidadX - otroDisco.getVelocidadX();
         float velRelativaY = this.velocidadY - otroDisco.getVelocidadY();
 
         float velocidadEnColision = velRelativaX * vectorX + velRelativaY * vectorY;
 
+        // Si es positivo, los discos se están separando y no se sigue
         if (velocidadEnColision > 0) return;
 
+        // Aplicación de choque elástico con coeficiente de restitución
+        // Restitución = Velocidad relativa después / Velocidad relativa antes
         float restitution = 0.8f;
 
+        // Fórmula física de choque elástico
         float cambioVelocidad = (1 + restitution) * velocidadEnColision / 2f;
 
         this.velocidadX -= cambioVelocidad * vectorX;
@@ -167,6 +172,7 @@ public class Disco {
     public void manejarColision(Mazo mazo, GestorModificadores gestorModificadores) {
         long tiempoActual = com.badlogic.gdx.utils.TimeUtils.millis();
 
+        // Si el tiempo transcurrido desde el último sonido es mayor al cooldown, se efectúa el sonido
         if (tiempoActual - tiempoUltimoSonidoMazo >= COOLDOWN_SONIDO_MAZO_MS) {
             String rutaRelativaSonido = "audio/sonidos/sonido_golpe_mazo.mp3";
             String rutaAbsolutaSonido = Gdx.files.internal(rutaRelativaSonido).file().getAbsolutePath();
@@ -175,6 +181,7 @@ public class Disco {
             tiempoUltimoSonidoMazo = tiempoActual;
         }
 
+        // Si el mazo que colisiona con el disco es distinto al último que lo chocó, se da el cambio de poesión
         if(gestorModificadores != null) {
             if(gestorModificadores.getCongelarRivalActivo() == null) {
                 if (ultimoMazoConPosesion != mazo) {
@@ -186,24 +193,33 @@ public class Disco {
             }
         }
 
+        // Si la velocidad del disco es 0, se da un empujón inicial
         if (this.velocidadX == 0 && this.velocidadY == 0) {
             setVelocidadX(mazo.getVelocidadX() * 5f);
             setVelocidadY(mazo.getVelocidadY() * 5f);
         } else {
+            // Calculo la posición de los centros del disco y el mazo
             float centroDiscoX = this.posicionX + RADIO_DISCO;
             float centroDiscoY = this.posicionY + RADIO_DISCO;
             float centroMazoX = mazo.getPosicionX() + mazo.getRadioMazo();
             float centroMazoY = mazo.getPosicionY() + mazo.getRadioMazo();
 
+            // Calculo si el disco está a la derecha o a la izquierda del mazo, y por cuánto
             float vectorX = centroDiscoX - centroMazoX;
+
+            // Calculo si el disco está arriba o abajo del mazo, y por cuánto
             float vectorY = centroDiscoY - centroMazoY;
 
+            // Toma los dos vectores y encuentra su ángulo para encontrar el ángulo de colisión
             float anguloColision = (float) Math.atan2(vectorY, vectorX);
 
+            // Teorema de Pitágoras para encontrar la velocidad
             float velocidadActual = (float) Math.sqrt(velocidadX * velocidadX + velocidadY * velocidadY);
 
+            // Se toma el mayor valor entre 40 o 120% de la velocidad actual para la nueva velocidad
             float nuevaVelocidad = Math.max(40f, velocidadActual * 1.2f);
 
+            // Se modifica el ángulo por el que sale el disco por un valor aleatorio
             float nuevoAngulo = anguloColision + (float)(Math.random() - 0.5) * 0.3f;
 
             setVelocidadX(nuevaVelocidad * (float) Math.cos(nuevoAngulo));
@@ -220,9 +236,11 @@ public class Disco {
         float longitud = (float) Math.sqrt(vectorX * vectorX + vectorY * vectorY);
 
         if (longitud > 0) {
+            // Se normaliza el vector
             vectorX /= longitud;
             vectorY /= longitud;
 
+            // Distancia para separar el disco con el mazo tras la colisión
             float distanciaSeparacion = RADIO_DISCO + mazo.getRadioMazo() + 10;
 
             float nuevoCentroDiscoX = centroMazoX + vectorX * distanciaSeparacion;
